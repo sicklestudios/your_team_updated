@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:cached_network_image/cached_network_image.dart';
 // import 'package:callkeep/callkeep.dart';
@@ -95,6 +96,7 @@ class _HomeControllerState extends State<HomeController>
       icon: Icon(
         icon,
         color: color,
+        size: 28,
       ),
       label: label,
     );
@@ -262,9 +264,11 @@ class _HomeControllerState extends State<HomeController>
           .doc(firebaseAuth.currentUser?.uid)
           .get()
           .then((value) {
-        setState(() {
-          userInfo = UserModel.getValuesFromSnap(value);
-        });
+        if (mounted) {
+          setState(() {
+            userInfo = UserModel.getValuesFromSnap(value);
+          });
+        }
       });
     }
   }
@@ -345,22 +349,28 @@ class _HomeControllerState extends State<HomeController>
                           ? _getFloatingButton()
                           : const SizedBox(),
                       bottomNavigationBar: BottomNavigationBar(
-                          backgroundColor: whiteColor,
+                          backgroundColor: bottomNavigationBarColor,
                           showSelectedLabels: true,
                           showUnselectedLabels: true,
                           items: <BottomNavigationBarItem>[
-                            _getBottomItem(Icons.message_rounded, "Chats",
-                                bottomIndex == 0 ? mainColor : greyColor),
-                            _getBottomItem(Icons.note, "To Do",
-                                bottomIndex == 1 ? mainColor : greyColor),
-                            _getBottomItem(Icons.people, "Contacts",
-                                bottomIndex == 2 ? mainColor : greyColor),
+                            _getBottomItem(
+                                FontAwesomeIcons.commentDots,
+                                "Chats",
+                                bottomIndex == 0 ? whiteColor : greyColor),
+                            _getBottomItem(
+                                FontAwesomeIcons.circleCheck,
+                                "To Do",
+                                bottomIndex == 1 ? whiteColor : greyColor),
+                            _getBottomItem(
+                                FontAwesomeIcons.peopleGroup,
+                                "Contacts",
+                                bottomIndex == 2 ? whiteColor : greyColor),
                             _getBottomItem(Icons.person, "Profile",
-                                bottomIndex == 3 ? mainColor : greyColor),
+                                bottomIndex == 3 ? whiteColor : greyColor),
                           ],
                           type: BottomNavigationBarType.fixed,
                           currentIndex: bottomIndex,
-                          selectedItemColor: mainColor,
+                          selectedItemColor: whiteColor,
                           unselectedItemColor: greyColor,
                           iconSize: 35,
                           onTap: _onItemTapped,

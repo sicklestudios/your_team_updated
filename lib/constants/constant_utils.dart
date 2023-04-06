@@ -30,25 +30,30 @@ MessageReply? messageReply;
 math.Random random = math.Random();
 
 getDateWithLines(dateInList) {
-  return Row(children: [
-    Expanded(
-      child: Container(
-          margin: const EdgeInsets.only(left: 10.0, right: 20.0),
-          child: const Divider(
-            color: Colors.black,
-            height: 36,
-          )),
-    ),
-    Text(dateInList, style: const TextStyle(color: Colors.grey)),
-    Expanded(
-      child: Container(
-          margin: const EdgeInsets.only(left: 20.0, right: 10.0),
-          child: const Divider(
-            color: Colors.black,
-            height: 36,
-          )),
-    ),
-  ]);
+  var tempDate = DateFormat.MMMMEEEEd().format(DateTime.now());
+  return Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: Row(children: [
+      Expanded(
+        child: Container(
+            margin: const EdgeInsets.only(left: 10.0, right: 20.0),
+            child: const Divider(
+              color: Colors.black,
+              height: 36,
+            )),
+      ),
+      Text(dateInList == tempDate ? "Today" : dateInList,
+          style: const TextStyle(color: Colors.grey)),
+      Expanded(
+        child: Container(
+            margin: const EdgeInsets.only(left: 20.0, right: 10.0),
+            child: const Divider(
+              color: Colors.black,
+              height: 36,
+            )),
+      ),
+    ]),
+  );
 }
 
 Widget getCallNotifierWidget(context) {

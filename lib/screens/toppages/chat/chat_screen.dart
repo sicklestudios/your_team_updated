@@ -14,6 +14,7 @@ import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
 import 'package:flutter_callkit_incoming/entities/ios_params.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
@@ -388,6 +389,52 @@ class _ChatScreenState extends State<ChatScreen>
     }
   }
 
+  getAvatarWithStatus({double size = 22}) {
+    return Stack(
+      children: [
+        isGroupChat
+            ? widget.contactModel.photoUrl != ""
+                ? CircleAvatar(
+                    radius: size,
+                    backgroundImage: CachedNetworkImageProvider(
+                      widget.contactModel.photoUrl,
+                      // maxWidth: 50,
+                      // maxHeight: 50,
+                    ))
+                : CircleAvatar(radius: size, child: Icon(Icons.groups_outlined))
+            : widget.contactModel.photoUrl != ""
+                ? CircleAvatar(
+                    radius: size,
+                    backgroundImage: CachedNetworkImageProvider(
+                      widget.contactModel.photoUrl,
+                      // maxWidth: 50,
+                      // maxHeight: 50,
+                    ))
+                : CircleAvatar(
+                    radius: size,
+                    backgroundImage: AssetImage('assets/user.png')),
+        if (!isGroupChat)
+          StreamBuilder<bool>(
+              stream:
+                  ChatMethods().getOnlineStream(widget.contactModel.contactId),
+              builder: (context, snapshot) {
+                return Positioned(
+                    bottom: 1,
+                    right: 1,
+                    child: Icon(
+                      Icons.circle_rounded,
+                      size: 14,
+                      color: snapshot.data != null
+                          ? snapshot.data!
+                              ? Colors.green
+                              : Colors.grey
+                          : Colors.grey,
+                    ));
+              }),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return WithForegroundTask(
@@ -411,13 +458,12 @@ class _ChatScreenState extends State<ChatScreen>
                   }),
               Expanded(
                 child: Scaffold(
-                    backgroundColor: scaffoldBackgroundColor,
+                    // backgroundColor: scaffoldBackgroundColor,
                     appBar: showOptions
                         ? AppBar(
                             automaticallyImplyLeading: false,
                             backgroundColor: Colors.transparent,
                             elevation: 0,
-
                             title:
                                 Row(mainAxisSize: MainAxisSize.max, children: [
                               Expanded(
@@ -560,25 +606,26 @@ class _ChatScreenState extends State<ChatScreen>
                                           size: 20,
                                           color: Colors.black,
                                         )),
-                                    widget.contactModel.photoUrl != ""
-                                        ? CircleAvatar(
-                                            radius: 22,
-                                            backgroundImage:
-                                                CachedNetworkImageProvider(
-                                              widget.contactModel.photoUrl,
-                                              // maxWidth: 50,
-                                              // maxHeight: 50,
-                                            ))
-                                        : isGroupChat
-                                            ? const CircleAvatar(
-                                                radius: 22,
-                                                child:
-                                                    Icon(Icons.groups_outlined))
-                                            : const CircleAvatar(
-                                                radius: 22,
-                                                backgroundImage: AssetImage(
-                                                    'assets/user.png'),
-                                              ),
+                                    getAvatarWithStatus(),
+                                    // widget.contactModel.photoUrl != ""
+                                    //     ? CircleAvatar(
+                                    //         radius: 22,
+                                    //         backgroundImage:
+                                    //             CachedNetworkImageProvider(
+                                    //           widget.contactModel.photoUrl,
+                                    //           // maxWidth: 50,
+                                    //           // maxHeight: 50,
+                                    //         ))
+                                    //     : isGroupChat
+                                    //         ? const CircleAvatar(
+                                    //             radius: 22,
+                                    //             child:
+                                    //                 Icon(Icons.groups_outlined))
+                                    //         : const CircleAvatar(
+                                    //             radius: 22,
+                                    //             backgroundImage: AssetImage(
+                                    //                 'assets/user.png'),
+                                    //           ),
                                     const SizedBox(
                                       width: 5,
                                     ),
@@ -592,45 +639,45 @@ class _ChatScreenState extends State<ChatScreen>
                                               color: Colors.black,
                                               fontWeight: FontWeight.bold),
                                         ),
-                                        if (!isGroupChat)
-                                          StreamBuilder<bool>(
-                                              stream: ChatMethods()
-                                                  .getOnlineStream(widget
-                                                      .contactModel.contactId),
-                                              builder: (context, snapshot) {
-                                                return Row(
-                                                  children: [
-                                                    Icon(
-                                                      Icons.circle,
-                                                      color:
-                                                          snapshot.data != null
-                                                              ? snapshot.data!
-                                                                  ? Colors.green
-                                                                  : Colors.grey
-                                                              : Colors.grey,
-                                                      size: 14,
-                                                    ),
-                                                    Text(
-                                                      snapshot.data != null
-                                                          ? snapshot.data!
-                                                              ? "Online"
-                                                              : "Offline"
-                                                          : "Offline",
-                                                      style: TextStyle(
-                                                          color: snapshot
-                                                                      .data !=
-                                                                  null
-                                                              ? snapshot.data!
-                                                                  ? Colors.green
-                                                                  : Colors.grey
-                                                              : Colors.grey,
-                                                          fontSize: 11,
-                                                          fontWeight: FontWeight
-                                                              .normal),
-                                                    ),
-                                                  ],
-                                                );
-                                              }),
+                                        // if (!isGroupChat)
+                                        //   StreamBuilder<bool>(
+                                        //       stream: ChatMethods()
+                                        //           .getOnlineStream(widget
+                                        //               .contactModel.contactId),
+                                        //       builder: (context, snapshot) {
+                                        //         return Row(
+                                        //           children: [
+                                        //             Icon(
+                                        //               Icons.circle,
+                                        //               color:
+                                        //                   snapshot.data != null
+                                        //                       ? snapshot.data!
+                                        //                           ? Colors.green
+                                        //                           : Colors.grey
+                                        //                       : Colors.grey,
+                                        //               size: 14,
+                                        //             ),
+                                        //             Text(
+                                        //               snapshot.data != null
+                                        //                   ? snapshot.data!
+                                        //                       ? "Online"
+                                        //                       : "Offline"
+                                        //                   : "Offline",
+                                        //               style: TextStyle(
+                                        //                   color: snapshot
+                                        //                               .data !=
+                                        //                           null
+                                        //                       ? snapshot.data!
+                                        //                           ? Colors.green
+                                        //                           : Colors.grey
+                                        //                       : Colors.grey,
+                                        //                   fontSize: 11,
+                                        //                   fontWeight: FontWeight
+                                        //                       .normal),
+                                        //             ),
+                                        //           ],
+                                        //         );
+                                        //       }),
                                       ],
                                     ),
                                   ],
@@ -818,7 +865,7 @@ class _ChatScreenState extends State<ChatScreen>
                                                       }
 
                                                       if (messageData
-                                                              .senderId ==
+                                                              .senderId !=
                                                           firebaseAuth
                                                               .currentUser!
                                                               .uid) {
@@ -905,33 +952,42 @@ class _ChatScreenState extends State<ChatScreen>
                                                                 }
                                                               }
                                                             }),
-                                                            child:
+                                                            child: Row(
+                                                              children: [
                                                                 SenderMessageCard(
-                                                              photoUrl: widget
-                                                                  .contactModel
-                                                                  .photoUrl,
-                                                              message:
-                                                                  messageData
-                                                                      .text,
-                                                              date: timeSent,
-                                                              type: messageData
-                                                                  .type,
-                                                              username: messageData
-                                                                      .senderUsername ??
-                                                                  "",
-                                                              isSelected: messageId
-                                                                  .contains(
+                                                                  avatarWidget:
+                                                                      getAvatarWithStatus(),
+                                                                  photoUrl: widget
+                                                                      .contactModel
+                                                                      .photoUrl,
+                                                                  message:
                                                                       messageData
-                                                                          .messageId),
-                                                              repliedMessageType:
-                                                                  messageData
-                                                                      .repliedMessageType,
-                                                              longPress: () {},
-                                                              repliedText:
-                                                                  messageData
-                                                                      .repliedMessage,
-                                                              isGroupChat:
-                                                                  isGroupChat,
+                                                                          .text,
+                                                                  date:
+                                                                      timeSent,
+                                                                  type:
+                                                                      messageData
+                                                                          .type,
+                                                                  username:
+                                                                      messageData
+                                                                              .senderUsername ??
+                                                                          "",
+                                                                  isSelected: messageId
+                                                                      .contains(
+                                                                          messageData
+                                                                              .messageId),
+                                                                  repliedMessageType:
+                                                                      messageData
+                                                                          .repliedMessageType,
+                                                                  longPress:
+                                                                      () {},
+                                                                  repliedText:
+                                                                      messageData
+                                                                          .repliedMessage,
+                                                                  isGroupChat:
+                                                                      isGroupChat,
+                                                                ),
+                                                              ],
                                                             ),
                                                           ),
                                                         ],
@@ -1008,7 +1064,7 @@ class _ChatScreenState extends State<ChatScreen>
                                                         snapshot.data!;
                                                   }
                                                   return ListView.builder(
-                                                    key: listViewKey,
+                                                    // key: listViewKey,
                                                     controller:
                                                         messageController,
                                                     itemCount:
@@ -1153,6 +1209,8 @@ class _ChatScreenState extends State<ChatScreen>
                                                                           .messageId);
                                                                 },
                                                                 child: SenderMessageCard(
+                                                                    avatarWidget:
+                                                                        getAvatarWithStatus(),
                                                                     photoUrl: widget
                                                                         .contactModel
                                                                         .photoUrl,
@@ -1186,6 +1244,8 @@ class _ChatScreenState extends State<ChatScreen>
                                                                   .length &&
                                                           isTyping) {
                                                         return SenderMessageCard(
+                                                            avatarWidget:
+                                                                getAvatarWithStatus(),
                                                             photoUrl: "",
                                                             message:
                                                                 "Typing...",
@@ -1437,6 +1497,7 @@ class _MyTextFieldState extends State<MyTextField> {
   RecorderController? _controller;
   bool isRecorderInit = false;
   bool isRecording = false;
+  bool isRecordingPressed = false;
   FocusNode focusNode = FocusNode();
   final TextEditingController _messageController = TextEditingController();
   bool isBlocked = false;
@@ -1500,36 +1561,39 @@ class _MyTextFieldState extends State<MyTextField> {
             ChatMethods().stopTyping(widget.model.contactId);
           }
         });
+        if (!isShowSendButton) {
+          // ChatMethods()
+          //     .updateTyping(widget.model.contactId, true);
+          setState(() {
+            isShowSendButton = true;
+          });
+        } else {
+          // ChatMethods().updateTyping(widget.model.contactId, false);
+          setState(() {
+            isShowSendButton = false;
+          });
+        }
       }
     } else {
-      var tempDir = await getTemporaryDirectory();
-      var path = '${tempDir.path}/flutter_sound.aac';
-      // if (!isRecorderInit) {
-      //   return;
-      // }
-      if (isRecording) {
-        final path = await _controller!.stop();
-        showToastMessage("Sending Recording");
-        sendFileMessage(File(path!), MessageEnum.audio);
-      } else {
-        await _controller!.record(path: path);
-      }
+      if (isRecordingPressed) {
+        var tempDir = await getTemporaryDirectory();
+        var path = '${tempDir.path}/flutter_sound.aac';
+        // if (!isRecorderInit) {
+        //   return;
+        // }
+        if (isRecording) {
+          final path = await _controller!.stop();
+          showToastMessage("Sending Recording");
+          sendFileMessage(File(path!), MessageEnum.audio);
+        } else {
+          await _controller!.record(path: path);
+        }
 
-      setState(() {
-        isRecording = !isRecording;
-      });
-    }
-    if (!isShowSendButton) {
-      // ChatMethods()
-      //     .updateTyping(widget.model.contactId, true);
-      setState(() {
-        isShowSendButton = true;
-      });
-    } else {
-      // ChatMethods().updateTyping(widget.model.contactId, false);
-      setState(() {
-        isShowSendButton = false;
-      });
+        setState(() {
+          isRecording = !isRecording;
+          isRecordingPressed = !isRecordingPressed;
+        });
+      }
     }
   }
 
@@ -1616,166 +1680,227 @@ class _MyTextFieldState extends State<MyTextField> {
         Row(
           children: [
             if (isRecording)
-              AudioWaveforms(
-                size: Size(MediaQuery.of(context).size.width / 1.95, 30.0),
-                recorderController: _controller!,
-                enableGesture: false,
-                padding: const EdgeInsets.all(20),
-                waveStyle: const WaveStyle(
-                  waveColor: mainColor,
-                  waveThickness: 5,
-                  backgroundColor: Colors.black,
-                  showDurationLabel: true,
-                  spacing: 8.0,
-                  durationStyle: TextStyle(color: mainColor),
-                  showBottom: true,
-                  extendWaveform: true,
-                  durationLinesColor: mainColor,
-                  showMiddleLine: false,
-                  //   gradient: ui.Gradient.linear(
-                  //     const Offset(70, 50),
-                  //     // Offset(MediaQuery.of(context).size.width / 2, 0),
-                  //     [Colors.red, Colors.green],
-                  // ),
-                ),
+              Row(
+                children: [
+                  AudioWaveforms(
+                    size: Size(MediaQuery.of(context).size.width / 1.95, 30.0),
+                    recorderController: _controller!,
+                    enableGesture: false,
+                    padding: const EdgeInsets.all(20),
+                    waveStyle: const WaveStyle(
+                      waveColor: mainColor,
+                      waveThickness: 5,
+                      backgroundColor: Colors.black,
+                      showDurationLabel: true,
+                      spacing: 8.0,
+                      durationStyle: TextStyle(color: mainColor),
+                      showBottom: true,
+                      extendWaveform: true,
+                      durationLinesColor: mainColor,
+                      showMiddleLine: false,
+                      //   gradient: ui.Gradient.linear(
+                      //     const Offset(70, 50),
+                      //     // Offset(MediaQuery.of(context).size.width / 2, 0),
+                      //     [Colors.red, Colors.green],
+                      // ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  InkWell(
+                      onTap: () {
+                        cancelRecording();
+                      },
+                      child: const CircleAvatar(
+                        backgroundColor: Colors.red,
+                        radius: 28,
+                        child: Icon(
+                          Icons.close,
+                          // ? Icons.close
+                          // : Icons.mic,
+
+                          size: 35,
+                          color: Colors.white,
+                        ),
+                      )),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  InkWell(
+                      onTap: () {
+                        sendTextMessage();
+                      },
+                      child: const CircleAvatar(
+                        radius: 28,
+                        child: Icon(
+                          FontAwesomeIcons.solidPaperPlane,
+                          // ? Icons.close
+                          // : Icons.mic,
+
+                          size: 25,
+                        ),
+                      ))
+                ],
               ),
             if (!isRecording)
               Expanded(
-                child: Row(
+                child: Column(
                   children: [
-                    Expanded(
-                      child: TextFormField(
-                        focusNode: focusNode,
-                        controller: _messageController,
-                        autofocus: false,
-                        maxLines: 10,
-                        minLines: 1,
-                        // onFieldSubmitted: (val) {
-                        //   if (_messageController
-                        //       .text.isNotEmpty) {
-                        //     sendTextMessage();
-                        //   }
-                        // },
-                        onChanged: (val) {
-                          if (!isBlocked) {
-                            // log(isBlocked.toString());
-                            if (!widget.isGroupChat) {
-                              ChatMethods().setTyping(widget.model.contactId);
-                            }
-                          }
-
-                          // _messageController.selection =
-                          //     TextSelection.collapsed(
-                          //         offset: _messageController.text.length);
-
-                          if (val.isNotEmpty) {
-                            if (!isShowSendButton) {
-                              // ChatMethods()
-                              //     .updateTyping(widget.model.contactId, true);
-                              setState(() {
-                                isShowSendButton = true;
-                              });
-                            }
-                          } else {
-                            // ChatMethods().updateTyping(widget.model.contactId, false);
-                            setState(() {
-                              isShowSendButton = false;
-                            });
-                            if (!widget.isGroupChat) {
-                              ChatMethods().stopTyping(widget.model.contactId);
-                            }
-                          }
-                        },
-                        decoration: InputDecoration(
-                          hintText: 'Message',
-                          prefixIcon: IconButton(
-                            onPressed: toggleEmojiKeyboardContainer,
-                            icon: const Icon(
-                              Icons.emoji_emotions,
-                              color: mainColor,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Material(
+                            color: Colors.transparent,
+                            child: TextFormField(
+                              focusNode: focusNode,
+                              controller: _messageController,
+                              autofocus: false,
+                              maxLines: 10,
+                              minLines: 1,
+                              // onFieldSubmitted: (val) {
+                              //   if (_messageController
+                              //       .text.isNotEmpty) {
+                              //     sendTextMessage();
+                              //   }
+                              // },
+                              onChanged: (val) {
+                                if (!isBlocked) {
+                                  // log(isBlocked.toString());
+                                  if (!widget.isGroupChat) {
+                                    ChatMethods()
+                                        .setTyping(widget.model.contactId);
+                                  }
+                                }
+                                if (val.isNotEmpty) {
+                                  if (!isShowSendButton) {
+                                    // ChatMethods()
+                                    //     .updateTyping(widget.model.contactId, true);
+                                    setState(() {
+                                      isShowSendButton = true;
+                                    });
+                                  }
+                                } else {
+                                  // ChatMethods().updateTyping(widget.model.contactId, false);
+                                  setState(() {
+                                    isShowSendButton = false;
+                                  });
+                                  if (!widget.isGroupChat) {
+                                    ChatMethods()
+                                        .stopTyping(widget.model.contactId);
+                                  }
+                                }
+                              },
+                              decoration: InputDecoration(
+                                  hintText: 'Message ${widget.model.name}',
+                                  fillColor: Colors.transparent,
+                                  filled: true,
+                                  border: InputBorder.none
+                                  // prefixIcon: IconButton(
+                                  //   onPressed: toggleEmojiKeyboardContainer,
+                                  //   icon: const Icon(
+                                  //     Icons.emoji_emotions,
+                                  //     color: mainColor,
+                                  //   ),
+                                  // ),
+                                  // suffixIcon: SizedBox(
+                                  //   width: isShowSendButton ? 0 : 100,
+                                  //   child: Row(
+                                  //     mainAxisAlignment: MainAxisAlignment.end,
+                                  //     children: [
+                                  //       IconButton(
+                                  //         onPressed: selectFile,
+                                  //         color: Colors.grey,
+                                  //         icon: const Icon(Icons.attach_file),
+                                  //       ),
+                                  //       if (!isShowSendButton)
+                                  //         IconButton(
+                                  //           onPressed: selectImage,
+                                  //           color: Colors.grey,
+                                  //           icon: const Icon(Icons.camera_alt),
+                                  //         )
+                                  //     ],
+                                  //   ),
+                                  // ),
+                                  // enabledBorder: OutlineInputBorder(
+                                  //   borderSide: const BorderSide(
+                                  //     color: mainColor,
+                                  //     width: 1,
+                                  //   ),
+                                  //   borderRadius: BorderRadius.circular(4.0),
+                                  // ),
+                                  // focusedBorder: OutlineInputBorder(
+                                  //   borderSide: const BorderSide(
+                                  //     color: mainColor,
+                                  //     width: 1,
+                                  //   ),
+                                  //   borderRadius: BorderRadius.circular(4.0),
+                                  // ),
+                                  ),
                             ),
-                          ),
-                          suffixIcon: SizedBox(
-                            width: isShowSendButton ? 0 : 100,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                IconButton(
-                                  onPressed: selectFile,
-                                  color: Colors.grey,
-                                  icon: const Icon(Icons.attach_file),
-                                ),
-                                if (!isShowSendButton)
-                                  IconButton(
-                                    onPressed: selectImage,
-                                    color: Colors.grey,
-                                    icon: const Icon(Icons.camera_alt),
-                                  )
-                              ],
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: mainColor,
-                              width: 1,
-                            ),
-                            borderRadius: BorderRadius.circular(4.0),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: mainColor,
-                              width: 1,
-                            ),
-                            borderRadius: BorderRadius.circular(4.0),
                           ),
                         ),
-                      ),
+                      ],
                     ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Row(
+                            children: [
+                              IconButton(
+                                onPressed: () {},
+                                icon: const Icon(
+                                  Icons.add_circle,
+                                  color: mainColor,
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: toggleEmojiKeyboardContainer,
+                                icon: const Icon(
+                                  Icons.emoji_emotions,
+                                  color: mainColor,
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    isRecordingPressed = true;
+                                    sendTextMessage();
+                                  });
+                                },
+                                icon: const Icon(
+                                  Icons.mic_rounded,
+                                  color: mainColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  sendTextMessage();
+                                },
+                                icon: Icon(
+                                  isShowSendButton
+                                      ? FontAwesomeIcons.solidPaperPlane
+                                      : FontAwesomeIcons.paperPlane,
+                                  color: isShowSendButton
+                                      ? mainColor
+                                      : Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    )
                   ],
                 ),
               ),
-            const SizedBox(
-              width: 10,
-            ),
-            if (isRecording)
-              Expanded(
-                child: InkWell(
-                    onTap: () {
-                      cancelRecording();
-                    },
-                    child: const CircleAvatar(
-                      radius: 28,
-                      child: Icon(
-                        Icons.close,
-                        // ? Icons.close
-                        // : Icons.mic,
-
-                        size: 35,
-                        color: Colors.red,
-                      ),
-                    )),
-              ),
-            const SizedBox(
-              width: 5,
-            ),
-            InkWell(
-                onTap: () {
-                  sendTextMessage();
-                },
-                child: CircleAvatar(
-                  radius: 28,
-                  child: Icon(
-                    isShowSendButton
-                        ? Icons.send
-                        : isRecording
-                            ? Icons.send
-                            : Icons.mic,
-                    // ? Icons.close
-                    // : Icons.mic,
-
-                    size: 35,
-                  ),
-                ))
           ],
         ),
         isShowEmojiContainer
@@ -1823,11 +1948,18 @@ class _MyTextFieldState extends State<MyTextField> {
         stream: ChatMethods().getBlockStatus(),
         builder: (context, snapshot) {
           if (snapshot.data != null) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 25, right: 15, left: 15),
-              child: snapshot.data!.blockList.contains(widget.model.contactId)
-                  ? const Text("You have blocked this user")
-                  : getTextField(),
+            return Container(
+              decoration: BoxDecoration(
+                  border: Border.all(
+                    color: whiteColor,
+                  ),
+                  borderRadius: const BorderRadius.all(Radius.circular(20))),
+              child: Card(
+                elevation: 5,
+                child: snapshot.data!.blockList.contains(widget.model.contactId)
+                    ? const Text("You have blocked this user")
+                    : getTextField(),
+              ),
             );
           }
           return getTextField();

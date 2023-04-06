@@ -39,25 +39,49 @@ class MyMessageCard extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: ConstrainedBox(
           constraints: BoxConstraints(
+              minWidth: 80,
               maxWidth: type != MessageEnum.audio
-                  ? MediaQuery.of(context).size.width / 1.6
+                  ? MediaQuery.of(context).size.width / 1.4
                   : MediaQuery.of(context).size.width / 1.25),
           child: Column(
             children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 3.0, right: 10, left: 10),
+                child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                  // const Text(
+                  //   "You",
+                  //   style: TextStyle(
+                  //       fontSize: 13, color: Color.fromARGB(124, 0, 0, 0)),
+                  // ),
+                  // const SizedBox(
+                  //   width: 2,
+                  // ),
+                  Text(
+                    date,
+                    style: const TextStyle(
+                        fontSize: 13, color: Color.fromARGB(124, 0, 0, 0)),
+                  ),
+                  // Icon(
+                  //   Icons.done_all,
+                  //   size: 16,
+                  //   color: isSeen ? mainColor : Colors.grey,
+                  // )
+                ]),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Flexible(
                     child: Card(
-                      elevation: 1,
+                      elevation: 3,
                       shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(15),
-                        topRight: Radius.circular(15),
+                        // topRight: Radius.circular(15),
                         bottomLeft: Radius.circular(15),
-                        // bottomRight:Radius.circular(15),
+                        bottomRight: Radius.circular(15),
                       )),
-                      color: mainColor.withOpacity(0.5),
+                      color: mainColor,
                       margin: const EdgeInsets.symmetric(horizontal: 5),
                       child: Padding(
                           padding: const EdgeInsets.all(15),
@@ -72,24 +96,6 @@ class MyMessageCard extends StatelessWidget {
                     if (isSelected!) const Icon(Icons.check_box),
                 ],
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 3.0),
-                child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                  Text(
-                    date,
-                    style: const TextStyle(
-                        fontSize: 13, color: Color.fromARGB(124, 0, 0, 0)),
-                  ),
-                  const SizedBox(
-                    width: 2,
-                  ),
-                  Icon(
-                    Icons.done_all,
-                    size: 16,
-                    color: isSeen ? mainColor : Colors.grey,
-                  )
-                ]),
-              )
             ],
           ),
         ),

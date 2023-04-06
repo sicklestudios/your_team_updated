@@ -39,7 +39,7 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: mainMaterialColor,
-        scaffoldBackgroundColor: scaffoldBackgroundColor,
+        scaffoldBackgroundColor: whiteColor,
         textSelectionTheme: const TextSelectionThemeData(
           // cursorColor: Colors.red,
           // selectionColor: Colors.black,
