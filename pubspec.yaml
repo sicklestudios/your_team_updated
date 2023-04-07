@@ -91,6 +91,7 @@ dependencies:
   flutter_foreground_task: ^4.1.0
   shared_preferences: ^2.0.20
   font_awesome_flutter: ^10.4.0
+  jumping_dot: ^0.0.4
   # device_info_plus: ^8.1.0
   # proximity_sensor: ^1.0.4
 

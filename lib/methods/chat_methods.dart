@@ -584,7 +584,7 @@ class ChatMethods {
           .set(Message(
             senderId: firebaseAuth.currentUser!.uid,
             recieverid: recieverUserId,
-            text: "Typing...",
+            text: "/////TYPINGZK????",
             type: MessageEnum.text,
             timeSent: DateTime.now(),
             messageId: firebaseAuth.currentUser!.uid,

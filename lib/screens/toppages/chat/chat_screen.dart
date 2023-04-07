@@ -401,7 +401,8 @@ class _ChatScreenState extends State<ChatScreen>
                       // maxWidth: 50,
                       // maxHeight: 50,
                     ))
-                : CircleAvatar(radius: size, child: Icon(Icons.groups_outlined))
+                : CircleAvatar(
+                    radius: size, child: const Icon(Icons.groups_outlined))
             : widget.contactModel.photoUrl != ""
                 ? CircleAvatar(
                     radius: size,
@@ -412,7 +413,7 @@ class _ChatScreenState extends State<ChatScreen>
                     ))
                 : CircleAvatar(
                     radius: size,
-                    backgroundImage: AssetImage('assets/user.png')),
+                    backgroundImage: const AssetImage('assets/user.png')),
         if (!isGroupChat)
           StreamBuilder<bool>(
               stream:
@@ -1133,7 +1134,7 @@ class _ChatScreenState extends State<ChatScreen>
                                                             isShown = true;
                                                           }
                                                           if (messageData
-                                                                  .senderId ==
+                                                                  .senderId !=
                                                               firebaseAuth
                                                                   .currentUser!
                                                                   .uid) {
@@ -1248,7 +1249,7 @@ class _ChatScreenState extends State<ChatScreen>
                                                                 getAvatarWithStatus(),
                                                             photoUrl: "",
                                                             message:
-                                                                "Typing...",
+                                                                "/////TYPINGZK????",
                                                             date: "null",
                                                             type: MessageEnum
                                                                 .text,

@@ -3,6 +3,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:gallery_image_viewer/gallery_image_viewer.dart';
+import 'package:jumping_dot/jumping_dot.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:yourteam/constants/colors.dart';
 import 'package:yourteam/constants/message_enum.dart';
@@ -77,37 +78,43 @@ class DisplayTextImageGIF extends StatelessWidget {
             }, // This disables tap event
           )
         : type == MessageEnum.text
-            ? TextSelectionTheme(
-                // primaryColor: Colors.red,
-                data: TextSelectionThemeData(
-                  // cursorColor: Colors.red,
-                  selectionColor: isSender
-                      ? (Colors.white.withOpacity(0.4))
-                      : mainColor.withOpacity(0.4),
-                  selectionHandleColor: Colors.red,
-                ),
-                child: Text(
-                  message,
+            ? message == "/////TYPINGZK????"
+                ? JumpingDots(
+                    color: Colors.yellow,
+                    radius: 10,
+                    numberOfDots: 3,
+                  )
+                : TextSelectionTheme(
+                    // primaryColor: Colors.red,
+                    data: TextSelectionThemeData(
+                      // cursorColor: Colors.red,
+                      selectionColor: isSender
+                          ? (Colors.white.withOpacity(0.4))
+                          : mainColor.withOpacity(0.4),
+                      selectionHandleColor: Colors.red,
+                    ),
+                    child: Text(
+                      message,
 
-                  // cursorColor: Colors.white,
-                  // showCursor: true,
+                      // cursorColor: Colors.white,
+                      // showCursor: true,
 
-                  // selectionControls: Se,
-                  // toolbarOptions:
-                  //     const ToolbarOptions(copy: true, selectAll: true),
-                  style: TextStyle(
-                      fontSize: 16,
-                      color: date != null
-                          ? date == "null"
-                              ? Colors.grey
+                      // selectionControls: Se,
+                      // toolbarOptions:
+                      //     const ToolbarOptions(copy: true, selectAll: true),
+                      style: TextStyle(
+                          fontSize: 16,
+                          color: date != null
+                              ? date == "null"
+                                  ? Colors.grey
+                                  : isSender
+                                      ? Colors.white
+                                      : Colors.black
                               : isSender
                                   ? Colors.white
-                                  : Colors.black
-                          : isSender
-                              ? Colors.white
-                              : Colors.black),
-                ),
-              )
+                                  : Colors.black),
+                    ),
+                  )
             : type == MessageEnum.audio
                 ? PlayAudio(
                     photoUrl: photoUrl,
