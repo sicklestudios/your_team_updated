@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'dart:developer';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -119,7 +117,7 @@ class _HomeControllerState extends State<HomeController>
   // This is used for the child FABs
   late Animation<double> _translateButton;
 
-  // This variable determnies whether the child FABs are visible or not
+  // This variable determines whether the child FABs are visible or not
   bool _isExpanded = false;
   String? _currentUuid;
 
@@ -375,78 +373,81 @@ class _HomeControllerState extends State<HomeController>
                           iconSize: 35,
                           onTap: _onItemTapped,
                           elevation: 5),
-                      appBar: showSearchBar
-                          ? AppBar(
-                              automaticallyImplyLeading: false,
-                              backgroundColor: Colors.transparent,
-                              toolbarHeight: 100,
-                              foregroundColor: Colors.black,
-                              leading: IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      showSearchBar = !showSearchBar;
-                                    });
-                                  },
-                                  icon: const Icon(Icons.arrow_back_ios)),
-                              elevation: 0,
-                              title: TextField(
-                                onChanged: (val) {
-                                  setState(() {
-                                    value = val;
-                                  });
-                                },
-                                decoration: const InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: 'Search'),
-                              ))
-                          : AppBar(
-                              automaticallyImplyLeading: false,
-                              backgroundColor: Colors.transparent,
-                              toolbarHeight: 100,
-                              elevation: 0,
-                              leading: Builder(
-                                builder: (context) {
-                                  return IconButton(
-                                    onPressed: () {
-                                      // showSimpleDialog(context)
-                                      Scaffold.of(context).openDrawer();
-                                    },
-                                    // icon: getIcon(Icons.groups_rounded),
-                                    icon: Image.asset('assets/group.png'),
-                                  );
-                                },
-                              ),
-                              title: Text(
-                                _getText(),
-                                style: const TextStyle(
-                                    color: mainTextColor,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              centerTitle: true,
-                              actions: [
-                                if (bottomIndex != 1 &&
-                                    bottomIndex != 3 &&
-                                    pageIndex != 1)
-                                  IconButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        showSearchBar = !showSearchBar;
-                                      });
-                                    },
-                                    icon: getIcon(Icons.search),
-                                  ),
-                                IconButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const NotificationsScreen()));
-                                  },
-                                  icon: getIcon(Icons.notifications),
-                                ),
-                              ],
-                            ),
+                      appBar:
+                          //  showSearchBar
+                          //     ? AppBar(
+                          //         automaticallyImplyLeading: false,
+                          //         backgroundColor: Colors.transparent,
+                          //         toolbarHeight: 100,
+                          //         foregroundColor: Colors.black,
+                          //         leading: IconButton(
+                          //             onPressed: () {
+                          //               setState(() {
+                          //                 showSearchBar = !showSearchBar;
+                          //               });
+                          //             },
+                          //             icon: const Icon(Icons.arrow_back_ios)),
+                          //         elevation: 0,
+                          //         title: TextField(
+                          //           onChanged: (val) {
+                          //             setState(() {
+                          //               value = val;
+                          //             });
+                          //           },
+                          //           decoration: const InputDecoration(
+                          //               border: InputBorder.none,
+                          //               hintText: 'Search'),
+                          //         ))
+                          //     :
+
+                          AppBar(
+                        automaticallyImplyLeading: false,
+                        backgroundColor: whiteColor,
+                        toolbarHeight: 70,
+                        elevation: 1.5,
+                        leading: Builder(
+                          builder: (context) {
+                            return IconButton(
+                              onPressed: () {
+                                // showSimpleDialog(context)
+                                Scaffold.of(context).openDrawer();
+                              },
+                              icon: getIcon(Icons.menu),
+                              // icon: Image.asset('assets/group.png'),
+                            );
+                          },
+                        ),
+                        title: Text(
+                          _getText(),
+                          style: const TextStyle(
+                              color: mainTextColor,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        centerTitle: true,
+                        actions: [
+                          // if (bottomIndex != 1 &&
+                          //     bottomIndex != 3 &&
+                          //     pageIndex != 1)
+                          //   IconButton(
+                          //     onPressed: () {
+                          //       setState(() {
+                          //         showSearchBar = !showSearchBar;
+                          //       });
+                          //     },
+                          //     icon: getIcon(Icons.search),
+                          //   ),
+                          IconButton(
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          const NotificationsScreen()));
+                            },
+                            icon: getIcon(Icons.notifications),
+                          ),
+                        ],
+                      ),
                       drawer: SafeArea(
                         child: Drawer(
                           backgroundColor: mainColor,
@@ -705,6 +706,8 @@ class _HomeControllerState extends State<HomeController>
                                               ),
                                               onTap: () {
                                                 Navigator.pop(context);
+                                                AuthMethods()
+                                                    .setUserState(false);
                                                 AuthMethods().signOut();
                                                 Navigator.pushAndRemoveUntil(
                                                     context,
@@ -742,18 +745,41 @@ class _HomeControllerState extends State<HomeController>
                           ? SingleChildScrollView(
                               child: Column(
                                 children: [
-                                  _TabSwitch(
-                                    value: pageIndex,
-                                    callBack: () {
-                                      setState(() {
-                                        if (pageIndex == 0) {
-                                          pageIndex = 1;
-                                        } else {
-                                          pageIndex = 0;
-                                        }
-                                      });
-                                    },
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 20.0, right: 20.0, top: 20),
+                                    child: SizedBox(
+                                      height: 50,
+                                      child: TextField(
+                                        onChanged: (val) {
+                                          setState(() {
+                                            value = val;
+                                          });
+                                        },
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor: greyColor.withOpacity(0.1),
+                                          border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(25)),
+                                          labelText: 'Search',
+                                          prefixIcon: const Icon(Icons.search),
+                                        ),
+                                      ),
+                                    ),
                                   ),
+                                  // _TabSwitch(
+                                  //   value: pageIndex,
+                                  //   callBack: () {
+                                  //     setState(() {
+                                  //       if (pageIndex == 0) {
+                                  //         pageIndex = 1;
+                                  //       } else {
+                                  //         pageIndex = 0;
+                                  //       }
+                                  //     });
+                                  //   },
+                                  // ),
                                   topPages[pageIndex],
                                 ],
                               ),
@@ -777,12 +803,13 @@ class _HomeControllerState extends State<HomeController>
 
   _getFloatingButton() {
     return bottomIndex == 1
-        ? FloatingActionButton(
+        ? FloatingActionButton.extended(
             onPressed: () {
               Navigator.of(context).push(
                   MaterialPageRoute(builder: (context) => const AddTask()));
             },
-            child: const Icon(Icons.add),
+            label: const Text("Add Task"),
+            icon: const Icon(Icons.add),
           )
         : Column(
             mainAxisAlignment: MainAxisAlignment.end,

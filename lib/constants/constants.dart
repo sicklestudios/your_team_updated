@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+String appVersion = '1.02';
 String appName = "Your Chat";
 var firebaseAuth = FirebaseAuth.instance;
 var firebaseFirestore = FirebaseFirestore.instance;

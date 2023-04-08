@@ -57,10 +57,13 @@ class SenderMessageCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      date == "null" ? "" : date,
-                      style: const TextStyle(
-                          fontSize: 13, color: Color.fromARGB(124, 0, 0, 0)),
+                    Padding(
+                      padding: const EdgeInsets.all(3.0),
+                      child: Text(
+                        date == "null" ? "" : date,
+                        style: const TextStyle(
+                            fontSize: 13, color: Color.fromARGB(124, 0, 0, 0)),
+                      ),
                     ),
                     Card(
                       elevation: 3,

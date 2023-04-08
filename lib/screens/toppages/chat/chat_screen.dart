@@ -41,6 +41,7 @@ import 'package:yourteam/screens/toppages/chat/widgets/message_reply_preview.dar
 import 'package:yourteam/screens/toppages/chat/widgets/my_message_card.dart';
 import 'package:yourteam/screens/toppages/chat/widgets/sender_message_card.dart';
 import 'package:yourteam/utils/SharedPreferencesUser.dart';
+import 'package:light_modal_bottom_sheet/light_modal_bottom_sheet.dart';
 
 class ChatScreen extends StatefulWidget {
   final ChatContactModel contactModel;
@@ -290,7 +291,6 @@ class _ChatScreenState extends State<ChatScreen>
     if (widget.message != null) {
       sendForwardedMessageToUser();
     }
-    try {} catch (e) {}
     SchedulerBinding.instance.addPostFrameCallback((_) {
       try {
         if (mounted) {
@@ -343,11 +343,22 @@ class _ChatScreenState extends State<ChatScreen>
   }
 
   void changeShowOptions() {
-    if (!showOptions) {
-      setState(() {
-        showOptions = !showOptions;
-      });
-    }
+    // if (!showOptions) {
+    //   setState(() {
+    //     showOptions = !showOptions;
+    //   });
+    // }
+    showMaterialModalBottomSheet(
+      expand: false,
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => MessageHoldSheet(
+          taskTitleTemp: taskTitleTemp,
+          setStateToNormal: setStateToNormal,
+          deleteMessage: deleteMessage,
+          copyTextToClipboard: copyTextToClipboard,
+          forwardMessage: forwardMessage),
+    );
   }
 
   void setStateToNormal() {
@@ -387,6 +398,38 @@ class _ChatScreenState extends State<ChatScreen>
       taskTitleTemp = "";
       return false;
     }
+  }
+
+  void copyTextToClipboard() {
+    String text = '';
+    for (var i = 0; i < tempMessage.length; i++) {
+      for (var element in messageId) {
+        if (tempMessage[i].messageId == element) {
+          if (text != '') {
+            text = "$text\n${tempMessage[i].text}";
+          } else {
+            text = tempMessage[i].text;
+          }
+        }
+      }
+    }
+    Clipboard.setData(ClipboardData(text: text)).then((_) {
+      showToastMessage("Text Copied");
+    });
+    setStateToNormal();
+  }
+
+  forwardMessage() {
+    List<Message> messages = [];
+    for (var i = 0; i < tempMessage.length; i++) {
+      for (var element in messageId) {
+        if (tempMessage[i].messageId == element) {
+          messages.add(tempMessage[i]);
+        }
+      }
+    }
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => ForwardMessageScreen(messageList: messages)));
   }
 
   getAvatarWithStatus({double size = 22}) {
@@ -512,19 +555,7 @@ class _ChatScreenState extends State<ChatScreen>
                                     )),
                               IconButton(
                                   onPressed: () async {
-                                    for (var id in messageId) {
-                                      if (isGroupChat) {
-                                        ChatMethods().deleteMessageInGroup(
-                                            groupId:
-                                                widget.contactModel.contactId,
-                                            messageId: id);
-                                      } else {
-                                        ChatMethods().deleteSingleMessage(
-                                            recieverUserId:
-                                                widget.contactModel.contactId,
-                                            messageId: id);
-                                      }
-                                    }
+                                    deleteMessage();
                                     setStateToNormal();
                                   },
                                   icon: const Icon(
@@ -535,27 +566,7 @@ class _ChatScreenState extends State<ChatScreen>
                               IconButton(
                                   onPressed: () {
                                     // Navigator.pop(context);
-                                    String text = '';
-                                    for (var i = 0;
-                                        i < tempMessage.length;
-                                        i++) {
-                                      for (var element in messageId) {
-                                        if (tempMessage[i].messageId ==
-                                            element) {
-                                          if (text != '') {
-                                            text =
-                                                "$text\n${tempMessage[i].text}";
-                                          } else {
-                                            text = "${tempMessage[i].text}";
-                                          }
-                                        }
-                                      }
-                                    }
-                                    Clipboard.setData(ClipboardData(text: text))
-                                        .then((_) {
-                                      showToastMessage("Text Copied");
-                                    });
-                                    setStateToNormal();
+                                    copyTextToClipboard();
                                   },
                                   icon: const Icon(
                                     Icons.copy,
@@ -565,22 +576,7 @@ class _ChatScreenState extends State<ChatScreen>
                               IconButton(
                                   onPressed: () {
                                     // Navigator.pop(context);
-                                    List<Message> messages = [];
-                                    for (var i = 0;
-                                        i < tempMessage.length;
-                                        i++) {
-                                      for (var element in messageId) {
-                                        if (tempMessage[i].messageId ==
-                                            element) {
-                                          messages.add(tempMessage[i]);
-                                        }
-                                      }
-                                    }
-                                    Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                ForwardMessageScreen(
-                                                    messageList: messages)));
+                                    forwardMessage();
                                   },
                                   icon: const Icon(
                                     Icons.send,
@@ -603,9 +599,9 @@ class _ChatScreenState extends State<ChatScreen>
                                           Navigator.pop(context);
                                         },
                                         icon: const Icon(
-                                          Icons.arrow_back,
+                                          Icons.arrow_back_ios_new_rounded,
                                           size: 20,
-                                          color: Colors.black,
+                                          color: mainColor,
                                         )),
                                     getAvatarWithStatus(),
                                     // widget.contactModel.photoUrl != ""
@@ -866,7 +862,7 @@ class _ChatScreenState extends State<ChatScreen>
                                                       }
 
                                                       if (messageData
-                                                              .senderId !=
+                                                              .senderId ==
                                                           firebaseAuth
                                                               .currentUser!
                                                               .uid) {
@@ -1134,7 +1130,7 @@ class _ChatScreenState extends State<ChatScreen>
                                                             isShown = true;
                                                           }
                                                           if (messageData
-                                                                  .senderId !=
+                                                                  .senderId ==
                                                               firebaseAuth
                                                                   .currentUser!
                                                                   .uid) {
@@ -1479,6 +1475,96 @@ class _ChatScreenState extends State<ChatScreen>
         btnstatus:
             VIDEO_OR_AUDIO_FLG == false ? "video_channel" : "call_channel");
   }
+
+  void deleteMessage() {
+    for (var id in messageId) {
+      if (isGroupChat) {
+        ChatMethods().deleteMessageInGroup(
+            groupId: widget.contactModel.contactId, messageId: id);
+      } else {
+        ChatMethods().deleteSingleMessage(
+            recieverUserId: widget.contactModel.contactId, messageId: id);
+      }
+    }
+  }
+}
+
+class MessageHoldSheet extends StatelessWidget {
+  final String taskTitleTemp;
+  final Function deleteMessage;
+  final Function setStateToNormal;
+  final Function copyTextToClipboard;
+  final Function forwardMessage;
+  const MessageHoldSheet(
+      {required this.taskTitleTemp,
+      required this.deleteMessage,
+      required this.setStateToNormal,
+      required this.copyTextToClipboard,
+      required this.forwardMessage,
+      Key? key})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+        child: SafeArea(
+      top: false,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // ListTile(
+          //   title: const Text('Edit'),
+          //   leading: const Icon(Icons.edit),
+          //   onTap: () => Navigator.of(context).pop(),
+          // ),
+          ListTile(
+            title: const Text('Add to Task'),
+            leading: const Icon(Icons.add_circle_outline),
+            onTap: () {
+              Navigator.of(context).pop();
+
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => AddTask(
+                        taskTitle: taskTitleTemp,
+                      )));
+            },
+          ),
+          ListTile(
+            title: const Text('Copy Text'),
+            leading: const Icon(Icons.content_copy),
+            onTap: () {
+              Navigator.of(context).pop();
+              copyTextToClipboard();
+            },
+          ),
+          ListTile(
+            title: const Text('Forward'),
+            leading: const Icon(FontAwesomeIcons.arrowUpFromBracket),
+            onTap: () {
+              Navigator.of(context).pop();
+              forwardMessage();
+            },
+          ),
+          ListTile(
+            title: const Text(
+              'Delete',
+              style: TextStyle(color: Colors.red),
+            ),
+            leading: const Icon(
+              Icons.delete,
+              color: Colors.red,
+            ),
+            onTap: () async {
+              Navigator.of(context).pop();
+
+              deleteMessage();
+              setStateToNormal();
+            },
+          )
+        ],
+      ),
+    ));
+  }
 }
 
 class MyTextField extends StatefulWidget {
@@ -1525,7 +1611,9 @@ class _MyTextFieldState extends State<MyTextField> {
 
   getBlock() async {
     isBlocked = await ChatMethods().checkMessageAllowed(widget.model.contactId);
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   void openAudio() async {
@@ -1642,8 +1730,14 @@ class _MyTextFieldState extends State<MyTextField> {
   void selectVideo() async {
     File? video = await pickVideoFromGallery(context);
     if (video != null) {
-      showToastMessage("Sending Video");
-      sendFileMessage(video, MessageEnum.video);
+      int sizeInBytes = video.lengthSync();
+      double sizeInMb = sizeInBytes / (1024 * 1024);
+      if (sizeInMb > 30) {
+        showToastMessage("Size is greater than 30 mb");
+      } else {
+        showToastMessage("Sending Video");
+        sendFileMessage(video, MessageEnum.video);
+      }
     }
   }
 
@@ -1849,7 +1943,142 @@ class _MyTextFieldState extends State<MyTextField> {
                           child: Row(
                             children: [
                               IconButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  showModalBottomSheet(
+                                    context: context,
+                                    builder: (context) {
+                                      return Container(
+                                        color: scaffoldBackgroundColor,
+                                        child: Wrap(
+                                          children: [
+                                            Container(
+                                              margin: const EdgeInsets.all(20),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceEvenly,
+                                                children: [
+                                                  InkWell(
+                                                    onTap: () {
+                                                      selectFile();
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: Column(
+                                                      children: [
+                                                        Container(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            border: Border.all(
+                                                                color:
+                                                                    mainColor),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        50),
+                                                          ),
+                                                          child: const Padding(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    10),
+                                                            child: Icon(
+                                                              Icons
+                                                                  .document_scanner_sharp,
+                                                              size: 35,
+                                                              color: mainColor,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        const Text(
+                                                          'Document',
+                                                        )
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  const SizedBox(
+                                                    width: 20,
+                                                  ),
+                                                  InkWell(
+                                                    onTap: () {
+                                                      selectImage();
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: Column(
+                                                      children: [
+                                                        Container(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            border: Border.all(
+                                                                color:
+                                                                    mainColor),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        50),
+                                                          ),
+                                                          child: const Padding(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    10),
+                                                            child: Icon(
+                                                              Icons
+                                                                  .camera_enhance_rounded,
+                                                              size: 35,
+                                                              color: mainColor,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        const Text(
+                                                          'Camera',
+                                                        )
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  // const SizedBox(
+                                                  //   width: 20,
+                                                  // ),
+                                                  // InkWell(
+                                                  //   onTap: () {
+                                                  //     selectVideo();
+                                                  //     Navigator.pop(context);
+                                                  //   },
+                                                  //   child: Column(
+                                                  //     children: [
+                                                  //       Container(
+                                                  //         decoration:
+                                                  //         BoxDecoration(
+                                                  //           border: Border.all(
+                                                  //               color: mainColor),
+                                                  //           borderRadius:
+                                                  //           BorderRadius
+                                                  //               .circular(50),
+                                                  //         ),
+                                                  //         child: const Padding(
+                                                  //           padding:
+                                                  //           EdgeInsets.all(
+                                                  //               10),
+                                                  //           child: Icon(
+                                                  //             Icons.video_camera_back_rounded,
+                                                  //             size: 35,
+                                                  //             color: mainColor,
+                                                  //           ),
+                                                  //         ),
+                                                  //       ),
+                                                  //       const Text(
+                                                  //         'Video',
+                                                  //       )
+                                                  //     ],
+                                                  //   ),
+                                                  // ),
+                                                ],
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      );
+                                      // return Wrap(
+                                    },
+                                  );
+                                },
                                 icon: const Icon(
                                   Icons.add_circle,
                                   color: mainColor,
@@ -1941,10 +2170,9 @@ class _MyTextFieldState extends State<MyTextField> {
 
   @override
   Widget build(BuildContext context) {
-    // if(widget.isGroupChat)
-    // {
-
-    // }
+    if (isShowEmojiContainer) {
+      focusNode.unfocus();
+    }
     return StreamBuilder<UserModel>(
         stream: ChatMethods().getBlockStatus(),
         builder: (context, snapshot) {

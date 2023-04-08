@@ -92,6 +92,8 @@ dependencies:
   shared_preferences: ^2.0.20
   font_awesome_flutter: ^10.4.0
   jumping_dot: ^0.0.4
+  light_modal_bottom_sheet: ^0.0.05
+  flutter_speech: ^2.0.0
   # device_info_plus: ^8.1.0
   # proximity_sensor: ^1.0.4
 

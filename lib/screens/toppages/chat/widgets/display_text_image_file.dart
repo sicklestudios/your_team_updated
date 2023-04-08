@@ -79,10 +79,15 @@ class DisplayTextImageGIF extends StatelessWidget {
           )
         : type == MessageEnum.text
             ? message == "/////TYPINGZK????"
-                ? JumpingDots(
-                    color: Colors.yellow,
-                    radius: 10,
-                    numberOfDots: 3,
+                ? SizedBox(
+                    width: 80,
+                    child: JumpingDots(
+                      color: isSender
+                          ? (Colors.white.withOpacity(0.4))
+                          : mainColor.withOpacity(0.4),
+                      radius: 8,
+                      numberOfDots: 3,
+                    ),
                   )
                 : TextSelectionTheme(
                     // primaryColor: Colors.red,
