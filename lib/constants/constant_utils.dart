@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:another_flushbar/flushbar.dart';
@@ -6,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:open_store/open_store.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 import 'package:yourteam/constants/colors.dart';
 import 'package:yourteam/constants/constants.dart';
@@ -23,11 +26,50 @@ import 'package:yourteam/screens/call/calls_ui/screens/dialScreen/dial_screen.da
 import 'package:yourteam/screens/search_screen.dart';
 import 'package:yourteam/screens/toppages/chat/chat_screen.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:yourteam/utils/helper_widgets.dart';
 
 //value to store if its replying or not
 MessageReply? messageReply;
 //getting a random number
 math.Random random = math.Random();
+
+getAvatarWithStatus(bool isGroupChat, ChatContactModel contactModel,
+    {double size = 22}) {
+  return Stack(
+    children: [
+      isGroupChat
+          ? contactModel.photoUrl != ""
+              ? CircleAvatar(
+                  radius: size,
+                  backgroundImage: CachedNetworkImageProvider(
+                    contactModel.photoUrl,
+                    // maxWidth: 50,
+                    // maxHeight: 50,
+                  ))
+              : CircleAvatar(
+                  radius: size, child: const Icon(Icons.groups_outlined))
+          : showUsersImage(userInfo.photoUrl == "",
+              picUrl: userInfo.photoUrl, size: size),
+      if (!isGroupChat)
+        StreamBuilder<bool>(
+            stream: ChatMethods().getOnlineStream(contactModel.contactId),
+            builder: (context, snapshot) {
+              return Positioned(
+                  bottom: 1,
+                  right: 1,
+                  child: Icon(
+                    Icons.circle_rounded,
+                    size: 14,
+                    color: snapshot.data != null
+                        ? snapshot.data!
+                            ? Colors.green
+                            : Colors.grey
+                        : Colors.grey,
+                  ));
+            }),
+    ],
+  );
+}
 
 getDateWithLines(dateInList) {
   var tempDate = DateFormat.MMMMEEEEd().format(DateTime.now());
@@ -1685,4 +1727,44 @@ Future<String> getImage(String id, bool isGroup) async {
       return val.photoUrl;
     });
   }
+}
+
+Widget returnNothingToShow() {
+  return Center(
+      child: Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: const [
+      Icon(
+        Icons.sentiment_neutral_rounded,
+        size: 50,
+      ),
+      Padding(
+        padding: EdgeInsets.only(top: 15.0),
+        child: Text("Nothing to Show"),
+      )
+    ],
+  ));
+}
+
+void reviewApp() async {
+  OpenStore.instance.open(
+    appStoreId: '6446278308', // AppStore id of your app for iOS
+    androidAppBundleId: 'com.yourteam', // Android app bundle package name
+  );
+  // if (Platform.isAndroid) {
+  //   var appName = "com.yourteam";
+  //   var targetURL = Uri.parse("market://details?id=$appName");
+  //   await launchUrl(targetURL);
+  // } else if (Platform.isIOS) {
+  //   String appID = "6446278308";
+  //   Uri targetURL;
+  //   targetURL = Uri.parse("itms-apps://itunes.apple.com/app/$appID");
+  //   try {
+  //     await launchUrl(targetURL);
+  //   } catch (e) {
+  //     targetURL = Uri.parse(
+  //         "https://apps.apple.com/us/app/your-team-chat/id6446278308");
+  //     await launchUrl(targetURL, mode: LaunchMode.externalApplication);
+  //   }
+  // }
 }

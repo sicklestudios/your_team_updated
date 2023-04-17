@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:yourteam/constants/colors.dart';
 import 'package:yourteam/constants/message_enum.dart';
-import 'package:yourteam/screens/toppages/chat/colors.dart';
 import 'package:yourteam/screens/toppages/chat/widgets/display_text_image_file.dart';
 
 class SenderMessageCard extends StatelessWidget {

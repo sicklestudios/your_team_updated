@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -65,6 +66,9 @@ class _ChatScreenState extends State<ChatScreen>
   UserModel? usermodel;
   List tokensList = [];
   var user;
+  //for controlling the keyboard
+  FocusNode focusNode = FocusNode();
+
   getTokensList() async {
     for (var element in widget.people!) {
       if (element != firebaseAuth.currentUser!.uid) {
@@ -115,6 +119,7 @@ class _ChatScreenState extends State<ChatScreen>
   int selectedNum = 1;
 
   _toggle() {
+    focusNode.unfocus();
     if (_isExpanded) {
       _animationController.reverse();
     } else {
@@ -150,17 +155,7 @@ class _ChatScreenState extends State<ChatScreen>
                           _animationController.reverse();
                           _isExpanded = !_isExpanded;
                         }
-                        if (isGroupChat) {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => ChatProfileGroup(
-                                    id: widget.contactModel.contactId,
-                                  )));
-                        } else {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => ChatProfileScreen(
-                                    id: widget.contactModel.contactId,
-                                  )));
-                        }
+                        openProfile();
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -376,7 +371,7 @@ class _ChatScreenState extends State<ChatScreen>
   List<Message> tempMessage = [];
   final listViewKey = GlobalKey();
   String taskTitleTemp = "";
-  bool isShown = false;
+  bool isDateShown = false;
   String previousTime = "";
 
   bool _getBoolCreateCheck() {
@@ -432,55 +427,10 @@ class _ChatScreenState extends State<ChatScreen>
         builder: (context) => ForwardMessageScreen(messageList: messages)));
   }
 
-  getAvatarWithStatus({double size = 22}) {
-    return Stack(
-      children: [
-        isGroupChat
-            ? widget.contactModel.photoUrl != ""
-                ? CircleAvatar(
-                    radius: size,
-                    backgroundImage: CachedNetworkImageProvider(
-                      widget.contactModel.photoUrl,
-                      // maxWidth: 50,
-                      // maxHeight: 50,
-                    ))
-                : CircleAvatar(
-                    radius: size, child: const Icon(Icons.groups_outlined))
-            : widget.contactModel.photoUrl != ""
-                ? CircleAvatar(
-                    radius: size,
-                    backgroundImage: CachedNetworkImageProvider(
-                      widget.contactModel.photoUrl,
-                      // maxWidth: 50,
-                      // maxHeight: 50,
-                    ))
-                : CircleAvatar(
-                    radius: size,
-                    backgroundImage: const AssetImage('assets/user.png')),
-        if (!isGroupChat)
-          StreamBuilder<bool>(
-              stream:
-                  ChatMethods().getOnlineStream(widget.contactModel.contactId),
-              builder: (context, snapshot) {
-                return Positioned(
-                    bottom: 1,
-                    right: 1,
-                    child: Icon(
-                      Icons.circle_rounded,
-                      size: 14,
-                      color: snapshot.data != null
-                          ? snapshot.data!
-                              ? Colors.green
-                              : Colors.grey
-                          : Colors.grey,
-                    ));
-              }),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    //Setting the values in the Menu Items class
+    MenuItems.makeMenuItem(isGroupChat, isBlocked);
     return WithForegroundTask(
       child: SafeArea(
         child: GestureDetector(
@@ -603,26 +553,8 @@ class _ChatScreenState extends State<ChatScreen>
                                           size: 20,
                                           color: mainColor,
                                         )),
-                                    getAvatarWithStatus(),
-                                    // widget.contactModel.photoUrl != ""
-                                    //     ? CircleAvatar(
-                                    //         radius: 22,
-                                    //         backgroundImage:
-                                    //             CachedNetworkImageProvider(
-                                    //           widget.contactModel.photoUrl,
-                                    //           // maxWidth: 50,
-                                    //           // maxHeight: 50,
-                                    //         ))
-                                    //     : isGroupChat
-                                    //         ? const CircleAvatar(
-                                    //             radius: 22,
-                                    //             child:
-                                    //                 Icon(Icons.groups_outlined))
-                                    //         : const CircleAvatar(
-                                    //             radius: 22,
-                                    //             backgroundImage: AssetImage(
-                                    //                 'assets/user.png'),
-                                    //           ),
+                                    getAvatarWithStatus(
+                                        isGroupChat, widget.contactModel),
                                     const SizedBox(
                                       width: 5,
                                     ),
@@ -745,16 +677,86 @@ class _ChatScreenState extends State<ChatScreen>
                                                       : mainColor,
                                                 ),
                                               )),
-                                          InkWell(
-                                              onTap: _toggle,
-                                              child: const Padding(
-                                                padding: EdgeInsets.all(8.0),
+                                          DropdownButtonHideUnderline(
+                                            child: DropdownButton2(
+                                              customButton: const Padding(
+                                                padding: EdgeInsets.all(4.0),
                                                 child: Icon(
                                                   Icons.more_vert,
                                                   size: 25,
                                                   color: Colors.black,
                                                 ),
-                                              )),
+                                              ),
+                                              items: [
+                                                ...MenuItems.firstItems.map(
+                                                  (item) => DropdownMenuItem<
+                                                      MenuItem>(
+                                                    value: item,
+                                                    child: MenuItems.buildItem(
+                                                        item),
+                                                  ),
+                                                ),
+                                                const DropdownMenuItem<Divider>(
+                                                    enabled: false,
+                                                    child: Divider()),
+                                                ...MenuItems.secondItems.map(
+                                                  (item) => DropdownMenuItem<
+                                                      MenuItem>(
+                                                    value: item,
+                                                    child: MenuItems.buildItem(
+                                                        item),
+                                                  ),
+                                                ),
+                                              ],
+                                              onChanged: (value) {
+                                                MenuItems.onChanged(
+                                                    context,
+                                                    value as MenuItem,
+                                                    openProfile);
+                                              },
+                                              dropdownStyleData:
+                                                  DropdownStyleData(
+                                                width: 160,
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 6),
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
+                                                  color: mainColor,
+                                                ),
+                                                elevation: 8,
+                                                offset: const Offset(0, 8),
+                                              ),
+                                              menuItemStyleData:
+                                                  MenuItemStyleData(
+                                                customHeights: [
+                                                  ...List<double>.filled(
+                                                      MenuItems
+                                                          .firstItems.length,
+                                                      48),
+                                                  8,
+                                                  ...List<double>.filled(
+                                                      MenuItems
+                                                          .secondItems.length,
+                                                      48),
+                                                ],
+                                                padding: const EdgeInsets.only(
+                                                    left: 16, right: 16),
+                                              ),
+                                            ),
+                                          ),
+                                          // InkWell(
+                                          //     onTap: _toggle,
+                                          //     // onTap: () {},
+                                          //     child: const Padding(
+                                          //       padding: EdgeInsets.all(8.0),
+                                          //       child: Icon(
+                                          //         Icons.more_vert,
+                                          //         size: 25,
+                                          //         color: Colors.black,
+                                          //       ),
+                                          //     )),
                                         ],
                                       );
                                     })
@@ -799,472 +801,27 @@ class _ChatScreenState extends State<ChatScreen>
                                 child: Column(
                                   children: [
                                     Expanded(
-                                        child: showOptions
-                                            ? ListView.builder(
-                                                key: listViewKey,
-                                                controller: messageController,
-                                                itemCount:
-                                                    tempMessage.length + 1,
-                                                physics:
-                                                    const ClampingScrollPhysics(),
-                                                shrinkWrap: true,
-                                                itemBuilder: ((context, index) {
-                                                  var messageData;
-                                                  if (index !=
-                                                      tempMessage.length) {
-                                                    messageData =
-                                                        tempMessage[index];
-                                                    if (messageData.messageId ==
-                                                        messageData
-                                                            .recieverid) {
-                                                      isTyping = true;
-                                                    } else {
-                                                      var timeSent = DateFormat
-                                                              .jm()
-                                                          .format(messageData
-                                                              .timeSent);
-                                                      if (!messageData.isSeen &&
-                                                          messageData
-                                                                  .recieverid ==
-                                                              firebaseAuth
-                                                                  .currentUser!
-                                                                  .uid) {
-                                                        if (!isGroupChat) {
-                                                          ChatMethods()
-                                                              .setChatMessageSeen(
-                                                            widget.contactModel
-                                                                .contactId,
-                                                            messageData
-                                                                .messageId,
-                                                          );
-                                                        }
-                                                      }
-                                                      if (isGroupChat) {
-                                                        ChatMethods()
-                                                            .setChatContactMessageSeen(
-                                                                widget
-                                                                    .contactModel
-                                                                    .contactId,
-                                                                isGroupChat);
-                                                      }
-                                                      //showing the time
-                                                      var dateInList =
-                                                          DateFormat.MMMMEEEEd()
-                                                              .format(messageData
-                                                                  .timeSent);
-                                                      if (previousTime !=
-                                                          dateInList) {
-                                                        previousTime =
-                                                            dateInList;
-                                                        isShown = false;
-                                                      } else {
-                                                        isShown = true;
-                                                      }
-
-                                                      if (messageData
-                                                              .senderId ==
-                                                          firebaseAuth
-                                                              .currentUser!
-                                                              .uid) {
-                                                        return Column(
-                                                          children: [
-                                                            if (!isShown)
-                                                              getDateWithLines(
-                                                                  dateInList),
-                                                            InkWell(
-                                                              onTap: (() {
-                                                                {
-                                                                  if (messageId
-                                                                      .contains(
-                                                                          messageData
-                                                                              .messageId)) {
-                                                                    decrementSelectedNum();
-
-                                                                    messageId.remove(
-                                                                        messageData
-                                                                            .messageId);
-                                                                  } else {
-                                                                    incrementSelectedNum();
-
-                                                                    messageId.add(
-                                                                        messageData
-                                                                            .messageId);
-                                                                  }
-                                                                }
-                                                              }),
-                                                              child:
-                                                                  MyMessageCard(
-                                                                message:
-                                                                    messageData
-                                                                        .text,
-                                                                date: timeSent,
-                                                                isSeen:
-                                                                    messageData
-                                                                        .isSeen,
-                                                                type:
-                                                                    messageData
-                                                                        .type,
-                                                                isSelected: messageId
-                                                                    .contains(
-                                                                        messageData
-                                                                            .messageId),
-                                                                repliedText:
-                                                                    messageData
-                                                                        .repliedMessage,
-                                                                username:
-                                                                    messageData
-                                                                        .repliedTo,
-                                                                repliedMessageType:
-                                                                    messageData
-                                                                        .repliedMessageType,
-                                                                longPress:
-                                                                    changeShowOptions,
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        );
-                                                      }
-                                                      return Column(
-                                                        children: [
-                                                          if (!isShown)
-                                                            getDateWithLines(
-                                                                dateInList),
-                                                          InkWell(
-                                                            onTap: (() {
-                                                              {
-                                                                if (messageId.contains(
-                                                                    messageData
-                                                                        .messageId)) {
-                                                                  decrementSelectedNum();
-
-                                                                  messageId.remove(
-                                                                      messageData
-                                                                          .messageId);
-                                                                } else {
-                                                                  incrementSelectedNum();
-
-                                                                  messageId.add(
-                                                                      messageData
-                                                                          .messageId);
-                                                                }
-                                                              }
-                                                            }),
-                                                            child: Row(
-                                                              children: [
-                                                                SenderMessageCard(
-                                                                  avatarWidget:
-                                                                      getAvatarWithStatus(),
-                                                                  photoUrl: widget
-                                                                      .contactModel
-                                                                      .photoUrl,
-                                                                  message:
-                                                                      messageData
-                                                                          .text,
-                                                                  date:
-                                                                      timeSent,
-                                                                  type:
-                                                                      messageData
-                                                                          .type,
-                                                                  username:
-                                                                      messageData
-                                                                              .senderUsername ??
-                                                                          "",
-                                                                  isSelected: messageId
-                                                                      .contains(
-                                                                          messageData
-                                                                              .messageId),
-                                                                  repliedMessageType:
-                                                                      messageData
-                                                                          .repliedMessageType,
-                                                                  longPress:
-                                                                      () {},
-                                                                  repliedText:
-                                                                      messageData
-                                                                          .repliedMessage,
-                                                                  isGroupChat:
-                                                                      isGroupChat,
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      );
-                                                    }
-                                                  }
-                                                  return const SizedBox();
-                                                }),
-                                              )
-                                            : StreamBuilder<List<Message>>(
-                                                stream: isGroupChat
-                                                    ? ChatMethods()
-                                                        .getGroupChatStream(
-                                                            widget.contactModel
-                                                                .contactId)
-                                                    : ChatMethods()
-                                                        .getChatStream(widget
-                                                            .contactModel
-                                                            .contactId),
-                                                builder: (context, snapshot) {
-                                                  isShown = false;
-                                                  isTyping = false;
-
-                                                  if (snapshot
-                                                          .connectionState ==
-                                                      ConnectionState.waiting) {
-                                                    return Container();
-                                                  }
-                                                  if (!showOptions) {
-                                                    SchedulerBinding.instance
-                                                        .addPostFrameCallback(
-                                                            (_) {
-                                                      messageController.jumpTo(
-                                                          messageController
-                                                              .position
-                                                              .maxScrollExtent);
-                                                    });
-                                                  } else {
-                                                    SchedulerBinding.instance
-                                                        .addPostFrameCallback(
-                                                            (_) {
-                                                      messageController.jumpTo(
-                                                          messageController
-                                                              .offset);
-                                                    });
-                                                  }
-
-                                                  //in case of group chat checking if the message is deleted by the user
-                                                  List<Message> messagesList =
-                                                      [];
-                                                  if (isGroupChat) {
-                                                    for (var element
-                                                        in snapshot.data!) {
-                                                      Message message = element;
-                                                      if (message
-                                                              .isMessageDeleted !=
-                                                          null) {
-                                                        if (!message
-                                                            .isMessageDeleted!
-                                                            .contains(
-                                                                firebaseAuth
-                                                                    .currentUser!
-                                                                    .uid)) {
-                                                          messagesList
-                                                              .add(message);
-                                                        }
-                                                      } else {
-                                                        messagesList
-                                                            .add(message);
-                                                      }
-                                                    }
-                                                  } else {
-                                                    messagesList =
-                                                        snapshot.data!;
-                                                  }
-                                                  return ListView.builder(
-                                                    // key: listViewKey,
-                                                    controller:
-                                                        messageController,
-                                                    itemCount:
-                                                        messagesList.length + 1,
-                                                    physics:
-                                                        const ClampingScrollPhysics(),
-                                                    shrinkWrap: true,
-                                                    itemBuilder:
-                                                        ((context, index) {
-                                                      tempMessage =
-                                                          messagesList;
-                                                      var messageData;
-                                                      if (index !=
-                                                          snapshot
-                                                              .data!.length) {
-                                                        messageData =
-                                                            messagesList[index];
-                                                        if (messageData
-                                                                .messageId ==
-                                                            messageData
-                                                                .recieverid) {
-                                                          isTyping = true;
-                                                        } else {
-                                                          var timeSent = DateFormat
-                                                                  .jm()
-                                                              .format(messageData
-                                                                  .timeSent);
-                                                          if (!messageData
-                                                                  .isSeen &&
-                                                              messageData
-                                                                      .recieverid ==
-                                                                  firebaseAuth
-                                                                      .currentUser!
-                                                                      .uid) {
-                                                            if (!isGroupChat) {
-                                                              ChatMethods()
-                                                                  .setChatMessageSeen(
-                                                                widget
-                                                                    .contactModel
-                                                                    .contactId,
-                                                                messageData
-                                                                    .messageId,
-                                                              );
-                                                            }
-                                                          }
-                                                          if (isGroupChat) {
-                                                            ChatMethods()
-                                                                .setChatContactMessageSeen(
-                                                                    widget
-                                                                        .contactModel
-                                                                        .contactId,
-                                                                    isGroupChat);
-                                                          }
-
-                                                          //showing the time
-                                                          var dateInList = DateFormat
-                                                                  .MMMMEEEEd()
-                                                              .format(messageData
-                                                                  .timeSent);
-                                                          if (previousTime !=
-                                                              dateInList) {
-                                                            previousTime =
-                                                                dateInList;
-                                                            isShown = false;
-                                                          } else {
-                                                            isShown = true;
-                                                          }
-                                                          if (messageData
-                                                                  .senderId ==
-                                                              firebaseAuth
-                                                                  .currentUser!
-                                                                  .uid) {
-                                                            return Column(
-                                                              children: [
-                                                                if (!isShown)
-                                                                  getDateWithLines(
-                                                                      dateInList),
-                                                                InkWell(
-                                                                  onLongPress:
-                                                                      () {
-                                                                    changeShowOptions();
-                                                                    messageId.add(
-                                                                        messageData
-                                                                            .messageId);
-                                                                  },
-
-                                                                  // onTap: (() {
-                                                                  //   if (showOptions) {
-                                                                  //     if (messageId.contains(
-                                                                  //         messageData
-                                                                  //             .messageId)) {
-                                                                  //       incrementSelectedNum();
-                                                                  //       messageId.remove(
-                                                                  //           messageData
-                                                                  //               .messageId);
-                                                                  //     } else {
-                                                                  //       decrementSelectedNum();
-                                                                  //       messageId.add(
-                                                                  //           messageData
-                                                                  //               .messageId);
-                                                                  //     }
-                                                                  //   }
-                                                                  // }),
-                                                                  child:
-                                                                      MyMessageCard(
-                                                                    message:
-                                                                        messageData
-                                                                            .text,
-                                                                    date:
-                                                                        timeSent,
-                                                                    isSeen: messageData
-                                                                        .isSeen,
-                                                                    type: messageData
-                                                                        .type,
-                                                                    repliedText:
-                                                                        messageData
-                                                                            .repliedMessage,
-                                                                    username:
-                                                                        messageData
-                                                                            .repliedTo,
-                                                                    repliedMessageType:
-                                                                        messageData
-                                                                            .repliedMessageType,
-                                                                    longPress:
-                                                                        changeShowOptions,
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            );
-                                                          }
-                                                          return Column(
-                                                            children: [
-                                                              if (!isShown)
-                                                                getDateWithLines(
-                                                                    dateInList),
-                                                              InkWell(
-                                                                onLongPress:
-                                                                    () {
-                                                                  changeShowOptions();
-                                                                  messageId.add(
-                                                                      messageData
-                                                                          .messageId);
-                                                                },
-                                                                child: SenderMessageCard(
-                                                                    avatarWidget:
-                                                                        getAvatarWithStatus(),
-                                                                    photoUrl: widget
-                                                                        .contactModel
-                                                                        .photoUrl,
-                                                                    message:
-                                                                        messageData
-                                                                            .text,
-                                                                    date:
-                                                                        timeSent,
-                                                                    type: messageData
-                                                                        .type,
-                                                                    username:
-                                                                        messageData.senderUsername ??
-                                                                            "",
-                                                                    repliedMessageType:
-                                                                        messageData
-                                                                            .repliedMessageType,
-                                                                    longPress:
-                                                                        changeShowOptions,
-                                                                    repliedText:
-                                                                        messageData
-                                                                            .repliedMessage,
-                                                                    isGroupChat:
-                                                                        isGroupChat),
-                                                              ),
-                                                            ],
-                                                          );
-                                                        }
-                                                      }
-                                                      if (index ==
-                                                              snapshot.data!
-                                                                  .length &&
-                                                          isTyping) {
-                                                        return SenderMessageCard(
-                                                            avatarWidget:
-                                                                getAvatarWithStatus(),
-                                                            photoUrl: "",
-                                                            message:
-                                                                "/////TYPINGZK????",
-                                                            date: "null",
-                                                            type: MessageEnum
-                                                                .text,
-                                                            username: "",
-                                                            repliedMessageType:
-                                                                MessageEnum
-                                                                    .text,
-                                                            longPress: () {},
-                                                            repliedText: '',
-                                                            isGroupChat:
-                                                                isGroupChat);
-                                                      }
-                                                      return const SizedBox();
-                                                    }),
-                                                  );
-                                                })),
+                                        child: _ChatList(
+                                            isGroupChat: isGroupChat,
+                                            contactModel: widget.contactModel,
+                                            showOptions: showOptions,
+                                            messageController:
+                                                messageController,
+                                            tempMessage: tempMessage,
+                                            messageId: messageId,
+                                            previousTime: previousTime,
+                                            isDateShown: isDateShown,
+                                            isTyping: isTyping,
+                                            changeShowOptions:
+                                                changeShowOptions,
+                                            decrementSelectedNum:
+                                                decrementSelectedNum,
+                                            incrementSelectedNum:
+                                                incrementSelectedNum)),
                                     MyTextField(
                                       model: widget.contactModel,
                                       isGroupChat: isGroupChat,
+                                      focusNode: focusNode,
                                     ),
                                   ],
                                 ),
@@ -1487,6 +1044,20 @@ class _ChatScreenState extends State<ChatScreen>
       }
     }
   }
+
+  void openProfile() {
+    if (isGroupChat) {
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => ChatProfileGroup(
+                id: widget.contactModel.contactId,
+              )));
+    } else {
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => ChatProfileScreen(
+                id: widget.contactModel.contactId,
+              )));
+    }
+  }
 }
 
 class MessageHoldSheet extends StatelessWidget {
@@ -1567,11 +1138,351 @@ class MessageHoldSheet extends StatelessWidget {
   }
 }
 
+// the stream wiget
+class _ChatList extends StatefulWidget {
+  final bool isGroupChat;
+  bool showOptions;
+  final ScrollController messageController;
+  final ChatContactModel contactModel;
+  List tempMessage;
+  List messageId;
+  String previousTime;
+  bool isDateShown;
+  bool isTyping;
+  VoidCallback changeShowOptions;
+  VoidCallback decrementSelectedNum;
+  VoidCallback incrementSelectedNum;
+  _ChatList({
+    required this.isGroupChat,
+    required this.contactModel,
+    required this.showOptions,
+    required this.messageController,
+    required this.tempMessage,
+    required this.messageId,
+    required this.previousTime,
+    required this.isDateShown,
+    required this.isTyping,
+    required this.changeShowOptions,
+    required this.decrementSelectedNum,
+    required this.incrementSelectedNum,
+  });
+
+  @override
+  State<_ChatList> createState() => __ChatListState();
+}
+
+class __ChatListState extends State<_ChatList> {
+  bool isGroupChat = false;
+  bool showOptions = false;
+  @override
+  void initState() {
+    super.initState();
+    isGroupChat = widget.isGroupChat;
+    showOptions = widget.showOptions;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return showOptions
+        ? ListView.builder(
+            controller: widget.messageController,
+            itemCount: widget.tempMessage.length + 1,
+            physics: const ClampingScrollPhysics(),
+            shrinkWrap: true,
+            itemBuilder: ((context, index) {
+              var messageData;
+              if (index != widget.tempMessage.length) {
+                messageData = widget.tempMessage[index];
+                if (messageData.messageId == messageData.recieverid) {
+                  widget.isTyping = true;
+                } else {
+                  var timeSent = DateFormat.jm().format(messageData.timeSent);
+                  if (!messageData.isSeen &&
+                      messageData.recieverid == firebaseAuth.currentUser!.uid) {
+                    if (!isGroupChat) {
+                      ChatMethods().setChatMessageSeen(
+                        widget.contactModel.contactId,
+                        messageData.messageId,
+                      );
+                    }
+                  }
+                  if (isGroupChat) {
+                    ChatMethods().setChatContactMessageSeen(
+                        widget.contactModel.contactId, isGroupChat);
+                  }
+                  //showing the time
+                  var dateInList =
+                      DateFormat.MMMMEEEEd().format(messageData.timeSent);
+                  if (widget.previousTime != dateInList) {
+                    widget.previousTime = dateInList;
+                    widget.isDateShown = false;
+                  } else {
+                    widget.isDateShown = true;
+                  }
+
+                  if (messageData.senderId == firebaseAuth.currentUser!.uid) {
+                    return Column(
+                      children: [
+                        if (!widget.isDateShown) getDateWithLines(dateInList),
+                        InkWell(
+                          onTap: (() {
+                            {
+                              if (widget.messageId
+                                  .contains(messageData.messageId)) {
+                                widget.decrementSelectedNum();
+
+                                widget.messageId.remove(messageData.messageId);
+                              } else {
+                                widget.incrementSelectedNum();
+
+                                widget.messageId.add(messageData.messageId);
+                              }
+                            }
+                          }),
+                          child: MyMessageCard(
+                            message: messageData.text,
+                            date: timeSent,
+                            isSeen: messageData.isSeen,
+                            type: messageData.type,
+                            isSelected: widget.messageId
+                                .contains(messageData.messageId),
+                            repliedText: messageData.repliedMessage,
+                            username: messageData.repliedTo,
+                            repliedMessageType: messageData.repliedMessageType,
+                            longPress: widget.changeShowOptions,
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+                  return Column(
+                    children: [
+                      if (!widget.isDateShown) getDateWithLines(dateInList),
+                      InkWell(
+                        onTap: (() {
+                          {
+                            if (widget.messageId
+                                .contains(messageData.messageId)) {
+                              widget.decrementSelectedNum();
+
+                              widget.messageId.remove(messageData.messageId);
+                            } else {
+                              widget.incrementSelectedNum();
+
+                              widget.messageId.add(messageData.messageId);
+                            }
+                          }
+                        }),
+                        child: Row(
+                          children: [
+                            SenderMessageCard(
+                              avatarWidget: getAvatarWithStatus(
+                                  isGroupChat, widget.contactModel),
+                              photoUrl: widget.contactModel.photoUrl,
+                              message: messageData.text,
+                              date: timeSent,
+                              type: messageData.type,
+                              username: messageData.senderUsername ?? "",
+                              isSelected: widget.messageId
+                                  .contains(messageData.messageId),
+                              repliedMessageType:
+                                  messageData.repliedMessageType,
+                              longPress: () {},
+                              repliedText: messageData.repliedMessage,
+                              isGroupChat: isGroupChat,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                }
+              }
+              return const SizedBox();
+            }),
+          )
+        : StreamBuilder<List<Message>>(
+            stream: isGroupChat
+                ? ChatMethods()
+                    .getGroupChatStream(widget.contactModel.contactId)
+                : ChatMethods().getChatStream(widget.contactModel.contactId),
+            builder: (context, snapshot) {
+              widget.isDateShown = false;
+              widget.isTyping = false;
+
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Container();
+              }
+              if (!showOptions) {
+                SchedulerBinding.instance.addPostFrameCallback((_) {
+                  widget.messageController.jumpTo(
+                      widget.messageController.position.maxScrollExtent);
+                });
+              } else {
+                SchedulerBinding.instance.addPostFrameCallback((_) {
+                  widget.messageController
+                      .jumpTo(widget.messageController.offset);
+                });
+              }
+
+              //in case of group chat checking if the message is deleted by the user
+              List<Message> messagesList = [];
+              if (isGroupChat) {
+                for (var element in snapshot.data!) {
+                  Message message = element;
+                  if (message.isMessageDeleted != null) {
+                    if (!message.isMessageDeleted!
+                        .contains(firebaseAuth.currentUser!.uid)) {
+                      messagesList.add(message);
+                    }
+                  } else {
+                    messagesList.add(message);
+                  }
+                }
+              } else {
+                messagesList = snapshot.data!;
+              }
+              return ListView.builder(
+                // key: listViewKey,
+                controller: widget.messageController,
+                itemCount: messagesList.length + 1,
+                physics: const ClampingScrollPhysics(),
+                shrinkWrap: true,
+                itemBuilder: ((context, index) {
+                  widget.tempMessage = messagesList;
+                  var messageData;
+                  if (index != snapshot.data!.length) {
+                    messageData = messagesList[index];
+                    if (messageData.messageId == messageData.recieverid) {
+                      widget.isTyping = true;
+                    } else {
+                      var timeSent =
+                          DateFormat.jm().format(messageData.timeSent);
+                      if (!messageData.isSeen &&
+                          messageData.recieverid ==
+                              firebaseAuth.currentUser!.uid) {
+                        if (!isGroupChat) {
+                          ChatMethods().setChatMessageSeen(
+                            widget.contactModel.contactId,
+                            messageData.messageId,
+                          );
+                        }
+                      }
+                      if (isGroupChat) {
+                        ChatMethods().setChatContactMessageSeen(
+                            widget.contactModel.contactId, isGroupChat);
+                      }
+
+                      //showing the time
+                      var dateInList =
+                          DateFormat.MMMMEEEEd().format(messageData.timeSent);
+                      if (widget.previousTime != dateInList) {
+                        widget.previousTime = dateInList;
+                        widget.isDateShown = false;
+                      } else {
+                        widget.isDateShown = true;
+                      }
+                      if (messageData.senderId ==
+                          firebaseAuth.currentUser!.uid) {
+                        return Column(
+                          children: [
+                            if (!widget.isDateShown)
+                              getDateWithLines(dateInList),
+                            InkWell(
+                              onLongPress: () {
+                                widget.changeShowOptions();
+                                widget.messageId.add(messageData.messageId);
+                              },
+
+                              // onTap: (() {
+                              //   if (showOptions) {
+                              //     if (messageId.contains(
+                              //         messageData
+                              //             .messageId)) {
+                              //       incrementSelectedNum();
+                              //       messageId.remove(
+                              //           messageData
+                              //               .messageId);
+                              //     } else {
+                              //       decrementSelectedNum();
+                              //       messageId.add(
+                              //           messageData
+                              //               .messageId);
+                              //     }
+                              //   }
+                              // }),
+                              child: MyMessageCard(
+                                message: messageData.text,
+                                date: timeSent,
+                                isSeen: messageData.isSeen,
+                                type: messageData.type,
+                                repliedText: messageData.repliedMessage,
+                                username: messageData.repliedTo,
+                                repliedMessageType:
+                                    messageData.repliedMessageType,
+                                longPress: widget.changeShowOptions,
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+                      return Column(
+                        children: [
+                          if (!widget.isDateShown) getDateWithLines(dateInList),
+                          InkWell(
+                            onLongPress: () {
+                              widget.changeShowOptions();
+                              widget.messageId.add(messageData.messageId);
+                            },
+                            child: SenderMessageCard(
+                                avatarWidget: getAvatarWithStatus(
+                                    widget.isGroupChat, widget.contactModel),
+                                photoUrl: widget.contactModel.photoUrl,
+                                message: messageData.text,
+                                date: timeSent,
+                                type: messageData.type,
+                                username: messageData.senderUsername ?? "",
+                                repliedMessageType:
+                                    messageData.repliedMessageType,
+                                longPress: widget.changeShowOptions,
+                                repliedText: messageData.repliedMessage,
+                                isGroupChat: isGroupChat),
+                          ),
+                        ],
+                      );
+                    }
+                  }
+                  if (index == snapshot.data!.length && widget.isTyping) {
+                    return SenderMessageCard(
+                        avatarWidget: getAvatarWithStatus(
+                            widget.isGroupChat, widget.contactModel),
+                        photoUrl: "",
+                        message: "/////TYPINGZK????",
+                        date: "null",
+                        type: MessageEnum.text,
+                        username: "",
+                        repliedMessageType: MessageEnum.text,
+                        longPress: () {},
+                        repliedText: '',
+                        isGroupChat: isGroupChat);
+                  }
+                  return const SizedBox();
+                }),
+              );
+            });
+  }
+}
+
+//The text field
 class MyTextField extends StatefulWidget {
   final ChatContactModel model;
   final bool isGroupChat;
+  final FocusNode focusNode;
   const MyTextField(
-      {required this.model, required this.isGroupChat, super.key});
+      {required this.model,
+      required this.focusNode,
+      required this.isGroupChat,
+      super.key});
 
   @override
   State<MyTextField> createState() => _MyTextFieldState();
@@ -1585,12 +1496,13 @@ class _MyTextFieldState extends State<MyTextField> {
   bool isRecorderInit = false;
   bool isRecording = false;
   bool isRecordingPressed = false;
-  FocusNode focusNode = FocusNode();
+  late FocusNode focusNode;
   final TextEditingController _messageController = TextEditingController();
   bool isBlocked = false;
   @override
   void initState() {
     super.initState();
+    focusNode = widget.focusNode;
     if (!widget.isGroupChat) {
       getBlock();
     }
@@ -2444,5 +2356,78 @@ class _TabSwitchState extends State<_TabSwitch> {
         ),
       ),
     );
+  }
+}
+
+class MenuItem {
+  final String text;
+  final IconData icon;
+  const MenuItem({
+    required this.text,
+    required this.icon,
+  });
+}
+
+class MenuItems {
+  static late List<MenuItem> firstItems;
+  static List<MenuItem> secondItems = [logout];
+
+  static var home;
+  static var share;
+  static var logout;
+  // static var home = MenuItem(
+  //     text: isGroupChat ? "Group Info" : "Profile",
+  //     icon: isGroupChat ? Icons.groups_2_rounded : Icons.person);
+  // static var share = const MenuItem(text: 'Delete', icon: Icons.delete);
+  // static var logout = MenuItem(
+  //     text: isGroupChat
+  //         ? "Leave"
+  //         : isBlocked
+  //             ? "Unblock"
+  //             : "Block",
+  //     icon: Icons.logout);
+
+  static void makeMenuItem(bool isGroupChat, bool isBlocked) {
+    home = MenuItem(
+        text: isGroupChat ? "Group Info" : "Profile",
+        icon: isGroupChat ? Icons.groups_2_rounded : Icons.person);
+    share = const MenuItem(text: 'Delete', icon: Icons.delete);
+    logout = MenuItem(
+        text: isGroupChat
+            ? "Leave"
+            : isBlocked
+                ? "Unblock"
+                : "Block",
+        icon: Icons.logout);
+    //adding the values to the list
+    firstItems = [
+      home,
+      if (!isGroupChat) share,
+    ];
+  }
+
+  static Widget buildItem(MenuItem item) {
+    return Row(
+      children: [
+        Icon(item.icon, color: Colors.white, size: 22),
+        const SizedBox(
+          width: 10,
+        ),
+        Text(
+          item.text,
+          style: const TextStyle(
+            color: Colors.white,
+          ),
+        ),
+      ],
+    );
+  }
+
+  static onChanged(
+      BuildContext context, MenuItem item, VoidCallback profileCallBack) {
+    if (item == MenuItems.home) {
+      profileCallBack();
+    } else if (item == MenuItems.share) {
+    } else if (item == MenuItems.logout) {}
   }
 }

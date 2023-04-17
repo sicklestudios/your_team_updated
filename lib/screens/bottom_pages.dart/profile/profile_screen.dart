@@ -4,14 +4,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:path/path.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:yourteam/constants/colors.dart';
+import 'package:yourteam/constants/constant_utils.dart';
 import 'package:yourteam/constants/constants.dart';
 import 'package:yourteam/methods/auth_methods.dart';
 import 'package:yourteam/models/user_model.dart';
 import 'package:yourteam/screens/auth/login_screen.dart';
-import 'package:yourteam/screens/bottom_pages.dart/profile/profile_update_screen.dart';
 import 'package:yourteam/screens/bottom_pages.dart/profile/profile_view_screen.dart';
 import 'package:yourteam/screens/delete_screen.dart';
 
@@ -351,7 +350,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                                 borderRadius: BorderRadius.circular(15)),
                             child: Center(
                               child: ListTile(
-                                onTap: () {},
+                                onTap: () {
+                                  reviewApp();
+                                },
                                 leading: Container(
                                   decoration: BoxDecoration(
                                       color: mainColor.withOpacity(0.1),

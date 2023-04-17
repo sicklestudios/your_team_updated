@@ -126,7 +126,7 @@ class AuthMethods {
           uid: credential.user!.uid,
           username: username.trim(),
           email: email.trim(),
-          photoUrl: staticPhotoUrl,
+          photoUrl: "",
           bio: "",
           contact: "",
           contactEmail: "",

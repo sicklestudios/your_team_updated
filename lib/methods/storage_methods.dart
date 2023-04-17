@@ -75,7 +75,7 @@ class StorageMethods {
     {
       Reference photoRef = await FirebaseStorage.instance.refFromURL(photoUrl);
       await photoRef.delete();
-      FirestoreMethods().addPhotoToFirestore(url: staticPhotoUrl);
+      FirestoreMethods().addPhotoToFirestore(url: "");
       showToastMessage("Profile Removed");
     }
   }

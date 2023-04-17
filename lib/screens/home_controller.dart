@@ -30,6 +30,7 @@ import 'package:yourteam/screens/toppages/call_screen_list.dart';
 import 'package:yourteam/screens/toppages/chat/chat_list_screen.dart';
 import 'package:yourteam/service/fcmcallservices/fcmcallservices.dart';
 import 'package:yourteam/service/local_push_notification.dart';
+import 'package:yourteam/utils/helper_widgets.dart';
 
 // // //message handler
 // Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -405,24 +406,62 @@ class _HomeControllerState extends State<HomeController>
                         backgroundColor: whiteColor,
                         toolbarHeight: 70,
                         elevation: 1.5,
-                        leading: Builder(
-                          builder: (context) {
-                            return IconButton(
-                              onPressed: () {
-                                // showSimpleDialog(context)
-                                Scaffold.of(context).openDrawer();
-                              },
-                              icon: getIcon(Icons.menu),
-                              // icon: Image.asset('assets/group.png'),
+                        leading: bottomIndex == 0
+                            ? Builder(builder: (context) {
+                                return IconButton(
+                                  onPressed: () {
+                                    // showSimpleDialog(context)
+                                    Scaffold.of(context).openDrawer();
+                                  },
+                                  icon: getIcon(Icons.menu),
+                                  // icon: Image.asset('assets/group.png'),
+                                );
+                              })
+                            : null,
+                        title: Builder(builder: (context) {
+                          if (bottomIndex == 0) {
+                            return const Text(
+                              "Chats",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold),
                             );
-                          },
-                        ),
-                        title: Text(
-                          _getText(),
-                          style: const TextStyle(
-                              color: mainTextColor,
-                              fontWeight: FontWeight.bold),
-                        ),
+                          } else if (bottomIndex == 1) {
+                            return Row(
+                              children: [
+                                showUsersImage(userInfo.photoUrl == "",
+                                    picUrl: userInfo.photoUrl, size: 20),
+                                const SizedBox(
+                                  width: 10,
+                                ),
+                                const Text(
+                                  "My Tasks",
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w400),
+                                ),
+                              ],
+                            );
+                          } else if (bottomIndex == 2) {
+                            return const Text(
+                              "Contacts",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold),
+                            );
+                          } else {
+                            return const Text(
+                              "Account",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold),
+                            );
+                          }
+                        }),
                         centerTitle: true,
                         actions: [
                           // if (bottomIndex != 1 &&
@@ -436,16 +475,20 @@ class _HomeControllerState extends State<HomeController>
                           //     },
                           //     icon: getIcon(Icons.search),
                           //   ),
-                          IconButton(
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const NotificationsScreen()));
-                            },
-                            icon: getIcon(Icons.notifications),
-                          ),
+                          if (bottomIndex == 2)
+                            TextButton(
+                                onPressed: () {}, child: Text("Add New")),
+                          if (bottomIndex != 2)
+                            IconButton(
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            const NotificationsScreen()));
+                              },
+                              icon: getIcon(Icons.notifications),
+                            ),
                         ],
                       ),
                       drawer: SafeArea(

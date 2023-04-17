@@ -7,7 +7,6 @@ import 'package:yourteam/constants/constant_utils.dart';
 import 'package:yourteam/constants/constants.dart';
 import 'package:yourteam/constants/utils.dart';
 import 'package:yourteam/models/user_model.dart';
-import 'package:yourteam/screens/toppages/chat/colors.dart';
 import 'package:uuid/uuid.dart';
 import 'package:yourteam/methods/storage_methods.dart';
 import 'package:yourteam/models/group.dart' as model;

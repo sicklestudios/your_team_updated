@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:yourteam/constants/colors.dart';
+import 'package:yourteam/constants/constant_utils.dart';
 import 'package:yourteam/methods/firestore_methods.dart';
 import 'package:yourteam/models/notification_model.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -46,14 +47,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   );
                 }
                 if (snapshot.data == null) {
-                  return const Center(
-                    child: Text("Nothing to show"),
-                  );
+                  return returnNothingToShow();
                 }
                 if (snapshot.data!.isEmpty) {
-                  return const Center(
-                    child: Text("Nothing to show"),
-                  );
+                  return returnNothingToShow();
                 }
                 return ListView.builder(
                     itemCount: snapshot.data!.length,
