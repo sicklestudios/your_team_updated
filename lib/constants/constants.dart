@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
 String appVersion = '1.02';
 String appName = "Your Chat";
@@ -27,3 +28,12 @@ String agoraAppId = "b2f84a50565243f2a23a384c7fbb229c";
 String agoraAppCertificate = "478b46cf1f6948058dfa2222f76e77f7";
 String agoraTempToken =
     "007eJxTYPi55T2DlENLV1WB7tFWa/2qBQtjnp3mP6U5hefHun87nVoVGJKM0ixMEk0NTM1MjUyM04wSjYwTjS1Mks3TkpKMjCyTXWPeJjcEMjJI3HRnYWSAQBCfiaEqm4EBACxwHuE=";
+
+class MenuItem {
+  final String text;
+  final IconData icon;
+  const MenuItem({
+    required this.text,
+    required this.icon,
+  });
+}

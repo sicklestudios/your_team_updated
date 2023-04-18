@@ -21,6 +21,11 @@ xmlns:tools="http://schemas.android.com/tools"
     <uses-permission android:name="android.hardware.sensor.proximity"/>
     <uses-permission android:name="android.permission.BODY_SENSORS_BACKGROUND"/>
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>
+    <queries>
+            <intent>
+                <action android:name="android.speech.RecognitionService" />
+            </intent>
+    </queries>
    <application
         
         android:label="Your Chat"

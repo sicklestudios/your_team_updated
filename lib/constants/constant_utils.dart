@@ -48,8 +48,8 @@ getAvatarWithStatus(bool isGroupChat, ChatContactModel contactModel,
                   ))
               : CircleAvatar(
                   radius: size, child: const Icon(Icons.groups_outlined))
-          : showUsersImage(userInfo.photoUrl == "",
-              picUrl: userInfo.photoUrl, size: size),
+          : showUsersImage(contactModel.photoUrl == "",
+              picUrl: contactModel.photoUrl, size: size),
       if (!isGroupChat)
         StreamBuilder<bool>(
             stream: ChatMethods().getOnlineStream(contactModel.contactId),
@@ -59,7 +59,7 @@ getAvatarWithStatus(bool isGroupChat, ChatContactModel contactModel,
                   right: 1,
                   child: Icon(
                     Icons.circle_rounded,
-                    size: 14,
+                    size: size >= 25 ? 25 : 14,
                     color: snapshot.data != null
                         ? snapshot.data!
                             ? Colors.green
@@ -213,17 +213,11 @@ getMessageCard(var model, context, {bool isGroupChat = false}) {
                         ))
                     : const CircleAvatar(
                         radius: 25, child: Icon(Icons.groups_outlined))
-                : model.photoUrl != ""
-                    ? CircleAvatar(
-                        radius: 25,
-                        backgroundImage: CachedNetworkImageProvider(
-                          model.photoUrl,
-                          // maxWidth: 50,
-                          // maxHeight: 50,
-                        ))
-                    : const CircleAvatar(
-                        radius: 25,
-                        backgroundImage: AssetImage('assets/user.png')),
+                : showUsersImage(model.photoUrl == "",
+                    size: 25,
+                    picUrl: model.photoUrl != ""
+                        ? model.photoUrl
+                        : 'assets/user.png'),
             if (!isGroupChat)
               StreamBuilder<bool>(
                   stream: ChatMethods().getOnlineStream(model.contactId),
@@ -443,7 +437,7 @@ showSimpleDialog(BuildContext context) async {
               ])));
 }
 
-showNewMessage(BuildContext context) async {
+void showNewMessage(BuildContext context) async {
   var size = MediaQuery.of(context).size;
   return await showDialog(
       barrierDismissible: true,

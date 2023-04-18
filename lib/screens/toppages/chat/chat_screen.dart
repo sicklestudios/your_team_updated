@@ -35,8 +35,8 @@ import 'package:yourteam/screens/call/call_methods.dart';
 import 'package:yourteam/screens/call/call_notification_sent.dart';
 import 'package:yourteam/screens/call/calls_ui/screens/dialScreen/dial_screen.dart';
 import 'package:yourteam/screens/task/add_task.dart';
-import 'package:yourteam/screens/toppages/chat/chat_profile_group/chat_profile_group.dart';
-import 'package:yourteam/screens/toppages/chat/chat_profile_group/chat_profile_screen.dart';
+import 'package:yourteam/screens/toppages/chat/chat_profile/chat_profile_group.dart';
+import 'package:yourteam/screens/toppages/chat/chat_profile/chat_profile_screen.dart';
 import 'package:yourteam/screens/toppages/chat/forward_message_screen.dart';
 import 'package:yourteam/screens/toppages/chat/widgets/message_reply_preview.dart';
 import 'package:yourteam/screens/toppages/chat/widgets/my_message_card.dart';
@@ -129,123 +129,21 @@ class _ChatScreenState extends State<ChatScreen>
     _isExpanded = !_isExpanded;
   }
 
-  Column _getFloatingButton() {
-    return Column(
-      // mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Transform(
-          transform: Matrix4.translationValues(
-            0,
-            _translateButton.value * 2,
-            0,
-          ),
-          child: Container(
-              height: isGroupChat ? 110 : 150,
-              width: 130,
-              decoration: BoxDecoration(
-                  color: whiteColor, borderRadius: BorderRadius.circular(15)),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        if (_isExpanded) {
-                          _animationController.reverse();
-                          _isExpanded = !_isExpanded;
-                        }
-                        openProfile();
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(
-                            isGroupChat ? "Group Info" : "Profile",
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Icon(
-                              isGroupChat
-                                  ? Icons.groups_2_rounded
-                                  : Icons.person,
-                              color: mainColor,
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                    if (!isGroupChat)
-                      InkWell(
-                        onTap: () {
-                          _showDeleteDialog();
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: const [
-                            Text(
-                              "Delete",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Icon(
-                                Icons.delete,
-                                color: Colors.red,
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    InkWell(
-                      onTap: () {
-                        _showBlockDialog();
-                      },
-                      child: StreamBuilder<UserModel>(
-                          stream: ChatMethods().getBlockStatus(),
-                          builder: (context, snapshot) {
-                            if (snapshot.data != null) {
-                              isBlocked = snapshot.data!.blockList
-                                  .contains(widget.contactModel.contactId);
-                            }
-                            return Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  isGroupChat
-                                      ? "Leave"
-                                      : isBlocked
-                                          ? "Unblock"
-                                          : "Block",
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                const Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Icon(
-                                    Icons.block,
-                                    color: Colors.black,
-                                  ),
-                                )
-                              ],
-                            );
-                          }),
-                    ),
-                  ],
-                ),
-              )),
-        )
-      ],
-    );
-  }
-
   final ScrollController messageController =
       ScrollController(keepScrollOffset: true);
   @override
   void dispose() {
     super.dispose();
     messageController.dispose();
+  }
+
+  void startGetBlockStatus() {
+    ChatMethods().getBlockStatus().listen((event) {
+      isBlocked = event.blockList.contains(widget.contactModel.contactId);
+      if (mounted) {
+        setState(() {});
+      }
+    });
   }
 
   @override
@@ -293,6 +191,7 @@ class _ChatScreenState extends State<ChatScreen>
         }
       } catch (e) {}
     });
+    startGetBlockStatus();
   }
 
   void sendForwardedMessageToUser() {
@@ -537,8 +436,9 @@ class _ChatScreenState extends State<ChatScreen>
                           )
                         : AppBar(
                             automaticallyImplyLeading: false,
-                            backgroundColor: Colors.transparent,
-                            elevation: 0,
+                            backgroundColor: Colors.white,
+                            elevation: 2,
+                            toolbarHeight: 65,
                             title: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -553,61 +453,30 @@ class _ChatScreenState extends State<ChatScreen>
                                           size: 20,
                                           color: mainColor,
                                         )),
-                                    getAvatarWithStatus(
-                                        isGroupChat, widget.contactModel),
-                                    const SizedBox(
-                                      width: 5,
-                                    ),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          widget.contactModel.name,
-                                          style: const TextStyle(
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        // if (!isGroupChat)
-                                        //   StreamBuilder<bool>(
-                                        //       stream: ChatMethods()
-                                        //           .getOnlineStream(widget
-                                        //               .contactModel.contactId),
-                                        //       builder: (context, snapshot) {
-                                        //         return Row(
-                                        //           children: [
-                                        //             Icon(
-                                        //               Icons.circle,
-                                        //               color:
-                                        //                   snapshot.data != null
-                                        //                       ? snapshot.data!
-                                        //                           ? Colors.green
-                                        //                           : Colors.grey
-                                        //                       : Colors.grey,
-                                        //               size: 14,
-                                        //             ),
-                                        //             Text(
-                                        //               snapshot.data != null
-                                        //                   ? snapshot.data!
-                                        //                       ? "Online"
-                                        //                       : "Offline"
-                                        //                   : "Offline",
-                                        //               style: TextStyle(
-                                        //                   color: snapshot
-                                        //                               .data !=
-                                        //                           null
-                                        //                       ? snapshot.data!
-                                        //                           ? Colors.green
-                                        //                           : Colors.grey
-                                        //                       : Colors.grey,
-                                        //                   fontSize: 11,
-                                        //                   fontWeight: FontWeight
-                                        //                       .normal),
-                                        //             ),
-                                        //           ],
-                                        //         );
-                                        //       }),
-                                      ],
+                                    InkWell(
+                                      onTap: openProfile,
+                                      child: Row(
+                                        children: [
+                                          getAvatarWithStatus(
+                                              isGroupChat, widget.contactModel),
+                                          const SizedBox(
+                                            width: 5,
+                                          ),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                widget.contactModel.name,
+                                                style: const TextStyle(
+                                                    color: Colors.black,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -659,11 +528,6 @@ class _ChatScreenState extends State<ChatScreen>
 
                                                       await callsetting(
                                                           calltype: false);
-                                                      // Navigator.of(context).push(MaterialPageRoute(
-                                                      //     builder: (context) => CallScreen(
-                                                      //           model: widget.contactModel,
-                                                      //           isAudioCall: false,
-                                                      //         )));
                                                     }
                                                   : null,
                                               child: Padding(
@@ -699,20 +563,14 @@ class _ChatScreenState extends State<ChatScreen>
                                                 const DropdownMenuItem<Divider>(
                                                     enabled: false,
                                                     child: Divider()),
-                                                ...MenuItems.secondItems.map(
-                                                  (item) => DropdownMenuItem<
-                                                      MenuItem>(
-                                                    value: item,
-                                                    child: MenuItems.buildItem(
-                                                        item),
-                                                  ),
-                                                ),
                                               ],
                                               onChanged: (value) {
                                                 MenuItems.onChanged(
                                                     context,
                                                     value as MenuItem,
-                                                    openProfile);
+                                                    openProfile,
+                                                    _showDeleteDialog,
+                                                    _showBlockDialog);
                                               },
                                               dropdownStyleData:
                                                   DropdownStyleData(
@@ -736,66 +594,24 @@ class _ChatScreenState extends State<ChatScreen>
                                                           .firstItems.length,
                                                       48),
                                                   8,
-                                                  ...List<double>.filled(
-                                                      MenuItems
-                                                          .secondItems.length,
-                                                      48),
                                                 ],
                                                 padding: const EdgeInsets.only(
                                                     left: 16, right: 16),
                                               ),
                                             ),
                                           ),
-                                          // InkWell(
-                                          //     onTap: _toggle,
-                                          //     // onTap: () {},
-                                          //     child: const Padding(
-                                          //       padding: EdgeInsets.all(8.0),
-                                          //       child: Icon(
-                                          //         Icons.more_vert,
-                                          //         size: 25,
-                                          //         color: Colors.black,
-                                          //       ),
-                                          //     )),
                                         ],
                                       );
                                     })
                               ],
                             ),
                           ),
-                    floatingActionButton: _getFloatingButton(),
+                    // floatingActionButton: _getFloatingButton(),
                     body: Column(
                       children: [
                         const SizedBox(
                           height: 10,
                         ),
-                        // if (!isGroupChat)
-                        _TabSwitch(
-                          value: pageIndex,
-                          callBack: () {
-                            setState(() {
-                              if (pageIndex == 0) {
-                                pageIndex = 1;
-                              } else {
-                                pageIndex = 0;
-                              }
-                            });
-                          },
-                        ),
-                        // pageIndex == 0
-                        //     ? Expanded(
-                        //         child: Column(
-                        //           children: [
-                        //             Expanded(
-                        //                 child: ChatList(
-                        //               chatModel: widget.contactModel,
-                        //               changeState: changeShowOptions,
-                        //             )),
-                        //             MyTextField(model: widget.contactModel),
-                        //           ],
-                        //         ),
-                        //       )
-                        //     : TodoScreen(id: widget.contactModel.contactId),
                         pageIndex == 0
                             ? Expanded(
                                 child: Column(
@@ -1054,7 +870,7 @@ class _ChatScreenState extends State<ChatScreen>
     } else {
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => ChatProfileScreen(
-                id: widget.contactModel.contactId,
+                chatContactModel: widget.contactModel,
               )));
     }
   }
@@ -1393,24 +1209,6 @@ class __ChatListState extends State<_ChatList> {
                                 widget.changeShowOptions();
                                 widget.messageId.add(messageData.messageId);
                               },
-
-                              // onTap: (() {
-                              //   if (showOptions) {
-                              //     if (messageId.contains(
-                              //         messageData
-                              //             .messageId)) {
-                              //       incrementSelectedNum();
-                              //       messageId.remove(
-                              //           messageData
-                              //               .messageId);
-                              //     } else {
-                              //       decrementSelectedNum();
-                              //       messageId.add(
-                              //           messageData
-                              //               .messageId);
-                              //     }
-                              //   }
-                              // }),
                               child: MyMessageCard(
                                 message: messageData.text,
                                 date: timeSent,
@@ -1765,12 +1563,6 @@ class _MyTextFieldState extends State<MyTextField> {
                               autofocus: false,
                               maxLines: 10,
                               minLines: 1,
-                              // onFieldSubmitted: (val) {
-                              //   if (_messageController
-                              //       .text.isNotEmpty) {
-                              //     sendTextMessage();
-                              //   }
-                              // },
                               onChanged: (val) {
                                 if (!isBlocked) {
                                   // log(isBlocked.toString());
@@ -1781,14 +1573,11 @@ class _MyTextFieldState extends State<MyTextField> {
                                 }
                                 if (val.isNotEmpty) {
                                   if (!isShowSendButton) {
-                                    // ChatMethods()
-                                    //     .updateTyping(widget.model.contactId, true);
                                     setState(() {
                                       isShowSendButton = true;
                                     });
                                   }
                                 } else {
-                                  // ChatMethods().updateTyping(widget.model.contactId, false);
                                   setState(() {
                                     isShowSendButton = false;
                                   });
@@ -1802,48 +1591,7 @@ class _MyTextFieldState extends State<MyTextField> {
                                   hintText: 'Message ${widget.model.name}',
                                   fillColor: Colors.transparent,
                                   filled: true,
-                                  border: InputBorder.none
-                                  // prefixIcon: IconButton(
-                                  //   onPressed: toggleEmojiKeyboardContainer,
-                                  //   icon: const Icon(
-                                  //     Icons.emoji_emotions,
-                                  //     color: mainColor,
-                                  //   ),
-                                  // ),
-                                  // suffixIcon: SizedBox(
-                                  //   width: isShowSendButton ? 0 : 100,
-                                  //   child: Row(
-                                  //     mainAxisAlignment: MainAxisAlignment.end,
-                                  //     children: [
-                                  //       IconButton(
-                                  //         onPressed: selectFile,
-                                  //         color: Colors.grey,
-                                  //         icon: const Icon(Icons.attach_file),
-                                  //       ),
-                                  //       if (!isShowSendButton)
-                                  //         IconButton(
-                                  //           onPressed: selectImage,
-                                  //           color: Colors.grey,
-                                  //           icon: const Icon(Icons.camera_alt),
-                                  //         )
-                                  //     ],
-                                  //   ),
-                                  // ),
-                                  // enabledBorder: OutlineInputBorder(
-                                  //   borderSide: const BorderSide(
-                                  //     color: mainColor,
-                                  //     width: 1,
-                                  //   ),
-                                  //   borderRadius: BorderRadius.circular(4.0),
-                                  // ),
-                                  // focusedBorder: OutlineInputBorder(
-                                  //   borderSide: const BorderSide(
-                                  //     color: mainColor,
-                                  //     width: 1,
-                                  //   ),
-                                  //   borderRadius: BorderRadius.circular(4.0),
-                                  // ),
-                                  ),
+                                  border: InputBorder.none),
                             ),
                           ),
                         ),
@@ -1945,42 +1693,6 @@ class _MyTextFieldState extends State<MyTextField> {
                                                       ],
                                                     ),
                                                   ),
-                                                  // const SizedBox(
-                                                  //   width: 20,
-                                                  // ),
-                                                  // InkWell(
-                                                  //   onTap: () {
-                                                  //     selectVideo();
-                                                  //     Navigator.pop(context);
-                                                  //   },
-                                                  //   child: Column(
-                                                  //     children: [
-                                                  //       Container(
-                                                  //         decoration:
-                                                  //         BoxDecoration(
-                                                  //           border: Border.all(
-                                                  //               color: mainColor),
-                                                  //           borderRadius:
-                                                  //           BorderRadius
-                                                  //               .circular(50),
-                                                  //         ),
-                                                  //         child: const Padding(
-                                                  //           padding:
-                                                  //           EdgeInsets.all(
-                                                  //               10),
-                                                  //           child: Icon(
-                                                  //             Icons.video_camera_back_rounded,
-                                                  //             size: 35,
-                                                  //             color: mainColor,
-                                                  //           ),
-                                                  //         ),
-                                                  //       ),
-                                                  //       const Text(
-                                                  //         'Video',
-                                                  //       )
-                                                  //     ],
-                                                  //   ),
-                                                  // ),
                                                 ],
                                               ),
                                             )
@@ -2056,17 +1768,6 @@ class _MyTextFieldState extends State<MyTextField> {
                       _messageController.selection = TextSelection.fromPosition(
                           TextPosition(offset: _messageController.text.length));
                     });
-                    //       TextSelection(
-                    //           baseOffset:
-                    //               (_messageController.text +
-                    //                       emoji.emoji)
-                    //                   .length,
-                    //           extentOffset:
-                    //               (_messageController.text +
-                    //                       emoji.emoji)
-                    //                   .length);
-                    // });
-
                     if (!isShowSendButton) {
                       setState(() {
                         isShowSendButton = true;
@@ -2104,186 +1805,6 @@ class _MyTextFieldState extends State<MyTextField> {
             );
           }
           return getTextField();
-          // return Padding(
-          //   padding: const EdgeInsets.only(bottom: 25, right: 15, left: 15),
-          //   child: Column(
-          //     children: [
-          //       Row(
-          //         children: [
-          //           if (isRecording)
-          //             AudioWaveforms(
-          //               size: Size(
-          //                   MediaQuery.of(context).size.width / 1.95, 30.0),
-          //               recorderController: _controller!,
-          //               enableGesture: false,
-          //               padding: const EdgeInsets.all(20),
-          //               waveStyle: const WaveStyle(
-          //                 waveColor: mainColor,
-          //                 waveThickness: 5,
-          //                 backgroundColor: Colors.black,
-          //                 showDurationLabel: true,
-          //                 spacing: 8.0,
-          //                 durationStyle: TextStyle(color: mainColor),
-          //                 showBottom: true,
-          //                 extendWaveform: true,
-          //                 durationLinesColor: mainColor,
-          //                 showMiddleLine: false,
-          //                 //   gradient: ui.Gradient.linear(
-          //                 //     const Offset(70, 50),
-          //                 //     // Offset(MediaQuery.of(context).size.width / 2, 0),
-          //                 //     [Colors.red, Colors.green],
-          //                 // ),
-          //               ),
-          //             ),
-          //           // if (messageReply != null)
-
-          //           if (!isRecording)
-          //             Expanded(
-          //               child: Row(
-          //                 children: [
-          //                   Expanded(
-          //                     child: Container(
-          //                       constraints: const BoxConstraints(
-          //                           maxHeight: 100, maxWidth: 100),
-          //                       child: TextFormField(
-          //                         focusNode: focusNode,
-          //                         controller: _messageController,
-          //                         autofocus: false,
-          //                         onFieldSubmitted: (val) {
-          //                           if (_messageController.text.isNotEmpty) {
-          //                             sendTextMessage();
-          //                           }
-          //                         },
-          //                         onChanged: (val) {
-          //                           if (val.isNotEmpty) {
-          //                             if (!isShowSendButton) {
-          //                               setState(() {
-          //                                 isShowSendButton = true;
-          //                               });
-          //                             }
-          //                           } else {
-          //                             setState(() {
-          //                               isShowSendButton = false;
-          //                             });
-          //                           }
-          //                         },
-          //                         decoration: InputDecoration(
-          //                           hintText: 'Message',
-          //                           prefixIcon: IconButton(
-          //                             onPressed: toggleEmojiKeyboardContainer,
-          //                             icon: const Icon(
-          //                               Icons.emoji_emotions,
-          //                               color: mainColor,
-          //                             ),
-          //                           ),
-          //                           suffixIcon: SizedBox(
-          //                             width: isShowSendButton ? 0 : 100,
-          //                             child: Row(
-          //                               mainAxisAlignment:
-          //                                   MainAxisAlignment.end,
-          //                               children: [
-          //                                 IconButton(
-          //                                   onPressed: selectFile,
-          //                                   color: Colors.grey,
-          //                                   icon: const Icon(Icons.attach_file),
-          //                                 ),
-          //                                 if (!isShowSendButton)
-          //                                   IconButton(
-          //                                     onPressed: selectImage,
-          //                                     color: Colors.grey,
-          //                                     icon:
-          //                                         const Icon(Icons.camera_alt),
-          //                                   )
-          //                               ],
-          //                             ),
-          //                           ),
-          //                           enabledBorder: OutlineInputBorder(
-          //                             borderSide: const BorderSide(
-          //                               color: mainColor,
-          //                               width: 1,
-          //                             ),
-          //                             borderRadius: BorderRadius.circular(4.0),
-          //                           ),
-          //                           focusedBorder: OutlineInputBorder(
-          //                             borderSide: const BorderSide(
-          //                               color: mainColor,
-          //                               width: 1,
-          //                             ),
-          //                             borderRadius: BorderRadius.circular(4.0),
-          //                           ),
-          //                         ),
-          //                       ),
-          //                     ),
-          //                   ),
-          //                 ],
-          //               ),
-          //             ),
-          //           const SizedBox(
-          //             width: 10,
-          //           ),
-          //           if (isRecording)
-          //             Expanded(
-          //               child: InkWell(
-          //                   onTap: () {
-          //                     cancelRecording();
-          //                   },
-          //                   child: const CircleAvatar(
-          //                     radius: 28,
-          //                     child: Icon(
-          //                       Icons.close,
-          //                       // ? Icons.close
-          //                       // : Icons.mic,
-
-          //                       size: 35,
-          //                       color: Colors.red,
-          //                     ),
-          //                   )),
-          //             ),
-          //           const SizedBox(
-          //             width: 5,
-          //           ),
-          //           InkWell(
-          //               onTap: () {
-          //                 sendTextMessage();
-          //               },
-          //               child: CircleAvatar(
-          //                 radius: 28,
-          //                 child: Icon(
-          //                   isShowSendButton
-          //                       ? Icons.send
-          //                       : isRecording
-          //                           ? Icons.send
-          //                           : Icons.mic,
-          //                   // ? Icons.close
-          //                   // : Icons.mic,
-
-          //                   size: 35,
-          //                 ),
-          //               ))
-          //         ],
-          //       ),
-          //       isShowEmojiContainer
-          //           ? SizedBox(
-          //               height: 310,
-          //               child: EmojiPicker(
-          //                 onEmojiSelected: ((category, emoji) {
-          //                   setState(() {
-          //                     _messageController.text =
-          //                         _messageController.text + emoji.emoji;
-          //                   });
-
-          //                   if (!isShowSendButton) {
-          //                     setState(() {
-          //                       isShowSendButton = true;
-          //                     });
-          //                   }
-          //                 }),
-          //               ),
-          //             )
-          //           : const SizedBox(),
-          //     ],
-          //   ),
-          // );
         });
   }
 }
@@ -2359,18 +1880,9 @@ class _TabSwitchState extends State<_TabSwitch> {
   }
 }
 
-class MenuItem {
-  final String text;
-  final IconData icon;
-  const MenuItem({
-    required this.text,
-    required this.icon,
-  });
-}
-
 class MenuItems {
   static late List<MenuItem> firstItems;
-  static List<MenuItem> secondItems = [logout];
+  // static List<MenuItem> secondItems = [logout];
 
   static var home;
   static var share;
@@ -2400,10 +1912,7 @@ class MenuItems {
                 : "Block",
         icon: Icons.logout);
     //adding the values to the list
-    firstItems = [
-      home,
-      if (!isGroupChat) share,
-    ];
+    firstItems = [home, if (!isGroupChat) share, logout];
   }
 
   static Widget buildItem(MenuItem item) {
@@ -2424,10 +1933,17 @@ class MenuItems {
   }
 
   static onChanged(
-      BuildContext context, MenuItem item, VoidCallback profileCallBack) {
+      BuildContext context,
+      MenuItem item,
+      VoidCallback profileCallBack,
+      VoidCallback deleteCallBack,
+      VoidCallback blockCallBack) {
     if (item == MenuItems.home) {
       profileCallBack();
     } else if (item == MenuItems.share) {
-    } else if (item == MenuItems.logout) {}
+      deleteCallBack();
+    } else if (item == MenuItems.logout) {
+      blockCallBack();
+    }
   }
 }

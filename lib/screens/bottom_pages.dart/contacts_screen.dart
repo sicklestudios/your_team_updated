@@ -48,8 +48,8 @@ class _ContactsScreenState extends State<ContactsScreen> {
               temp = snapshot.data!;
             }
             if (temp.isEmpty) {
-              return const Center(
-                child: Text("Nothing to show"),
+              return Center(
+                child: returnNothingToShow(),
               );
             }
             return ListView.builder(

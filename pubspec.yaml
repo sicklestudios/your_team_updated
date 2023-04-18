@@ -96,6 +96,7 @@ dependencies:
   flutter_speech: ^2.0.0
   open_store: ^0.5.0
   dropdown_button2: ^2.1.0
+  speech_to_text: ^6.1.1
   # device_info_plus: ^8.1.0
   # proximity_sensor: ^1.0.4
 

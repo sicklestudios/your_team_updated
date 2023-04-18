@@ -1,3 +1,4 @@
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -31,6 +32,7 @@ import 'package:yourteam/screens/toppages/chat/chat_list_screen.dart';
 import 'package:yourteam/service/fcmcallservices/fcmcallservices.dart';
 import 'package:yourteam/service/local_push_notification.dart';
 import 'package:yourteam/utils/helper_widgets.dart';
+import 'package:yourteam/utils/voice_search_textfield.dart';
 
 // // //message handler
 // Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -58,6 +60,9 @@ class _HomeControllerState extends State<HomeController>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   /// For fcm background message handler.
   ///
+  //TextField search controller
+  final TextEditingController _textEditingController = TextEditingController();
+
   //value to get from text field
   String value = "";
   int pageIndex = 0;
@@ -202,9 +207,11 @@ class _HomeControllerState extends State<HomeController>
       NavigationService.instance
           .pushNamedIfNotCurrent(AppRoute.callingPage, args: currentCall);
     } else {
-      setState(() {
-        appValueNotifier.globalisCallOnGoing.value = false;
-      });
+      if (mounted) {
+        setState(() {
+          appValueNotifier.globalisCallOnGoing.value = false;
+        });
+      }
     }
   }
 
@@ -223,6 +230,7 @@ class _HomeControllerState extends State<HomeController>
   dispose() {
     _animationController.dispose();
     super.dispose();
+    _textEditingController.dispose();
     WidgetsBinding.instance.removeObserver(this);
   }
 
@@ -283,6 +291,12 @@ class _HomeControllerState extends State<HomeController>
         userInfo = UserModel.getValuesFromSnap(value);
       });
     }
+  }
+
+  void search(val) {
+    setState(() {
+      value = val;
+    });
   }
 
   @override
@@ -347,6 +361,7 @@ class _HomeControllerState extends State<HomeController>
                       floatingActionButton: bottomIndex <= 1
                           ? _getFloatingButton()
                           : const SizedBox(),
+
                       bottomNavigationBar: BottomNavigationBar(
                           backgroundColor: bottomNavigationBarColor,
                           showSelectedLabels: true,
@@ -477,7 +492,12 @@ class _HomeControllerState extends State<HomeController>
                           //   ),
                           if (bottomIndex == 2)
                             TextButton(
-                                onPressed: () {}, child: Text("Add New")),
+                                onPressed: () {
+                                  Navigator.of(context).push(MaterialPageRoute(
+                                      builder: (context) =>
+                                          const SearchScreen()));
+                                },
+                                child: const Text("Add New")),
                           if (bottomIndex != 2)
                             IconButton(
                               onPressed: () {
@@ -792,24 +812,11 @@ class _HomeControllerState extends State<HomeController>
                                     padding: const EdgeInsets.only(
                                         left: 20.0, right: 20.0, top: 20),
                                     child: SizedBox(
-                                      height: 50,
-                                      child: TextField(
-                                        onChanged: (val) {
-                                          setState(() {
-                                            value = val;
-                                          });
-                                        },
-                                        decoration: InputDecoration(
-                                          filled: true,
-                                          fillColor: greyColor.withOpacity(0.1),
-                                          border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(25)),
-                                          labelText: 'Search',
-                                          prefixIcon: const Icon(Icons.search),
-                                        ),
-                                      ),
-                                    ),
+                                        height: 50,
+                                        child: VoiceSearchTextField(
+                                            textEditingController:
+                                                _textEditingController,
+                                            onChanged: search)),
                                   ),
                                   // _TabSwitch(
                                   //   value: pageIndex,
@@ -827,7 +834,21 @@ class _HomeControllerState extends State<HomeController>
                                 ],
                               ),
                             )
-                          : bottomPages[bottomIndex],
+                          : bottomIndex == 2
+                              ? Column(children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 20.0, right: 20.0, top: 20),
+                                    child: SizedBox(
+                                        height: 50,
+                                        child: VoiceSearchTextField(
+                                            textEditingController:
+                                                _textEditingController,
+                                            onChanged: search)),
+                                  ),
+                                  bottomPages[bottomIndex]
+                                ])
+                              : bottomPages[bottomIndex],
                     ),
                   ),
                 ],
@@ -854,144 +875,103 @@ class _HomeControllerState extends State<HomeController>
             label: const Text("Add Task"),
             icon: const Icon(Icons.add),
           )
-        : Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Transform(
-                    transform: Matrix4.translationValues(
-                      0,
-                      _translateButton.value * 2,
-                      0,
-                    ),
-                    child: Container(
-                        height: 180,
-                        width: 160,
-                        decoration: BoxDecoration(
-                            color: whiteColor,
-                            borderRadius: BorderRadius.circular(15)),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              InkWell(
-                                onTap: () {
-                                  closeFloatingWindow();
-                                  showNewMessage(context);
-                                },
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: const [
-                                    Text(
-                                      "New Chat",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.all(8.0),
-                                      child: Icon(
-                                        Icons.message_rounded,
-                                        color: mainColor,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              InkWell(
-                                onTap: () {
-                                  closeFloatingWindow();
-                                  showNewCall(context);
-                                },
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: const [
-                                    Text(
-                                      "New Call",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.all(8.0),
-                                      child: Icon(
-                                        Icons.call_rounded,
-                                        color: mainColor,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              InkWell(
-                                onTap: () {
-                                  closeFloatingWindow();
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) =>
-                                          const SearchScreen()));
-                                },
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: const [
-                                    Text(
-                                      "New Contact",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.all(8.0),
-                                      child: Icon(
-                                        Icons.people_rounded,
-                                        color: mainColor,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              InkWell(
-                                onTap: () {
-                                  closeFloatingWindow();
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) =>
-                                          const CreateGroupScreen()));
-                                },
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: const [
-                                    Text(
-                                      "New Group",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.all(8.0),
-                                      child: Icon(
-                                        Icons.groups,
-                                        color: mainColor,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        )),
+        : DropdownButtonHideUnderline(
+            child: DropdownButton2(
+              isExpanded: true,
+              customButton: Card(
+                elevation: 8,
+                color: mainColor,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(50)),
+                child: const Padding(
+                  padding: EdgeInsets.all(14.0),
+                  child: Icon(
+                    Icons.add,
+                    color: Colors.white,
                   ),
-                ],
+                ),
               ),
-
-              // This is the primary FAB
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  FloatingActionButton(
-                    onPressed: _toggle,
-                    child: const Icon(Icons.add),
+              items: [
+                ...MenuItemsHome.firstItems.map(
+                  (item) => DropdownMenuItem<MenuItem>(
+                    value: item,
+                    child: MenuItemsHome.buildItem(item),
                   ),
-                ],
+                ),
+                // const DropdownMenuItem<Divider>(
+                //     enabled: false, child: Divider()),
+              ],
+              onChanged: (value) {
+                MenuItemsHome.onChanged(
+                    context, value as MenuItem, showNewMessage, showNewCall);
+              },
+              dropdownStyleData: DropdownStyleData(
+                width: 180,
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  color: mainColor,
+                ),
+                elevation: 8,
+                offset: const Offset(0, 8),
               ),
-            ],
+            ),
           );
+  }
+}
+
+class MenuItemsHome {
+  static List<MenuItem> firstItems = [newChat, newCall, newContact, newGroup];
+  // static List<MenuItem> secondItems = [logout];
+
+  static var newChat = const MenuItem(
+    text: "New Chat",
+    icon: FontAwesomeIcons.commentDots,
+  );
+  static var newCall = const MenuItem(
+    text: "New Call",
+    icon: Icons.call,
+  );
+  static var newContact =
+      const MenuItem(text: 'New Contact', icon: Icons.people);
+
+  static var newGroup =
+      const MenuItem(text: "New Group", icon: Icons.groups_rounded);
+
+  static Widget buildItem(MenuItem item) {
+    return Row(
+      children: [
+        Icon(item.icon, color: Colors.white, size: 22),
+        const SizedBox(
+          width: 10,
+        ),
+        Text(
+          item.text,
+          style: const TextStyle(
+            color: Colors.white,
+          ),
+        ),
+      ],
+    );
+  }
+
+  static onChanged(
+    BuildContext context,
+    MenuItem item,
+    Function newChatCallBack,
+    Function newCallCallBack,
+  ) {
+    if (item == MenuItemsHome.newChat) {
+      newChatCallBack(context);
+    } else if (item == MenuItemsHome.newCall) {
+      newCallCallBack(context);
+    } else if (item == MenuItemsHome.newContact) {
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (context) => const SearchScreen()));
+    } else if (item == MenuItemsHome.newGroup) {
+      Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const CreateGroupScreen()));
+    }
   }
 }
 

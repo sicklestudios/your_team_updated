@@ -7,6 +7,9 @@ Widget showUsersImage(
   String picUrl = "assets/user.png",
   double size = 25,
 }) {
+  if (picUrl == "") {
+    picUrl = "assets/user.png";
+  }
   return CircleAvatar(
     radius: size,
     backgroundImage: isAsset

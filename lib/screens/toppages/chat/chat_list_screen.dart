@@ -69,7 +69,9 @@ class _ChatContactsListScreenState extends State<ChatContactsListScreen> {
                         List temp = [...tempGroups];
                         if (widget.value != "") {
                           for (var element in snapshot.data!) {
-                            if (element.name.contains(widget.value)) {
+                            if (element.name
+                                .toLowerCase()
+                                .contains(widget.value.toLowerCase())) {
                               temp.add(element);
                             }
                           }
