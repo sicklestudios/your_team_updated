@@ -504,7 +504,7 @@ class ChatMethods {
     });
   }
 
-  Stream<List<Message>> getChatStream(String recieverUserId) {
+  Stream<List<Message>> getChatStream(int limit, String recieverUserId) {
     return firebaseFirestore
         .collection('users')
         .doc(firebaseAuth.currentUser!.uid)
@@ -514,6 +514,7 @@ class ChatMethods {
         .orderBy(
           'timeSent',
         )
+        .limitToLast(limit)
         .snapshots()
         .map((event) {
       List<Message> messages = [];

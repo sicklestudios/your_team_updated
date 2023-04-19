@@ -6,6 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:open_store/open_store.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
@@ -1524,7 +1525,8 @@ getTaskCard(TaskModel model, context, VoidCallback callback,
     child: StatefulBuilder(builder: (context, setState) {
       return Container(
         decoration: BoxDecoration(
-            color: Colors.white, borderRadius: BorderRadius.circular(15)),
+            color: scaffoldBackgroundColor,
+            borderRadius: BorderRadius.circular(15)),
         child: ListTile(
           leading: InkWell(
             onTap: () {
@@ -1551,7 +1553,7 @@ getTaskCard(TaskModel model, context, VoidCallback callback,
                 width: 45,
                 height: 45,
                 child: Icon(
-                  Icons.check_box,
+                  FontAwesomeIcons.circleCheck,
                   color: model.isCompleted ? mainColor : Colors.grey,
                 )),
             // child: Container(
@@ -1613,7 +1615,7 @@ _showDeleteDialog(context, VoidCallback callback) {
       context: context,
       builder: (ctxt) => AlertDialog(
             title: const Text("Alert"),
-            content: const Text("Are you sure you want to delete this chat?"),
+            content: const Text("Are you sure you want to delete this task?"),
             actions: [
               ElevatedButton(
                   onPressed: () {

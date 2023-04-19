@@ -25,13 +25,15 @@ class TaskMethods {
       var taskId = const Uuid().v1();
 
       TodoModel todoModel = TodoModel(
-          todoId: taskId,
-          assignedBy: assignedBy,
-          todoTitle: taskTitle,
-          deadline: deadline,
-          taskDescription: taskDescription,
-          taskList: tasksList,
-          people: people);
+        todoId: taskId,
+        assignedBy: assignedBy,
+        todoTitle: taskTitle,
+        deadline: deadline,
+        taskDescription: taskDescription,
+        taskList: tasksList,
+        people: people,
+        createrUid: firebaseAuth.currentUser!.uid,
+      );
       await firebaseFirestore
           .collection('todos')
           .doc(taskId)
@@ -61,8 +63,19 @@ class TaskMethods {
     return res;
   }
 
+  Future<String> deleteTodo(String todoId) async {
+    return await firebaseFirestore
+        .collection('todos')
+        .doc(todoId)
+        .delete()
+        .then((value) {
+      return "Success";
+    });
+  }
+
   Future<String> updateTask(
     int progress,
+    String createrUid,
     String assignedBy,
     String taskTitle,
     String deadline,
@@ -82,7 +95,8 @@ class TaskMethods {
           deadline: deadline,
           taskList: taskList,
           taskDescription: taskDescription,
-          people: people);
+          people: people,
+          createrUid: createrUid);
       await firebaseFirestore
           .collection('todos')
           .doc(taskId)

@@ -9,6 +9,7 @@ class TodoModel {
   final List taskList;
   final List people;
   final int progress;
+  final String createrUid;
 
   TodoModel({
     required this.todoId,
@@ -19,6 +20,7 @@ class TodoModel {
     required this.taskList,
     required this.people,
     this.progress = 0,
+    required this.createrUid,
   });
 
   Map<String, dynamic> toMap() {
@@ -31,6 +33,7 @@ class TodoModel {
       'taskList': taskList,
       'people': people,
       'progress': progress,
+      'createrUid': createrUid,
     };
   }
 
@@ -44,6 +47,7 @@ class TodoModel {
       taskList: map['taskList'],
       people: map['people'],
       progress: map['progress'],
+      createrUid: map['createrUid'] ?? "0",
     );
   }
 }

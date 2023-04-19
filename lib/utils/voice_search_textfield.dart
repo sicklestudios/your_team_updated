@@ -7,9 +7,11 @@ import 'package:yourteam/constants/constant_utils.dart';
 
 class VoiceSearchTextField extends StatefulWidget {
   final Function onChanged;
+  final FocusNode searchFieldFocusNode;
   final TextEditingController textEditingController;
   const VoiceSearchTextField(
-      {required this.textEditingController,
+      {required this.searchFieldFocusNode,
+      required this.textEditingController,
       required this.onChanged,
       super.key});
 
@@ -63,6 +65,7 @@ class _VoiceSearchTextFieldState extends State<VoiceSearchTextField> {
       children: [
         Expanded(
           child: TextField(
+            focusNode: widget.searchFieldFocusNode,
             controller: widget.textEditingController,
             onChanged: (val) {
               widget.onChanged(val);

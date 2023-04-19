@@ -69,6 +69,7 @@ class _HomeControllerState extends State<HomeController>
   int bottomIndex = 0;
   var topPages = [];
   var bottomPages = [];
+  FocusNode searchFieldFocusNode = FocusNode();
   initvariables() async {
     await storeNotificationToken();
     await fetchUserInfo();
@@ -325,10 +326,12 @@ class _HomeControllerState extends State<HomeController>
     return WithForegroundTask(
       child: WillPopScope(
         onWillPop: () async {
-          if (showSearchBar) {
+          if (value != "") {
             setState(() {
-              showSearchBar = !showSearchBar;
+              value = "";
+              _textEditingController.text = "";
             });
+            searchFieldFocusNode.unfocus();
             return false;
           } else {
             return true;
@@ -337,13 +340,12 @@ class _HomeControllerState extends State<HomeController>
         child: SafeArea(
           child: GestureDetector(
               onTap: () {
-                if (showSearchBar) {
-                  setState(() {
-                    showSearchBar = !showSearchBar;
-                    value = "";
-                  });
-                }
-                closeFloatingWindow();
+                // if (value != "") {
+                //   setState(() {
+                //     value = "";
+                //     _textEditingController.text = "";
+                //   });
+                // }
               },
               child: Column(
                 children: [
@@ -556,16 +558,19 @@ class _HomeControllerState extends State<HomeController>
                                       : userInfo!.username,
                                   style: const TextStyle(color: Colors.white),
                                 ),
-                                // subtitle: Row(
-                                //   // ignore: prefer_const_literals_to_create_immutables
-                                //   children: [
-                                //     const Icon(Icons.call, size: 15, color: Colors.white),
-                                //     Text(
-                                //       userInfo == null ? "Loading" : userInfo!.contact,
-                                //       style: const TextStyle(color: Colors.white),
-                                //     )
-                                //   ],
-                                // ),
+                                subtitle: Row(
+                                  // ignore: prefer_const_literals_to_create_immutables
+                                  children: [
+                                    Text(
+                                      userInfo == null
+                                          ? "Loading"
+                                          : userInfo!.email,
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w300),
+                                    )
+                                  ],
+                                ),
                                 // trailing: IconButton(
                                 //     onPressed: () {
                                 //       Navigator.pop(context);
@@ -814,6 +819,8 @@ class _HomeControllerState extends State<HomeController>
                                     child: SizedBox(
                                         height: 50,
                                         child: VoiceSearchTextField(
+                                            searchFieldFocusNode:
+                                                searchFieldFocusNode,
                                             textEditingController:
                                                 _textEditingController,
                                             onChanged: search)),
@@ -842,6 +849,8 @@ class _HomeControllerState extends State<HomeController>
                                     child: SizedBox(
                                         height: 50,
                                         child: VoiceSearchTextField(
+                                            searchFieldFocusNode:
+                                                searchFieldFocusNode,
                                             textEditingController:
                                                 _textEditingController,
                                             onChanged: search)),
@@ -856,13 +865,6 @@ class _HomeControllerState extends State<HomeController>
         ),
       ),
     );
-  }
-
-  void closeFloatingWindow() {
-    if (_isExpanded) {
-      _animationController.reverse();
-      _isExpanded = !_isExpanded;
-    }
   }
 
   _getFloatingButton() {

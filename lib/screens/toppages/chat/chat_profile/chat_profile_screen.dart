@@ -23,7 +23,7 @@ class ChatProfileScreen extends StatefulWidget {
 
 class _ChatProfileScreenState extends State<ChatProfileScreen> {
   bool isGroupChat = false;
-  ValueNotifier<int> controlValue = ValueNotifier(2);
+  ValueNotifier<int> controlValue = ValueNotifier(0);
   Future<UserModel> getUserInfo() async {
     return firebaseFirestore
         .collection('users')

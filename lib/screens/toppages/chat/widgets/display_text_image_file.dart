@@ -31,6 +31,7 @@ class DisplayTextImageGIF extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
     final imageProvider = CachedNetworkImageProvider(message);
 
     return type == MessageEnum.link
@@ -127,36 +128,49 @@ class DisplayTextImageGIF extends StatelessWidget {
                     isSender: isSender,
                   )
                 : type == MessageEnum.file
-                    ? ShowFilePreview(
-                        url: message,
-                        isSender: isSender,
+                    ? SizedBox(
+                        width: size.width / 1.8,
+                        child: ShowFilePreview(
+                          url: message,
+                          isSender: isSender,
+                        ),
                       )
                     // : type == MessageEnum.gif
                     //             ? CachedNetworkImage(
                     //                 imageUrl: message,
                     //               )
-                    : InkWell(
-                        onTap: () {
-                          showImageViewer(context, imageProvider,
-                              onViewerDismissed: () {
-                            print("dismissed");
-                          });
-                        },
-                        child: CachedNetworkImage(
-                          imageUrl: message,
-                          // placeholder: (context, url) =>
-                          //     Image.asset("assets/placeholder.jpg"),
-                          progressIndicatorBuilder: (context, url, progress) {
-                            return Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                Image.asset("assets/placeholder.jpg"),
-                                CircularProgressIndicator(
-                                  value: progress.progress,
-                                ),
-                              ],
-                            );
+                    : SizedBox(
+                        width: size.width / 1.8,
+                        height: 300,
+                        child: InkWell(
+                          onTap: () {
+                            showImageViewer(context, imageProvider,
+                                onViewerDismissed: () {
+                              print("dismissed");
+                            });
                           },
+                          child: CachedNetworkImage(
+                            fadeInDuration: Duration.zero,
+                            fadeOutDuration: Duration.zero,
+                            placeholderFadeInDuration: Duration.zero,
+                            imageUrl: message,
+                            height: 300,
+                            width: size.width / 1.8,
+                            fit: BoxFit.fitWidth,
+                            // placeholder: (context, url) =>
+                            //     Image.asset("assets/placeholder.jpg"),
+                            progressIndicatorBuilder: (context, url, progress) {
+                              return Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Image.asset("assets/placeholder.jpg"),
+                                  CircularProgressIndicator(
+                                    value: progress.progress,
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
                         ),
                       );
   }

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
-
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -102,32 +102,10 @@ class _ChatScreenState extends State<ChatScreen>
     }
   }
 
-  // Animation controller
-  late AnimationController _animationController;
-
-  // // This is used to animate the icon of the main FAB
-  // late Animation<double> _buttonAnimatedIcon;
-
-  // This is used for the child FABs
-  late Animation<double> _translateButton;
-
-  // This variable determnies whether the child FABs are visible or not
-  bool _isExpanded = false;
   bool isBlocked = false;
   int pageIndex = 0;
   bool showOptions = false;
   int selectedNum = 1;
-
-  _toggle() {
-    focusNode.unfocus();
-    if (_isExpanded) {
-      _animationController.reverse();
-    } else {
-      _animationController.forward();
-    }
-    // log(_isExpanded.toString());
-    _isExpanded = !_isExpanded;
-  }
 
   final ScrollController messageController =
       ScrollController(keepScrollOffset: true);
@@ -163,20 +141,6 @@ class _ChatScreenState extends State<ChatScreen>
       //setting the typing to false just in case it was left on true
       ChatMethods().stopTyping(widget.contactModel.contactId);
     }
-
-    _animationController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 10))
-      ..addListener(() {
-        setState(() {});
-      });
-
-    _translateButton = Tween<double>(
-      begin: -200,
-      end: isGroupChat ? 50 : 80,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
 
     ChatMethods()
         .setChatContactMessageSeen(widget.contactModel.contactId, isGroupChat);
@@ -237,11 +201,6 @@ class _ChatScreenState extends State<ChatScreen>
   }
 
   void changeShowOptions() {
-    // if (!showOptions) {
-    //   setState(() {
-    //     showOptions = !showOptions;
-    //   });
-    // }
     showMaterialModalBottomSheet(
       expand: false,
       context: context,
@@ -333,12 +292,7 @@ class _ChatScreenState extends State<ChatScreen>
     return WithForegroundTask(
       child: SafeArea(
         child: GestureDetector(
-          onTap: () {
-            if (_isExpanded) {
-              _animationController.reverse();
-              _isExpanded = !_isExpanded;
-            }
-          },
+          onTap: () {},
           child: Column(
             children: [
               ValueListenableBuilder(
@@ -351,261 +305,167 @@ class _ChatScreenState extends State<ChatScreen>
                   }),
               Expanded(
                 child: Scaffold(
-                    // backgroundColor: scaffoldBackgroundColor,
-                    appBar: showOptions
-                        ? AppBar(
-                            automaticallyImplyLeading: false,
-                            backgroundColor: Colors.transparent,
-                            elevation: 0,
-                            title:
-                                Row(mainAxisSize: MainAxisSize.max, children: [
-                              Expanded(
+                    appBar: AppBar(
+                      automaticallyImplyLeading: false,
+                      backgroundColor: Colors.white,
+                      elevation: 2,
+                      toolbarHeight: 65,
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              IconButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  icon: const Icon(
+                                    Icons.arrow_back_ios_new_rounded,
+                                    size: 20,
+                                    color: mainColor,
+                                  )),
+                              InkWell(
+                                onTap: openProfile,
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    IconButton(
-                                        onPressed: () {
-                                          setStateToNormal();
-                                        },
-                                        icon: const Icon(
-                                          Icons.close,
-                                          size: 25,
-                                          color: Colors.black,
-                                        )),
+                                    getAvatarWithStatus(
+                                        isGroupChat, widget.contactModel),
                                     const SizedBox(
-                                      width: 10,
+                                      width: 5,
                                     ),
-                                    Text(
-                                      selectedNum.toString(),
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      width: 10,
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          widget.contactModel.name,
+                                          style: const TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
                               ),
-                              if (_getBoolCreateCheck())
-                                // if (!isGroupChat)
-                                IconButton(
-                                    onPressed: () {
-                                      Navigator.of(context)
-                                          .push(MaterialPageRoute(
-                                              builder: (context) => AddTask(
-                                                    taskTitle: taskTitleTemp,
-                                                  )));
-                                    },
-                                    icon: const Icon(
-                                      Icons.create,
-                                      size: 25,
-                                      color: Colors.black,
-                                    )),
-                              IconButton(
-                                  onPressed: () async {
-                                    deleteMessage();
-                                    setStateToNormal();
-                                  },
-                                  icon: const Icon(
-                                    Icons.delete,
-                                    size: 25,
-                                    color: Colors.black,
-                                  )),
-                              IconButton(
-                                  onPressed: () {
-                                    // Navigator.pop(context);
-                                    copyTextToClipboard();
-                                  },
-                                  icon: const Icon(
-                                    Icons.copy,
-                                    size: 25,
-                                    color: Colors.black,
-                                  )),
-                              IconButton(
-                                  onPressed: () {
-                                    // Navigator.pop(context);
-                                    forwardMessage();
-                                  },
-                                  icon: const Icon(
-                                    Icons.send,
-                                    size: 25,
-                                    color: Colors.black,
-                                  )),
-                            ]),
-                          )
-                        : AppBar(
-                            automaticallyImplyLeading: false,
-                            backgroundColor: Colors.white,
-                            elevation: 2,
-                            toolbarHeight: 65,
-                            title: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
+                            ],
+                          ),
+                          ValueListenableBuilder(
+                              valueListenable:
+                                  appValueNotifier.globalisCallOnGoing,
+                              builder: (context, boolValue, widget) {
+                                return Row(
                                   children: [
-                                    IconButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        icon: const Icon(
-                                          Icons.arrow_back_ios_new_rounded,
-                                          size: 20,
-                                          color: mainColor,
+                                    InkWell(
+                                        onTap: !boolValue
+                                            ? () async {
+                                                appValueNotifier.setToInitial();
+                                                callValueNotifiers
+                                                    .setToInitial();
+                                                await callsetting(
+                                                    calltype: true);
+                                                // CallMethods().makeCall(
+                                                //     context,
+                                                //     widget.contactModel.name,
+                                                //     widget.contactModel.contactId,
+                                                //     widget.contactModel.photoUrl);
+                                                // Navigator.of(context).push(MaterialPageRoute(
+                                                //     builder: (context) => const CallScreen(
+                                                //         // model: widget.contactModel,
+                                                //         // isAudioCall: true,
+                                                //         )));
+                                              }
+                                            : null,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Icon(
+                                            Icons.call,
+                                            size: 25,
+                                            color: boolValue
+                                                ? mainColorFaded
+                                                : mainColor,
+                                          ),
                                         )),
                                     InkWell(
-                                      onTap: openProfile,
-                                      child: Row(
-                                        children: [
-                                          getAvatarWithStatus(
-                                              isGroupChat, widget.contactModel),
-                                          const SizedBox(
-                                            width: 5,
+                                        onTap: !boolValue
+                                            ? () async {
+                                                appValueNotifier.setToInitial();
+                                                callValueNotifiers
+                                                    .setToInitial();
+
+                                                await callsetting(
+                                                    calltype: false);
+                                              }
+                                            : null,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Icon(
+                                            Icons.videocam,
+                                            size: 30,
+                                            color: boolValue
+                                                ? mainColorFaded
+                                                : mainColor,
                                           ),
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                widget.contactModel.name,
-                                                style: const TextStyle(
-                                                    color: Colors.black,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                            ],
+                                        )),
+                                    DropdownButtonHideUnderline(
+                                      child: DropdownButton2(
+                                        customButton: const Padding(
+                                          padding: EdgeInsets.all(4.0),
+                                          child: Icon(
+                                            Icons.more_vert,
+                                            size: 25,
+                                            color: Colors.black,
                                           ),
+                                        ),
+                                        items: [
+                                          ...MenuItems.firstItems.map(
+                                            (item) =>
+                                                DropdownMenuItem<MenuItem>(
+                                              value: item,
+                                              child: MenuItems.buildItem(item),
+                                            ),
+                                          ),
+                                          const DropdownMenuItem<Divider>(
+                                              enabled: false, child: Divider()),
                                         ],
+                                        onChanged: (value) {
+                                          MenuItems.onChanged(
+                                              context,
+                                              value as MenuItem,
+                                              openProfile,
+                                              _showDeleteDialog,
+                                              _showBlockDialog);
+                                        },
+                                        dropdownStyleData: DropdownStyleData(
+                                          width: 160,
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 6),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(4),
+                                            color: mainColor,
+                                          ),
+                                          elevation: 8,
+                                          offset: const Offset(0, 8),
+                                        ),
+                                        menuItemStyleData: MenuItemStyleData(
+                                          customHeights: [
+                                            ...List<double>.filled(
+                                                MenuItems.firstItems.length,
+                                                48),
+                                            8,
+                                          ],
+                                          padding: const EdgeInsets.only(
+                                              left: 16, right: 16),
+                                        ),
                                       ),
                                     ),
                                   ],
-                                ),
-                                ValueListenableBuilder(
-                                    valueListenable:
-                                        appValueNotifier.globalisCallOnGoing,
-                                    builder: (context, boolValue, widget) {
-                                      return Row(
-                                        children: [
-                                          InkWell(
-                                              onTap: !boolValue
-                                                  ? () async {
-                                                      appValueNotifier
-                                                          .setToInitial();
-                                                      callValueNotifiers
-                                                          .setToInitial();
-                                                      await callsetting(
-                                                          calltype: true);
-                                                      // CallMethods().makeCall(
-                                                      //     context,
-                                                      //     widget.contactModel.name,
-                                                      //     widget.contactModel.contactId,
-                                                      //     widget.contactModel.photoUrl);
-                                                      // Navigator.of(context).push(MaterialPageRoute(
-                                                      //     builder: (context) => const CallScreen(
-                                                      //         // model: widget.contactModel,
-                                                      //         // isAudioCall: true,
-                                                      //         )));
-                                                    }
-                                                  : null,
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: Icon(
-                                                  Icons.call,
-                                                  size: 25,
-                                                  color: boolValue
-                                                      ? mainColorFaded
-                                                      : mainColor,
-                                                ),
-                                              )),
-                                          InkWell(
-                                              onTap: !boolValue
-                                                  ? () async {
-                                                      appValueNotifier
-                                                          .setToInitial();
-                                                      callValueNotifiers
-                                                          .setToInitial();
-
-                                                      await callsetting(
-                                                          calltype: false);
-                                                    }
-                                                  : null,
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: Icon(
-                                                  Icons.videocam,
-                                                  size: 30,
-                                                  color: boolValue
-                                                      ? mainColorFaded
-                                                      : mainColor,
-                                                ),
-                                              )),
-                                          DropdownButtonHideUnderline(
-                                            child: DropdownButton2(
-                                              customButton: const Padding(
-                                                padding: EdgeInsets.all(4.0),
-                                                child: Icon(
-                                                  Icons.more_vert,
-                                                  size: 25,
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                              items: [
-                                                ...MenuItems.firstItems.map(
-                                                  (item) => DropdownMenuItem<
-                                                      MenuItem>(
-                                                    value: item,
-                                                    child: MenuItems.buildItem(
-                                                        item),
-                                                  ),
-                                                ),
-                                                const DropdownMenuItem<Divider>(
-                                                    enabled: false,
-                                                    child: Divider()),
-                                              ],
-                                              onChanged: (value) {
-                                                MenuItems.onChanged(
-                                                    context,
-                                                    value as MenuItem,
-                                                    openProfile,
-                                                    _showDeleteDialog,
-                                                    _showBlockDialog);
-                                              },
-                                              dropdownStyleData:
-                                                  DropdownStyleData(
-                                                width: 160,
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 6),
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(4),
-                                                  color: mainColor,
-                                                ),
-                                                elevation: 8,
-                                                offset: const Offset(0, 8),
-                                              ),
-                                              menuItemStyleData:
-                                                  MenuItemStyleData(
-                                                customHeights: [
-                                                  ...List<double>.filled(
-                                                      MenuItems
-                                                          .firstItems.length,
-                                                      48),
-                                                  8,
-                                                ],
-                                                padding: const EdgeInsets.only(
-                                                    left: 16, right: 16),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    })
-                              ],
-                            ),
-                          ),
+                                );
+                              })
+                        ],
+                      ),
+                    ),
                     // floatingActionButton: _getFloatingButton(),
                     body: Column(
                       children: [
@@ -990,6 +850,9 @@ class _ChatList extends StatefulWidget {
 class __ChatListState extends State<_ChatList> {
   bool isGroupChat = false;
   bool showOptions = false;
+  int messagesLenth = 10;
+  bool isLoadPreviousPressed = false;
+  ValueNotifier<bool> showLoadingOption = ValueNotifier(false);
   @override
   void initState() {
     super.initState();
@@ -999,129 +862,14 @@ class __ChatListState extends State<_ChatList> {
 
   @override
   Widget build(BuildContext context) {
-    return showOptions
-        ? ListView.builder(
-            controller: widget.messageController,
-            itemCount: widget.tempMessage.length + 1,
-            physics: const ClampingScrollPhysics(),
-            shrinkWrap: true,
-            itemBuilder: ((context, index) {
-              var messageData;
-              if (index != widget.tempMessage.length) {
-                messageData = widget.tempMessage[index];
-                if (messageData.messageId == messageData.recieverid) {
-                  widget.isTyping = true;
-                } else {
-                  var timeSent = DateFormat.jm().format(messageData.timeSent);
-                  if (!messageData.isSeen &&
-                      messageData.recieverid == firebaseAuth.currentUser!.uid) {
-                    if (!isGroupChat) {
-                      ChatMethods().setChatMessageSeen(
-                        widget.contactModel.contactId,
-                        messageData.messageId,
-                      );
-                    }
-                  }
-                  if (isGroupChat) {
-                    ChatMethods().setChatContactMessageSeen(
-                        widget.contactModel.contactId, isGroupChat);
-                  }
-                  //showing the time
-                  var dateInList =
-                      DateFormat.MMMMEEEEd().format(messageData.timeSent);
-                  if (widget.previousTime != dateInList) {
-                    widget.previousTime = dateInList;
-                    widget.isDateShown = false;
-                  } else {
-                    widget.isDateShown = true;
-                  }
-
-                  if (messageData.senderId == firebaseAuth.currentUser!.uid) {
-                    return Column(
-                      children: [
-                        if (!widget.isDateShown) getDateWithLines(dateInList),
-                        InkWell(
-                          onTap: (() {
-                            {
-                              if (widget.messageId
-                                  .contains(messageData.messageId)) {
-                                widget.decrementSelectedNum();
-
-                                widget.messageId.remove(messageData.messageId);
-                              } else {
-                                widget.incrementSelectedNum();
-
-                                widget.messageId.add(messageData.messageId);
-                              }
-                            }
-                          }),
-                          child: MyMessageCard(
-                            message: messageData.text,
-                            date: timeSent,
-                            isSeen: messageData.isSeen,
-                            type: messageData.type,
-                            isSelected: widget.messageId
-                                .contains(messageData.messageId),
-                            repliedText: messageData.repliedMessage,
-                            username: messageData.repliedTo,
-                            repliedMessageType: messageData.repliedMessageType,
-                            longPress: widget.changeShowOptions,
-                          ),
-                        ),
-                      ],
-                    );
-                  }
-                  return Column(
-                    children: [
-                      if (!widget.isDateShown) getDateWithLines(dateInList),
-                      InkWell(
-                        onTap: (() {
-                          {
-                            if (widget.messageId
-                                .contains(messageData.messageId)) {
-                              widget.decrementSelectedNum();
-
-                              widget.messageId.remove(messageData.messageId);
-                            } else {
-                              widget.incrementSelectedNum();
-
-                              widget.messageId.add(messageData.messageId);
-                            }
-                          }
-                        }),
-                        child: Row(
-                          children: [
-                            SenderMessageCard(
-                              avatarWidget: getAvatarWithStatus(
-                                  isGroupChat, widget.contactModel),
-                              photoUrl: widget.contactModel.photoUrl,
-                              message: messageData.text,
-                              date: timeSent,
-                              type: messageData.type,
-                              username: messageData.senderUsername ?? "",
-                              isSelected: widget.messageId
-                                  .contains(messageData.messageId),
-                              repliedMessageType:
-                                  messageData.repliedMessageType,
-                              longPress: () {},
-                              repliedText: messageData.repliedMessage,
-                              isGroupChat: isGroupChat,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-                }
-              }
-              return const SizedBox();
-            }),
-          )
-        : StreamBuilder<List<Message>>(
+    return Stack(
+      children: [
+        StreamBuilder<List<Message>>(
             stream: isGroupChat
                 ? ChatMethods()
                     .getGroupChatStream(widget.contactModel.contactId)
-                : ChatMethods().getChatStream(widget.contactModel.contactId),
+                : ChatMethods().getChatStream(
+                    messagesLenth, widget.contactModel.contactId),
             builder: (context, snapshot) {
               widget.isDateShown = false;
               widget.isTyping = false;
@@ -1129,7 +877,7 @@ class __ChatListState extends State<_ChatList> {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Container();
               }
-              if (!showOptions) {
+              if (!isLoadPreviousPressed) {
                 SchedulerBinding.instance.addPostFrameCallback((_) {
                   widget.messageController.jumpTo(
                       widget.messageController.position.maxScrollExtent);
@@ -1158,116 +906,189 @@ class __ChatListState extends State<_ChatList> {
               } else {
                 messagesList = snapshot.data!;
               }
-              return ListView.builder(
-                // key: listViewKey,
-                controller: widget.messageController,
-                itemCount: messagesList.length + 1,
-                physics: const ClampingScrollPhysics(),
-                shrinkWrap: true,
-                itemBuilder: ((context, index) {
-                  widget.tempMessage = messagesList;
-                  var messageData;
-                  if (index != snapshot.data!.length) {
-                    messageData = messagesList[index];
-                    if (messageData.messageId == messageData.recieverid) {
-                      widget.isTyping = true;
+
+              return LiquidPullToRefresh(
+                onRefresh: () async {
+                  showLoadingOption.value = false;
+
+                  setState(() {
+                    isLoadPreviousPressed = true;
+                    messagesLenth += 5;
+                  });
+                }, // refresh callback
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: (notification) {
+                    final metrices = notification.metrics;
+
+                    if (metrices.atEdge && metrices.pixels == 0) {
+                      //you are at top of  list
+                      showLoadingOption.value = true;
                     } else {
-                      var timeSent =
-                          DateFormat.jm().format(messageData.timeSent);
-                      if (!messageData.isSeen &&
-                          messageData.recieverid ==
+                      showLoadingOption.value = false;
+                    }
+
+                    if (metrices.pixels == metrices.minScrollExtent) {
+                      //you are at top of list
+                      showLoadingOption.value = true;
+                    } else {
+                      showLoadingOption.value = false;
+                    }
+
+                    // if (metrices.atEdge && metrices.pixels > 0) {
+                    //   //you are at end of  list
+                    //   showLoadingOption.value = false;
+                    // }
+
+                    // if (metrices.pixels >= metrices.maxScrollExtent) {
+                    //   //you are at end of list
+                    //   showLoadingOption.value = false;
+                    // }
+                    return false;
+                  },
+                  child: ListView.builder(
+                    controller: widget.messageController,
+                    itemCount: messagesList.length + 1,
+                    physics: const ClampingScrollPhysics(),
+                    shrinkWrap: true,
+                    itemBuilder: ((context, index) {
+                      widget.tempMessage = messagesList;
+                      var messageData;
+                      if (index != snapshot.data!.length) {
+                        messageData = messagesList[index];
+                        if (messageData.messageId == messageData.recieverid) {
+                          widget.isTyping = true;
+                        } else {
+                          var timeSent =
+                              DateFormat.jm().format(messageData.timeSent);
+                          if (!messageData.isSeen &&
+                              messageData.recieverid ==
+                                  firebaseAuth.currentUser!.uid) {
+                            if (!isGroupChat) {
+                              ChatMethods().setChatMessageSeen(
+                                widget.contactModel.contactId,
+                                messageData.messageId,
+                              );
+                            }
+                          }
+                          if (isGroupChat) {
+                            ChatMethods().setChatContactMessageSeen(
+                                widget.contactModel.contactId, isGroupChat);
+                          }
+
+                          //showing the time
+                          var dateInList = DateFormat.MMMMEEEEd()
+                              .format(messageData.timeSent);
+                          if (widget.previousTime != dateInList) {
+                            widget.previousTime = dateInList;
+                            widget.isDateShown = false;
+                          } else {
+                            widget.isDateShown = true;
+                          }
+                          if (messageData.senderId ==
                               firebaseAuth.currentUser!.uid) {
-                        if (!isGroupChat) {
-                          ChatMethods().setChatMessageSeen(
-                            widget.contactModel.contactId,
-                            messageData.messageId,
+                            return Column(
+                              children: [
+                                if (!widget.isDateShown)
+                                  getDateWithLines(dateInList),
+                                InkWell(
+                                  onLongPress: () {
+                                    widget.changeShowOptions();
+                                    widget.messageId.add(messageData.messageId);
+                                  },
+                                  child: MyMessageCard(
+                                    message: messageData.text,
+                                    date: timeSent,
+                                    isSeen: messageData.isSeen,
+                                    type: messageData.type,
+                                    repliedText: messageData.repliedMessage,
+                                    username: messageData.repliedTo,
+                                    repliedMessageType:
+                                        messageData.repliedMessageType,
+                                    longPress: widget.changeShowOptions,
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
+                          return Column(
+                            children: [
+                              if (!widget.isDateShown)
+                                getDateWithLines(dateInList),
+                              InkWell(
+                                onLongPress: () {
+                                  widget.changeShowOptions();
+                                  widget.messageId.add(messageData.messageId);
+                                },
+                                child: SenderMessageCard(
+                                    avatarWidget: getAvatarWithStatus(
+                                        widget.isGroupChat,
+                                        widget.contactModel),
+                                    photoUrl: widget.contactModel.photoUrl,
+                                    message: messageData.text,
+                                    date: timeSent,
+                                    type: messageData.type,
+                                    username: messageData.senderUsername ?? "",
+                                    repliedMessageType:
+                                        messageData.repliedMessageType,
+                                    longPress: widget.changeShowOptions,
+                                    repliedText: messageData.repliedMessage,
+                                    isGroupChat: isGroupChat),
+                              ),
+                            ],
                           );
                         }
                       }
-                      if (isGroupChat) {
-                        ChatMethods().setChatContactMessageSeen(
-                            widget.contactModel.contactId, isGroupChat);
+                      if (index == snapshot.data!.length && widget.isTyping) {
+                        return SenderMessageCard(
+                            avatarWidget: getAvatarWithStatus(
+                                widget.isGroupChat, widget.contactModel),
+                            photoUrl: "",
+                            message: "/////TYPINGZK????",
+                            date: "null",
+                            type: MessageEnum.text,
+                            username: "",
+                            repliedMessageType: MessageEnum.text,
+                            longPress: () {},
+                            repliedText: '',
+                            isGroupChat: isGroupChat);
                       }
-
-                      //showing the time
-                      var dateInList =
-                          DateFormat.MMMMEEEEd().format(messageData.timeSent);
-                      if (widget.previousTime != dateInList) {
-                        widget.previousTime = dateInList;
-                        widget.isDateShown = false;
-                      } else {
-                        widget.isDateShown = true;
-                      }
-                      if (messageData.senderId ==
-                          firebaseAuth.currentUser!.uid) {
-                        return Column(
-                          children: [
-                            if (!widget.isDateShown)
-                              getDateWithLines(dateInList),
-                            InkWell(
-                              onLongPress: () {
-                                widget.changeShowOptions();
-                                widget.messageId.add(messageData.messageId);
-                              },
-                              child: MyMessageCard(
-                                message: messageData.text,
-                                date: timeSent,
-                                isSeen: messageData.isSeen,
-                                type: messageData.type,
-                                repliedText: messageData.repliedMessage,
-                                username: messageData.repliedTo,
-                                repliedMessageType:
-                                    messageData.repliedMessageType,
-                                longPress: widget.changeShowOptions,
-                              ),
-                            ),
-                          ],
-                        );
-                      }
-                      return Column(
-                        children: [
-                          if (!widget.isDateShown) getDateWithLines(dateInList),
-                          InkWell(
-                            onLongPress: () {
-                              widget.changeShowOptions();
-                              widget.messageId.add(messageData.messageId);
-                            },
-                            child: SenderMessageCard(
-                                avatarWidget: getAvatarWithStatus(
-                                    widget.isGroupChat, widget.contactModel),
-                                photoUrl: widget.contactModel.photoUrl,
-                                message: messageData.text,
-                                date: timeSent,
-                                type: messageData.type,
-                                username: messageData.senderUsername ?? "",
-                                repliedMessageType:
-                                    messageData.repliedMessageType,
-                                longPress: widget.changeShowOptions,
-                                repliedText: messageData.repliedMessage,
-                                isGroupChat: isGroupChat),
-                          ),
-                        ],
-                      );
-                    }
-                  }
-                  if (index == snapshot.data!.length && widget.isTyping) {
-                    return SenderMessageCard(
-                        avatarWidget: getAvatarWithStatus(
-                            widget.isGroupChat, widget.contactModel),
-                        photoUrl: "",
-                        message: "/////TYPINGZK????",
-                        date: "null",
-                        type: MessageEnum.text,
-                        username: "",
-                        repliedMessageType: MessageEnum.text,
-                        longPress: () {},
-                        repliedText: '',
-                        isGroupChat: isGroupChat);
-                  }
-                  return const SizedBox();
-                }),
+                      return const SizedBox();
+                    }),
+                  ),
+                ),
               );
-            });
+            }),
+        ValueListenableBuilder(
+            valueListenable: showLoadingOption,
+            builder: (context, value, widget) {
+              if (value) {
+                return Align(
+                  alignment: Alignment.topCenter,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        elevation: 5,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25))),
+                    child: const Text("Swipe Down To Load Previous Messages"),
+                    onPressed: () {},
+                  ),
+                );
+                // return Align(
+                //   alignment: Alignment.topCenter,
+                //   child: ElevatedButton(
+                //     style: ElevatedButton.styleFrom(
+                //         elevation: 5,
+                //         shape: RoundedRectangleBorder(
+                //             borderRadius: BorderRadius.circular(25))),
+                //     child: const Text("Swipe Down To "),
+                //     onPressed: () {},
+                //   ),
+                // );
+              }
+              return Container();
+            }),
+      ],
+    );
   }
 }
 
@@ -1947,3 +1768,122 @@ class MenuItems {
     }
   }
 }
+// showOptions
+//         ? ListView.builder(
+//             controller: widget.messageController,
+//             itemCount: widget.tempMessage.length + 1,
+//             physics: const ClampingScrollPhysics(),
+//             shrinkWrap: true,
+//             itemBuilder: ((context, index) {
+//               var messageData;
+//               if (index != widget.tempMessage.length) {
+//                 messageData = widget.tempMessage[index];
+//                 if (messageData.messageId == messageData.recieverid) {
+//                   widget.isTyping = true;
+//                 } else {
+//                   var timeSent = DateFormat.jm().format(messageData.timeSent);
+//                   if (!messageData.isSeen &&
+//                       messageData.recieverid == firebaseAuth.currentUser!.uid) {
+//                     if (!isGroupChat) {
+//                       ChatMethods().setChatMessageSeen(
+//                         widget.contactModel.contactId,
+//                         messageData.messageId,
+//                       );
+//                     }
+//                   }
+//                   if (isGroupChat) {
+//                     ChatMethods().setChatContactMessageSeen(
+//                         widget.contactModel.contactId, isGroupChat);
+//                   }
+//                   //showing the time
+//                   var dateInList =
+//                       DateFormat.MMMMEEEEd().format(messageData.timeSent);
+//                   if (widget.previousTime != dateInList) {
+//                     widget.previousTime = dateInList;
+//                     widget.isDateShown = false;
+//                   } else {
+//                     widget.isDateShown = true;
+//                   }
+
+//                   if (messageData.senderId == firebaseAuth.currentUser!.uid) {
+//                     return Column(
+//                       children: [
+//                         if (!widget.isDateShown) getDateWithLines(dateInList),
+//                         InkWell(
+//                           onTap: (() {
+//                             {
+//                               if (widget.messageId
+//                                   .contains(messageData.messageId)) {
+//                                 widget.decrementSelectedNum();
+
+//                                 widget.messageId.remove(messageData.messageId);
+//                               } else {
+//                                 widget.incrementSelectedNum();
+
+//                                 widget.messageId.add(messageData.messageId);
+//                               }
+//                             }
+//                           }),
+//                           child: MyMessageCard(
+//                             message: messageData.text,
+//                             date: timeSent,
+//                             isSeen: messageData.isSeen,
+//                             type: messageData.type,
+//                             isSelected: widget.messageId
+//                                 .contains(messageData.messageId),
+//                             repliedText: messageData.repliedMessage,
+//                             username: messageData.repliedTo,
+//                             repliedMessageType: messageData.repliedMessageType,
+//                             longPress: widget.changeShowOptions,
+//                           ),
+//                         ),
+//                       ],
+//                     );
+//                   }
+//                   return Column(
+//                     children: [
+//                       if (!widget.isDateShown) getDateWithLines(dateInList),
+//                       InkWell(
+//                         onTap: (() {
+//                           {
+//                             if (widget.messageId
+//                                 .contains(messageData.messageId)) {
+//                               widget.decrementSelectedNum();
+
+//                               widget.messageId.remove(messageData.messageId);
+//                             } else {
+//                               widget.incrementSelectedNum();
+
+//                               widget.messageId.add(messageData.messageId);
+//                             }
+//                           }
+//                         }),
+//                         child: Row(
+//                           children: [
+//                             SenderMessageCard(
+//                               avatarWidget: getAvatarWithStatus(
+//                                   isGroupChat, widget.contactModel),
+//                               photoUrl: widget.contactModel.photoUrl,
+//                               message: messageData.text,
+//                               date: timeSent,
+//                               type: messageData.type,
+//                               username: messageData.senderUsername ?? "",
+//                               isSelected: widget.messageId
+//                                   .contains(messageData.messageId),
+//                               repliedMessageType:
+//                                   messageData.repliedMessageType,
+//                               longPress: () {},
+//                               repliedText: messageData.repliedMessage,
+//                               isGroupChat: isGroupChat,
+//                             ),
+//                           ],
+//                         ),
+//                       ),
+//                     ],
+//                   );
+//                 }
+//               }
+//               return const SizedBox();
+//             }),
+//           )
+//         : 
