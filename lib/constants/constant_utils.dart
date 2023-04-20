@@ -1,7 +1,9 @@
+import 'dart:developer';
 import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:another_flushbar/flushbar.dart';
+import 'package:avatar_stack/avatar_stack.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -17,6 +19,7 @@ import 'package:yourteam/constants/constants.dart';
 import 'package:yourteam/constants/message_reply.dart';
 import 'package:yourteam/methods/chat_methods.dart';
 import 'package:yourteam/methods/contact_methods.dart';
+import 'package:yourteam/methods/firestore_methods.dart';
 import 'package:yourteam/models/call_model.dart';
 import 'package:yourteam/models/chat_model.dart';
 import 'package:yourteam/models/group.dart';
@@ -1157,7 +1160,7 @@ getContactCard(UserModel model, context, bool isChat,
           leading: Stack(
             children: [
               CircleAvatar(
-                  radius: 35,
+                  radius: 25,
                   backgroundImage: (model.photoUrl == ""
                       ? const AssetImage(
                           'assets/user.png',
@@ -1297,91 +1300,120 @@ getTodoCardOnGoing(TodoModel model, context) {
       height: 170,
       width: MediaQuery.of(context).size.width / 1.2,
       decoration: BoxDecoration(
-          color: cardColors[0], borderRadius: BorderRadius.circular(15)),
+          color: Colors.white, borderRadius: BorderRadius.circular(15)),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 5, right: 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  CircularPercentIndicator(
-                    radius: 28.0,
-                    lineWidth: 5.0,
-                    animation: true,
-                    percent: model.progress / 100,
-                    center: Text(
-                      "${model.progress}%",
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15.0,
-                          color: Colors.white),
-                    ),
-                    circularStrokeCap: CircularStrokeCap.round,
-                    progressColor: Colors.white,
-                  )
-                ],
-              ),
+            Expanded(
+              child: ListTile(
+                  isThreeLine: true,
+                  title: Text(
+                    model.todoTitle,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black),
+                  ),
+                  subtitle: Text(
+                    model.taskDescription.trim(),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: greyColor),
+                  )),
             ),
-            ListTile(
-              isThreeLine: true,
-              title: Padding(
-                padding: const EdgeInsets.only(left: 5),
-                child: Text(
-                  model.todoTitle,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                CircularPercentIndicator(
+                  radius: 25.0,
+                  lineWidth: 5.0,
+                  animation: true,
+                  percent: model.progress / 100,
+                  center: Text(
+                    "${model.progress}%",
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15.0,
+                        color: Colors.black),
+                  ),
+                  circularStrokeCap: CircularStrokeCap.round,
+                  progressColor: mainColor,
                 ),
-              ),
-              subtitle: Padding(
-                padding: const EdgeInsets.only(top: 8, left: 5),
-                child: Column(
+                Column(
                   children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.calendar_month, color: Colors.white),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          model.deadline,
-                          style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white),
-                        ),
-                      ],
+                    const Text(
+                      "Due Date",
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    const SizedBox(
+                      height: 5,
                     ),
                     Row(
                       children: [
-                        const Icon(Icons.person, color: Colors.white),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        const Text(
-                          "Assigned by: ",
-                          style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white),
-                        ),
+                        const Icon(Icons.calendar_month, color: Colors.black),
                         Text(
-                          model.assignedBy,
+                          DateFormat.MMMMd()
+                              .format(DateTime.parse(model.deadline)),
                           style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white),
+                              color: Colors.black),
                         ),
                       ],
-                    )
+                    ),
                   ],
                 ),
-              ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "Assigned to",
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black),
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Center(
+                      child: FutureBuilder(
+                          future: fetchImageUrlsFromUid(model.people),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              List<ImageProvider> avatarsProvider = [];
+
+                              snapshot.data!.forEach((element) {
+                                avatarsProvider
+                                    .add(CachedNetworkImageProvider(element));
+                              });
+                              return AvatarStack(
+                                  width: 50,
+                                  height: 25,
+                                  avatars: avatarsProvider);
+                            } else {
+                              return const Text(
+                                "Loading...",
+                                style: TextStyle(color: Colors.black),
+                              );
+                            }
+                          }),
+                    ),
+                    // Text(
+                    //   model.assignedBy,
+                    //   style: const TextStyle(
+                    //       fontSize: 12,
+                    //       fontWeight: FontWeight.bold,
+                    //       color: Colors.white),
+                    // ),
+                  ],
+                ),
+              ],
             ),
           ],
         ),
@@ -1395,7 +1427,8 @@ getTodoCardUpcoming(TodoModel model, context) {
     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
     child: Container(
       decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(15)),
+          color: scaffoldBackgroundColor,
+          borderRadius: BorderRadius.circular(15)),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: ListTile(
@@ -1426,26 +1459,51 @@ getTodoCardUpcoming(TodoModel model, context) {
                       ),
                     ],
                   ),
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const Icon(Icons.person),
-                      const SizedBox(
-                        height: 10,
-                      ),
                       const Text(
-                        "Assigned by: ",
+                        "Assigned to",
                         style: TextStyle(
-                            fontSize: 12, fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        model.assignedBy,
-                        style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            color: mainColor),
+                            color: Colors.white),
                       ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      Center(
+                        child: FutureBuilder(
+                            future: fetchImageUrlsFromUid(model.people),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                List<ImageProvider> avatarsProvider = [];
+
+                                snapshot.data!.forEach((element) {
+                                  avatarsProvider
+                                      .add(CachedNetworkImageProvider(element));
+                                });
+                                return AvatarStack(
+                                    width: 50,
+                                    height: 25,
+                                    avatars: avatarsProvider);
+                              } else {
+                                return const Text(
+                                  "Loading...",
+                                  style: TextStyle(color: Colors.white),
+                                );
+                              }
+                            }),
+                      ),
+                      // Text(
+                      //   model.assignedBy,
+                      //   style: const TextStyle(
+                      //       fontSize: 12,
+                      //       fontWeight: FontWeight.bold,
+                      //       color: Colors.white),
+                      // ),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),
@@ -1763,4 +1821,13 @@ void reviewApp() async {
   //     await launchUrl(targetURL, mode: LaunchMode.externalApplication);
   //   }
   // }
+}
+
+Future<List<String>> fetchImageUrlsFromUid(List peopleUid) async {
+  List<String> peopleImages = [];
+  for (var element in peopleUid) {
+    UserModel temp = await FirestoreMethods().getUserInformationOther(element);
+    peopleImages.add(temp.photoUrl);
+  }
+  return peopleImages;
 }

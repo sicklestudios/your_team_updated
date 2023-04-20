@@ -561,7 +561,7 @@ class _AddTaskState extends State<AddTask> {
       taskInMapForm.add(model.toMap());
     });
     String res = await TaskMethods().setTask(taskAssignBy.text, taskTitle.text,
-        taskDeadline, taskDesc.text, people, taskInMapForm);
+        taskDeadline.trim(), taskDesc.text, people, taskInMapForm);
     if (res == "Success") {
       setState(() {
         taskAssignBy.text = "";

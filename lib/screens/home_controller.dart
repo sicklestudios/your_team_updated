@@ -66,7 +66,7 @@ class _HomeControllerState extends State<HomeController>
   //value to get from text field
   String value = "";
   int pageIndex = 0;
-  int bottomIndex = 0;
+  int bottomIndex = 1;
   var topPages = [];
   var bottomPages = [];
   FocusNode searchFieldFocusNode = FocusNode();
@@ -447,8 +447,9 @@ class _HomeControllerState extends State<HomeController>
                           } else if (bottomIndex == 1) {
                             return Row(
                               children: [
-                                showUsersImage(userInfo.photoUrl == "",
-                                    picUrl: userInfo.photoUrl, size: 20),
+                                if (userInfo != null)
+                                  showUsersImage(userInfo.photoUrl == "",
+                                      picUrl: userInfo.photoUrl, size: 20),
                                 const SizedBox(
                                   width: 10,
                                 ),

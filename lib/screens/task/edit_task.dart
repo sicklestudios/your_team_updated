@@ -206,8 +206,8 @@ class _EditTaskState extends State<EditTask> {
                         Expanded(
                           child: Row(
                             children: [
-                              showUsersImage(userInfo.photoUrl == "",
-                                  picUrl: userInfo.photoUrl, size: 15),
+                              // showUsersImage(userInfo.photoUrl == "",
+                              //     picUrl: userInfo.photoUrl, size: 15),
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Column(
@@ -228,7 +228,7 @@ class _EditTaskState extends State<EditTask> {
                                       height: 10,
                                     ),
                                     Text(
-                                      userInfo.username,
+                                      model.assignedBy,
                                       textAlign: TextAlign.left,
                                       style: const TextStyle(
                                           color: Colors.black,
@@ -251,7 +251,8 @@ class _EditTaskState extends State<EditTask> {
                             dateMask: 'd MMMM',
                             // use24HourFormat: false,
 
-                            initialValue: DateTime.now().toString(),
+                            initialValue:
+                                DateTime.parse(model.deadline).toString(),
                             firstDate: DateTime.now(),
                             lastDate: DateTime(2100),
                             icon: const Icon(FontAwesomeIcons.calendar),
@@ -466,6 +467,8 @@ class _EditTaskState extends State<EditTask> {
       // }
       taskInMapForm.add(element.toMap());
     });
+    model.todoTitle = taskTitle.text.trim();
+    model.taskDescription = taskDesc.text.trim();
 
     String res = await TaskMethods().updateTask(
         // ((completedTasks / tasksList.length) * 100).toInt(),

@@ -3,10 +3,10 @@ import 'package:firebase_storage/firebase_storage.dart';
 class TodoModel {
   final String todoId;
   final String assignedBy;
-  final String todoTitle;
+  String todoTitle;
   final String deadline;
-  final String taskDescription;
-  final List taskList;
+  String taskDescription;
+  List taskList;
   final List people;
   final int progress;
   final String createrUid;

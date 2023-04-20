@@ -38,6 +38,7 @@ import 'package:yourteam/screens/task/add_task.dart';
 import 'package:yourteam/screens/toppages/chat/chat_profile/chat_profile_group.dart';
 import 'package:yourteam/screens/toppages/chat/chat_profile/chat_profile_screen.dart';
 import 'package:yourteam/screens/toppages/chat/forward_message_screen.dart';
+import 'package:yourteam/screens/toppages/chat/image_preview_sending.dart';
 import 'package:yourteam/screens/toppages/chat/widgets/message_reply_preview.dart';
 import 'package:yourteam/screens/toppages/chat/widgets/my_message_card.dart';
 import 'package:yourteam/screens/toppages/chat/widgets/sender_message_card.dart';
@@ -948,7 +949,9 @@ class __ChatListState extends State<_ChatList> {
                   child: ListView.builder(
                     controller: widget.messageController,
                     itemCount: messagesList.length + 1,
-                    physics: const ClampingScrollPhysics(),
+                    primary: false,
+
+                    // physics: AlwaysScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemBuilder: ((context, index) {
                       widget.tempMessage = messagesList;
@@ -1253,8 +1256,14 @@ class _MyTextFieldState extends State<MyTextField> {
   void selectImage() async {
     File? image = await pickImageFromGallery(context);
     if (image != null) {
-      showToastMessage("Sending Image");
-      sendFileMessage(image, MessageEnum.image);
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => ImagePreviewSending(
+                  isGroupChat: widget.isGroupChat,
+                  contactId: widget.model.contactId,
+                  imagePath: image)));
+      // sendFileMessage(image, MessageEnum.image);
     }
   }
 
