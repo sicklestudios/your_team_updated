@@ -57,7 +57,7 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           Column(
@@ -580,6 +580,7 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
   }
 
   _openInputBottomSheet(String type) {
+    int length = _usernameFieldController!.text.length;
     return showModalBottomSheet<void>(
       isScrollControlled: true,
       context: context,
@@ -588,225 +589,242 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
             topLeft: Radius.circular(30.0), topRight: Radius.circular(30.0)),
       ),
       builder: (BuildContext context) {
-        return Padding(
-            padding: MediaQuery.of(context).viewInsets,
-            child: Container(
-                margin: const EdgeInsets.all(25),
-                child: Wrap(
-                  children: [
-                    if (type == "username")
-                      TextFormField(
-                        controller: _usernameFieldController,
-                        autofocus: true,
-                        obscureText: false,
-                        decoration: const InputDecoration(
-                          labelText: 'Username',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(15),
+        return StatefulBuilder(builder: (context, snapshot) {
+          return Padding(
+              padding: MediaQuery.of(context).viewInsets,
+              child: Container(
+                  margin: const EdgeInsets.all(25),
+                  child: Wrap(
+                    children: [
+                      if (type == "username")
+                        TextFormField(
+                          inputFormatters: [
+                            LengthLimitingTextInputFormatter(25),
+                          ],
+                          controller: _usernameFieldController,
+                          autofocus: true,
+                          obscureText: false,
+                          onChanged: (value) {
+                            snapshot(() {
+                              length = _usernameFieldController!.text.length;
+                            });
+                          },
+                          decoration: InputDecoration(
+                            suffix: Text(
+                              length.toString(),
+                              style: const TextStyle(color: greyColor),
                             ),
-                            borderSide: BorderSide(
-                              color: mainColor,
-                              // width: 1,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(15),
-                            ),
-                            borderSide: BorderSide(color: mainColor
+                            labelText: 'Username',
+                            border: const OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(15),
+                              ),
+                              borderSide: BorderSide(
+                                color: mainColor,
                                 // width: 1,
-                                ),
+                              ),
+                            ),
+                            focusedBorder: const OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(15),
+                              ),
+                              borderSide: BorderSide(color: mainColor
+                                  // width: 1,
+                                  ),
+                            ),
+                            hintText: 'Enter Username',
+                            filled: true,
+                            fillColor: Colors.white,
+                            hintStyle: const TextStyle(
+                                color: Color.fromRGBO(102, 124, 150, 1),
+                                fontFamily: 'Poppins',
+                                fontSize: 13,
+                                letterSpacing:
+                                    0 /*percentages not used in flutter. defaulting to zero*/,
+                                fontWeight: FontWeight.normal,
+                                height: 1),
                           ),
-                          hintText: 'Enter Username',
-                          filled: true,
-                          fillColor: Colors.white,
-                          hintStyle: TextStyle(
-                              color: Color.fromRGBO(102, 124, 150, 1),
-                              fontFamily: 'Poppins',
-                              fontSize: 13,
-                              letterSpacing:
-                                  0 /*percentages not used in flutter. defaulting to zero*/,
-                              fontWeight: FontWeight.normal,
-                              height: 1),
                         ),
-                      ),
-                    if (type == "bio")
-                      TextFormField(
-                        controller: _bioFieldController,
-                        autofocus: true,
-                        obscureText: false,
-                        decoration: const InputDecoration(
-                          labelText: 'Bio',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(15),
-                            ),
-                            borderSide: BorderSide(
-                              color: mainColor,
-                              // width: 1,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(15),
-                            ),
-                            borderSide: BorderSide(color: mainColor
+                      if (type == "bio")
+                        TextFormField(
+                          controller: _bioFieldController,
+                          autofocus: true,
+                          obscureText: false,
+                          decoration: const InputDecoration(
+                            labelText: 'Bio',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(15),
+                              ),
+                              borderSide: BorderSide(
+                                color: mainColor,
                                 // width: 1,
-                                ),
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(15),
+                              ),
+                              borderSide: BorderSide(color: mainColor
+                                  // width: 1,
+                                  ),
+                            ),
+                            hintText: 'Enter Bio',
+                            filled: true,
+                            fillColor: Colors.white,
+                            hintStyle: TextStyle(
+                                color: Color.fromRGBO(102, 124, 150, 1),
+                                fontFamily: 'Poppins',
+                                fontSize: 13,
+                                letterSpacing:
+                                    0 /*percentages not used in flutter. defaulting to zero*/,
+                                fontWeight: FontWeight.normal,
+                                height: 1),
                           ),
-                          hintText: 'Enter Bio',
-                          filled: true,
-                          fillColor: Colors.white,
-                          hintStyle: TextStyle(
-                              color: Color.fromRGBO(102, 124, 150, 1),
-                              fontFamily: 'Poppins',
-                              fontSize: 13,
-                              letterSpacing:
-                                  0 /*percentages not used in flutter. defaulting to zero*/,
-                              fontWeight: FontWeight.normal,
-                              height: 1),
                         ),
-                      ),
-                    if (type == "phone")
-                      TextFormField(
-                        keyboardType: TextInputType.number,
-                        controller: _contactFieldController,
-                        autofocus: true,
-                        obscureText: false,
-                        decoration: const InputDecoration(
-                          labelText: 'Contact Number',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(15),
+                      if (type == "phone")
+                        TextFormField(
+                          keyboardType: TextInputType.number,
+                          controller: _contactFieldController,
+                          autofocus: true,
+                          obscureText: false,
+                          decoration: const InputDecoration(
+                            labelText: 'Contact Number',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(15),
+                              ),
+                              borderSide: BorderSide(
+                                color: mainColor,
+                                // width: 1,
+                              ),
                             ),
-                            borderSide: BorderSide(
-                              color: mainColor,
-                              // width: 1,
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(15),
+                              ),
+                              borderSide: BorderSide(
+                                color: mainColor,
+                                // width: 1,
+                              ),
                             ),
+                            hintText: 'Enter Contact Number',
+                            filled: true,
+                            fillColor: Colors.white,
+                            hintStyle: TextStyle(
+                                color: Color.fromRGBO(102, 124, 150, 1),
+                                fontFamily: 'Poppins',
+                                fontSize: 13,
+                                letterSpacing:
+                                    0 /*percentages not used in flutter. defaulting to zero*/,
+                                fontWeight: FontWeight.normal,
+                                height: 1),
                           ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(15),
-                            ),
-                            borderSide: BorderSide(
-                              color: mainColor,
-                              // width: 1,
-                            ),
-                          ),
-                          hintText: 'Enter Contact Number',
-                          filled: true,
-                          fillColor: Colors.white,
-                          hintStyle: TextStyle(
-                              color: Color.fromRGBO(102, 124, 150, 1),
-                              fontFamily: 'Poppins',
-                              fontSize: 13,
-                              letterSpacing:
-                                  0 /*percentages not used in flutter. defaulting to zero*/,
-                              fontWeight: FontWeight.normal,
-                              height: 1),
                         ),
-                      ),
-                    if (type == "location")
-                      TextFormField(
-                        controller: _locationFieldController,
-                        autofocus: true,
-                        obscureText: false,
-                        decoration: const InputDecoration(
-                          labelText: "Location",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(15),
+                      if (type == "location")
+                        TextFormField(
+                          controller: _locationFieldController,
+                          autofocus: true,
+                          obscureText: false,
+                          decoration: const InputDecoration(
+                            labelText: "Location",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(15),
+                              ),
+                              borderSide: BorderSide(
+                                color: mainColor,
+                                // width: 1,
+                              ),
                             ),
-                            borderSide: BorderSide(
-                              color: mainColor,
-                              // width: 1,
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(15),
+                              ),
+                              borderSide: BorderSide(
+                                color: mainColor,
+                                // width: 1,
+                              ),
                             ),
+                            hintText: 'Enter Location',
+                            filled: true,
+                            fillColor: Colors.white,
+                            hintStyle: TextStyle(
+                                color: Color.fromRGBO(102, 124, 150, 1),
+                                fontFamily: 'Poppins',
+                                fontSize: 13,
+                                letterSpacing:
+                                    0 /*percentages not used in flutter. defaulting to zero*/,
+                                fontWeight: FontWeight.normal,
+                                height: 1),
                           ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(15),
-                            ),
-                            borderSide: BorderSide(
-                              color: mainColor,
-                              // width: 1,
-                            ),
-                          ),
-                          hintText: 'Enter Location',
-                          filled: true,
-                          fillColor: Colors.white,
-                          hintStyle: TextStyle(
-                              color: Color.fromRGBO(102, 124, 150, 1),
-                              fontFamily: 'Poppins',
-                              fontSize: 13,
-                              letterSpacing:
-                                  0 /*percentages not used in flutter. defaulting to zero*/,
-                              fontWeight: FontWeight.normal,
-                              height: 1),
                         ),
-                      ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Row(
-                            children: [
-                              TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text(
-                                    "Cancel",
-                                    style: TextStyle(color: mainColor),
-                                  )),
-                              TextButton(
-                                  onPressed: () async {
-                                    if (_usernameFieldController!
-                                            .text.isNotEmpty ||
-                                        _usernameFieldController!.text != "") {
-                                      String res = await FirestoreMethods()
-                                          .updateProfile(
-                                              name: _usernameFieldController!
-                                                  .text,
-                                              contact:
-                                                  _contactFieldController!.text,
-                                              bio: _bioFieldController!.text,
-                                              loc: _locationFieldController!
-                                                  .text);
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Row(
+                              children: [
+                                TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text(
+                                      "Cancel",
+                                      style: TextStyle(color: mainColor),
+                                    )),
+                                TextButton(
+                                    onPressed: () async {
+                                      if (_usernameFieldController!
+                                              .text.isNotEmpty ||
+                                          _usernameFieldController!.text !=
+                                              "") {
+                                        String res = await FirestoreMethods()
+                                            .updateProfile(
+                                                name: _usernameFieldController!
+                                                    .text,
+                                                contact:
+                                                    _contactFieldController!
+                                                        .text,
+                                                bio: _bioFieldController!.text,
+                                                loc: _locationFieldController!
+                                                    .text);
 
-                                      if (res == "success") {
-                                        showToastMessage(
-                                            "Profile Updated Successfully");
-                                        // showFloatingFlushBar(context, "Success",
-                                        //     "Profile Updated Successfully");
-                                        fetchUserInfo();
-                                        WidgetsBinding.instance
-                                            .addPostFrameCallback((_) {
-                                          Navigator.pop(context);
-                                        });
+                                        if (res == "success") {
+                                          showToastMessage(
+                                              "Profile Updated Successfully");
+                                          // showFloatingFlushBar(context, "Success",
+                                          //     "Profile Updated Successfully");
+                                          fetchUserInfo();
+                                          WidgetsBinding.instance
+                                              .addPostFrameCallback((_) {
+                                            Navigator.pop(context);
+                                          });
+                                        } else {
+                                          // showFloatingFlushBar(
+                                          //     context, "Error", res);
+                                          showToastMessage(res);
+                                        }
                                       } else {
-                                        // showFloatingFlushBar(
-                                        //     context, "Error", res);
-                                        showToastMessage(res);
+                                        showToastMessage(
+                                            "Name cannot be empty");
+                                        // showFloatingFlushBar(context, "Error",
+                                        //     "Name cannot be empty");
                                       }
-                                    } else {
-                                      showToastMessage("Name cannot be empty");
-                                      // showFloatingFlushBar(context, "Error",
-                                      //     "Name cannot be empty");
-                                    }
-                                  },
-                                  child: const Text(
-                                    "Save",
-                                    style: TextStyle(color: mainColor),
-                                  )),
-                            ],
-                          )
-                        ],
-                      ),
-                    )
-                  ],
-                )));
+                                    },
+                                    child: const Text(
+                                      "Save",
+                                      style: TextStyle(color: mainColor),
+                                    )),
+                              ],
+                            )
+                          ],
+                        ),
+                      )
+                    ],
+                  )));
+        });
       },
     );
   }

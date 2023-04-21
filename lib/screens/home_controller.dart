@@ -66,7 +66,7 @@ class _HomeControllerState extends State<HomeController>
   //value to get from text field
   String value = "";
   int pageIndex = 0;
-  int bottomIndex = 1;
+  int bottomIndex = 0;
   var topPages = [];
   var bottomPages = [];
   FocusNode searchFieldFocusNode = FocusNode();
@@ -315,6 +315,7 @@ class _HomeControllerState extends State<HomeController>
       ChatContactsListScreen(
         value: value,
       ),
+      const CallScreenList(),
       const TodoScreen(),
       ContactsScreen(
         value: value,
@@ -360,7 +361,7 @@ class _HomeControllerState extends State<HomeController>
                   Expanded(
                     child: Scaffold(
                       // backgroundColor: scaffoldBackgroundColor,
-                      floatingActionButton: bottomIndex <= 1
+                      floatingActionButton: bottomIndex == 0 || bottomIndex == 2
                           ? _getFloatingButton()
                           : const SizedBox(),
 
@@ -373,16 +374,18 @@ class _HomeControllerState extends State<HomeController>
                                 FontAwesomeIcons.commentDots,
                                 "Chats",
                                 bottomIndex == 0 ? whiteColor : greyColor),
+                            _getBottomItem(Icons.call, "Calls",
+                                bottomIndex == 1 ? whiteColor : greyColor),
                             _getBottomItem(
                                 FontAwesomeIcons.circleCheck,
                                 "To Do",
-                                bottomIndex == 1 ? whiteColor : greyColor),
+                                bottomIndex == 2 ? whiteColor : greyColor),
                             _getBottomItem(
                                 FontAwesomeIcons.peopleGroup,
                                 "Contacts",
-                                bottomIndex == 2 ? whiteColor : greyColor),
-                            _getBottomItem(Icons.person, "Profile",
                                 bottomIndex == 3 ? whiteColor : greyColor),
+                            _getBottomItem(Icons.person, "Profile",
+                                bottomIndex == 4 ? whiteColor : greyColor),
                           ],
                           type: BottomNavigationBarType.fixed,
                           currentIndex: bottomIndex,
@@ -445,6 +448,14 @@ class _HomeControllerState extends State<HomeController>
                                   fontWeight: FontWeight.bold),
                             );
                           } else if (bottomIndex == 1) {
+                            return const Text(
+                              "Calls",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold),
+                            );
+                          } else if (bottomIndex == 2) {
                             return Row(
                               children: [
                                 if (userInfo != null)
@@ -462,7 +473,7 @@ class _HomeControllerState extends State<HomeController>
                                 ),
                               ],
                             );
-                          } else if (bottomIndex == 2) {
+                          } else if (bottomIndex == 3) {
                             return const Text(
                               "Contacts",
                               style: TextStyle(
@@ -493,7 +504,7 @@ class _HomeControllerState extends State<HomeController>
                           //     },
                           //     icon: getIcon(Icons.search),
                           //   ),
-                          if (bottomIndex == 2)
+                          if (bottomIndex == 3)
                             TextButton(
                                 onPressed: () {
                                   Navigator.of(context).push(MaterialPageRoute(
@@ -501,7 +512,7 @@ class _HomeControllerState extends State<HomeController>
                                           const SearchScreen()));
                                 },
                                 child: const Text("Add New")),
-                          if (bottomIndex != 2)
+                          if (bottomIndex != 3)
                             IconButton(
                               onPressed: () {
                                 Navigator.push(
@@ -842,7 +853,7 @@ class _HomeControllerState extends State<HomeController>
                                 ],
                               ),
                             )
-                          : bottomIndex == 2
+                          : bottomIndex == 3
                               ? Column(children: [
                                   Padding(
                                     padding: const EdgeInsets.only(
@@ -869,7 +880,7 @@ class _HomeControllerState extends State<HomeController>
   }
 
   _getFloatingButton() {
-    return bottomIndex == 1
+    return bottomIndex == 2
         ? FloatingActionButton.extended(
             onPressed: () {
               Navigator.of(context).push(

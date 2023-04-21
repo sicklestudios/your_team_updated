@@ -107,7 +107,8 @@ class _ChatScreenState extends State<ChatScreen>
   int pageIndex = 0;
   bool showOptions = false;
   int selectedNum = 1;
-
+  int messagesLenth = 10;
+  double? offSetValue;
   final ScrollController messageController =
       ScrollController(keepScrollOffset: true);
   @override
@@ -138,24 +139,24 @@ class _ChatScreenState extends State<ChatScreen>
     }
 //getting the data of the user
     getdata();
-    if (!isGroupChat) {
-      //setting the typing to false just in case it was left on true
-      ChatMethods().stopTyping(widget.contactModel.contactId);
-    }
+    // if (!isGroupChat) {
+    //   //setting the typing to false just in case it was left on true
+    //   ChatMethods().stopTyping(widget.contactModel.contactId);
+    // }
 
-    ChatMethods()
-        .setChatContactMessageSeen(widget.contactModel.contactId, isGroupChat);
+    // ChatMethods()
+    //     .setChatContactMessageSeen(widget.contactModel.contactId, isGroupChat);
 
     if (widget.message != null) {
       sendForwardedMessageToUser();
     }
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      try {
-        if (mounted) {
-          messageController.jumpTo(messageController.position.maxScrollExtent);
-        }
-      } catch (e) {}
-    });
+    // SchedulerBinding.instance.addPostFrameCallback((_) {
+    //   try {
+    //     if (mounted) {
+    //       messageController.jumpTo(messageController.position.maxScrollExtent);
+    //     }
+    //   } catch (e) {}
+    // });
     startGetBlockStatus();
   }
 
@@ -201,18 +202,32 @@ class _ChatScreenState extends State<ChatScreen>
     });
   }
 
-  void changeShowOptions() {
+  void changeShowOptions() async {
     showMaterialModalBottomSheet(
       expand: false,
+
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) => MessageHoldSheet(
-          taskTitleTemp: taskTitleTemp,
-          setStateToNormal: setStateToNormal,
-          deleteMessage: deleteMessage,
-          copyTextToClipboard: copyTextToClipboard,
-          forwardMessage: forwardMessage),
-    );
+      // isDismissible: false,
+      elevation: 4,
+      enableDrag: false,
+      builder: (context) => showBottomSheet(),
+      // builder: (context) => MessageHoldSheet(
+      //   taskTitleTemp: taskTitleTemp,
+      //   setStateToNormal: setStateToNormal,
+      //   deleteMessage: deleteMessage,
+      //   copyTextToClipboard: copyTextToClipboard,
+      //   forwardMessage: forwardMessage,
+      //   getBoolCreateCheck: _getBoolCreateCheck,
+      //   getBoolCopyCheck: _getBoolCopyCheck,
+      // ),
+    ).whenComplete(() {
+      offSetValue = messageController.offset;
+
+      if (isDismissed) {
+        setStateToNormal();
+      }
+    });
   }
 
   void setStateToNormal() {
@@ -232,6 +247,8 @@ class _ChatScreenState extends State<ChatScreen>
   String taskTitleTemp = "";
   bool isDateShown = false;
   String previousTime = "";
+  bool isDismissed = true;
+  int messagesListLength = 0;
 
   bool _getBoolCreateCheck() {
     if (selectedNum == 1) {
@@ -240,6 +257,7 @@ class _ChatScreenState extends State<ChatScreen>
           if (element.messageId == messageId[0]) {
             if (element.type == MessageEnum.text) {
               taskTitleTemp = element.text;
+              log(element.text + " jdfjasf");
               return true;
             }
           }
@@ -254,7 +272,23 @@ class _ChatScreenState extends State<ChatScreen>
     }
   }
 
+  bool _getBoolCopyCheck() {
+    try {
+      for (var element in tempMessage) {
+        if (element.messageId == messageId[0]) {
+          if (element.type == MessageEnum.text) {
+            return true;
+          }
+        }
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
   void copyTextToClipboard() {
+    offSetValue = messageController.offset;
     String text = '';
     for (var i = 0; i < tempMessage.length; i++) {
       for (var element in messageId) {
@@ -282,13 +316,87 @@ class _ChatScreenState extends State<ChatScreen>
         }
       }
     }
-    Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => ForwardMessageScreen(messageList: messages)));
+    Navigator.of(context)
+        .push(MaterialPageRoute(
+            builder: (context) => ForwardMessageScreen(messageList: messages)))
+        .whenComplete(() {
+      setStateToNormal();
+    });
+  }
+
+  Widget showBottomSheet() {
+    return Material(
+        child: SafeArea(
+      top: false,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // ListTile(
+          //   title: const Text('Edit'),
+          //   leading: const Icon(Icons.edit),
+          //   onTap: () => Navigator.of(context).pop(),
+          // ),
+          if (_getBoolCreateCheck())
+            ListTile(
+              title: const Text('Add to Task'),
+              leading: const Icon(Icons.add_circle_outline),
+              onTap: () {
+                Navigator.of(context).pop();
+
+                Navigator.of(context)
+                    .push(MaterialPageRoute(
+                        builder: (context) => AddTask(
+                              taskTitle: taskTitleTemp,
+                            )))
+                    .whenComplete(() {
+                  setStateToNormal();
+                });
+                isDismissed = false;
+              },
+            ),
+          if (_getBoolCopyCheck())
+            ListTile(
+              title: const Text('Copy Text'),
+              leading: const Icon(Icons.content_copy),
+              onTap: () {
+                Navigator.of(context).pop();
+                copyTextToClipboard();
+                isDismissed = false;
+              },
+            ),
+          ListTile(
+            title: const Text('Forward'),
+            leading: const Icon(FontAwesomeIcons.arrowUpFromBracket),
+            onTap: () {
+              Navigator.of(context).pop();
+              forwardMessage();
+              isDismissed = false;
+            },
+          ),
+          ListTile(
+            title: const Text(
+              'Delete',
+              style: TextStyle(color: Colors.red),
+            ),
+            leading: const Icon(
+              Icons.delete,
+              color: Colors.red,
+            ),
+            onTap: () async {
+              Navigator.of(context).pop();
+              deleteMessage();
+              isDismissed = false;
+            },
+          )
+        ],
+      ),
+    ));
   }
 
   @override
   Widget build(BuildContext context) {
     //Setting the values in the Menu Items class
+
     MenuItems.makeMenuItem(isGroupChat, isBlocked);
     return WithForegroundTask(
       child: SafeArea(
@@ -478,23 +586,329 @@ class _ChatScreenState extends State<ChatScreen>
                                 child: Column(
                                   children: [
                                     Expanded(
-                                        child: _ChatList(
-                                            isGroupChat: isGroupChat,
-                                            contactModel: widget.contactModel,
-                                            showOptions: showOptions,
-                                            messageController:
-                                                messageController,
-                                            tempMessage: tempMessage,
-                                            messageId: messageId,
-                                            previousTime: previousTime,
-                                            isDateShown: isDateShown,
-                                            isTyping: isTyping,
-                                            changeShowOptions:
-                                                changeShowOptions,
-                                            decrementSelectedNum:
-                                                decrementSelectedNum,
-                                            incrementSelectedNum:
-                                                incrementSelectedNum)),
+                                        child: Stack(
+                                      children: [
+                                        RefreshIndicator(
+                                          onRefresh: () async {
+                                            setState(() {
+                                              messagesLenth += 5;
+                                              offSetValue =
+                                                  messageController.offset;
+                                            });
+                                          },
+                                          child: SingleChildScrollView(
+                                            controller: messageController,
+                                            reverse: true,
+                                            physics:
+                                                const AlwaysScrollableScrollPhysics(),
+                                            child: StreamBuilder<List<Message>>(
+                                                stream: isGroupChat
+                                                    ? ChatMethods()
+                                                        .getGroupChatStream(
+                                                            widget.contactModel
+                                                                .contactId)
+                                                    : ChatMethods()
+                                                        .getChatStream(
+                                                            messagesLenth,
+                                                            widget.contactModel
+                                                                .contactId),
+                                                builder: (context, snapshot) {
+                                                  isDateShown = false;
+                                                  isTyping = false;
+
+                                                  if (snapshot
+                                                          .connectionState ==
+                                                      ConnectionState.waiting) {
+                                                    return Container();
+                                                  }
+                                                  // if (!isLoadPreviousPressed) {
+                                                  // SchedulerBinding.instance.addPostFrameCallback((_) {
+                                                  //   widget.messageController.jumpTo(
+                                                  //       widget.messageController.position.maxScrollExtent);
+                                                  // });
+                                                  // } else {
+                                                  // SchedulerBinding.instance.addPostFrameCallback((_) {
+                                                  //   widget.messageController
+                                                  //       .jumpTo(widget.messageController.offset);
+                                                  // });
+                                                  // }
+                                                  if (offSetValue != null) {
+                                                    SchedulerBinding.instance
+                                                        .addPostFrameCallback(
+                                                            (_) {
+                                                      messageController
+                                                          .jumpTo(offSetValue!);
+                                                      offSetValue = null;
+                                                    });
+                                                  } else {
+                                                    SchedulerBinding.instance
+                                                        .addPostFrameCallback(
+                                                            (_) {
+                                                      messageController
+                                                          .jumpTo(0.0);
+                                                    });
+                                                  }
+
+                                                  //in case of group chat checking if the message is deleted by the user
+                                                  List<Message> messagesList =
+                                                      [];
+                                                  if (isGroupChat) {
+                                                    for (var element
+                                                        in snapshot.data!) {
+                                                      Message message = element;
+                                                      if (message
+                                                              .isMessageDeleted !=
+                                                          null) {
+                                                        if (!message
+                                                            .isMessageDeleted!
+                                                            .contains(
+                                                                firebaseAuth
+                                                                    .currentUser!
+                                                                    .uid)) {
+                                                          messagesList
+                                                              .add(message);
+                                                        }
+                                                      } else {
+                                                        messagesList
+                                                            .add(message);
+                                                      }
+                                                    }
+                                                  } else {
+                                                    messagesList =
+                                                        snapshot.data!;
+                                                  }
+                                                  // if (messagesList.length ==
+                                                  //     messagesListLength) {
+                                                  //   showToastMessage(
+                                                  //       "End of Chat");
+                                                  // } else {
+                                                  //   messagesListLength =
+                                                  //       messagesList.length;
+                                                  // }
+                                                  return ListView.builder(
+                                                    key: const PageStorageKey(
+                                                        'const name here'),
+                                                    // controller: widget.messageController,
+                                                    itemCount:
+                                                        messagesList.length + 1,
+                                                    primary: false,
+                                                    physics:
+                                                        const NeverScrollableScrollPhysics(),
+                                                    // physics: AlwaysScrollableScrollPhysics(),
+                                                    shrinkWrap: true,
+                                                    itemBuilder:
+                                                        ((context, index) {
+                                                      tempMessage =
+                                                          messagesList;
+                                                      var messageData;
+                                                      if (index !=
+                                                          snapshot
+                                                              .data!.length) {
+                                                        messageData =
+                                                            messagesList[index];
+                                                        if (messageData
+                                                                .messageId ==
+                                                            messageData
+                                                                .recieverid) {
+                                                          isTyping = true;
+                                                        } else {
+                                                          var timeSent = DateFormat
+                                                                  .jm()
+                                                              .format(messageData
+                                                                  .timeSent);
+                                                          if (!messageData
+                                                                  .isSeen &&
+                                                              messageData
+                                                                      .recieverid ==
+                                                                  firebaseAuth
+                                                                      .currentUser!
+                                                                      .uid) {
+                                                            if (!isGroupChat) {
+                                                              ChatMethods()
+                                                                  .setChatMessageSeen(
+                                                                widget
+                                                                    .contactModel
+                                                                    .contactId,
+                                                                messageData
+                                                                    .messageId,
+                                                              );
+                                                            }
+                                                          }
+                                                          if (isGroupChat) {
+                                                            ChatMethods()
+                                                                .setChatContactMessageSeen(
+                                                                    widget
+                                                                        .contactModel
+                                                                        .contactId,
+                                                                    isGroupChat);
+                                                          }
+
+                                                          //showing the time
+                                                          var dateInList = DateFormat
+                                                                  .MMMMEEEEd()
+                                                              .format(messageData
+                                                                  .timeSent);
+                                                          if (previousTime !=
+                                                              dateInList) {
+                                                            previousTime =
+                                                                dateInList;
+                                                            isDateShown = false;
+                                                          } else {
+                                                            isDateShown = true;
+                                                          }
+                                                          if (messageData
+                                                                  .senderId ==
+                                                              firebaseAuth
+                                                                  .currentUser!
+                                                                  .uid) {
+                                                            return Column(
+                                                              children: [
+                                                                if (!isDateShown)
+                                                                  getDateWithLines(
+                                                                      dateInList),
+                                                                InkWell(
+                                                                  onLongPress:
+                                                                      () {
+                                                                    changeShowOptions();
+                                                                    messageId.add(
+                                                                        messageData
+                                                                            .messageId);
+                                                                  },
+                                                                  child:
+                                                                      MyMessageCard(
+                                                                    message:
+                                                                        messageData
+                                                                            .text,
+                                                                    date:
+                                                                        timeSent,
+                                                                    isSeen: messageData
+                                                                        .isSeen,
+                                                                    type: messageData
+                                                                        .type,
+                                                                    repliedText:
+                                                                        messageData
+                                                                            .repliedMessage,
+                                                                    username:
+                                                                        messageData
+                                                                            .repliedTo,
+                                                                    repliedMessageType:
+                                                                        messageData
+                                                                            .repliedMessageType,
+                                                                    longPress:
+                                                                        changeShowOptions,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            );
+                                                          }
+                                                          return Column(
+                                                            children: [
+                                                              if (!isDateShown)
+                                                                getDateWithLines(
+                                                                    dateInList),
+                                                              InkWell(
+                                                                onLongPress:
+                                                                    () {
+                                                                  changeShowOptions();
+                                                                  messageId.add(
+                                                                      messageData
+                                                                          .messageId);
+                                                                },
+                                                                child: SenderMessageCard(
+                                                                    avatarWidget: getAvatarWithStatus(
+                                                                        isGroupChat,
+                                                                        widget
+                                                                            .contactModel),
+                                                                    photoUrl: widget
+                                                                        .contactModel
+                                                                        .photoUrl,
+                                                                    message:
+                                                                        messageData
+                                                                            .text,
+                                                                    date:
+                                                                        timeSent,
+                                                                    type: messageData
+                                                                        .type,
+                                                                    username:
+                                                                        messageData.senderUsername ??
+                                                                            "",
+                                                                    repliedMessageType:
+                                                                        messageData
+                                                                            .repliedMessageType,
+                                                                    longPress:
+                                                                        changeShowOptions,
+                                                                    repliedText:
+                                                                        messageData
+                                                                            .repliedMessage,
+                                                                    isGroupChat:
+                                                                        isGroupChat),
+                                                              ),
+                                                            ],
+                                                          );
+                                                        }
+                                                      }
+                                                      if (index ==
+                                                              snapshot.data!
+                                                                  .length &&
+                                                          isTyping) {
+                                                        return SenderMessageCard(
+                                                            avatarWidget:
+                                                                getAvatarWithStatus(
+                                                                    isGroupChat,
+                                                                    widget
+                                                                        .contactModel),
+                                                            photoUrl: "",
+                                                            message:
+                                                                "/////TYPINGZK????",
+                                                            date: "null",
+                                                            type: MessageEnum
+                                                                .text,
+                                                            username: "",
+                                                            repliedMessageType:
+                                                                MessageEnum
+                                                                    .text,
+                                                            longPress: () {},
+                                                            repliedText: '',
+                                                            isGroupChat:
+                                                                isGroupChat);
+                                                      }
+                                                      return const SizedBox();
+                                                    }),
+                                                  );
+                                                }),
+                                          ),
+                                        ),
+                                        // ValueListenableBuilder(
+                                        //     valueListenable: showLoadingOption,
+                                        //     builder: (context, value, widget) {
+                                        //       if (value) {
+                                        //         return Align(
+                                        //           alignment: Alignment.topCenter,
+                                        //           child: ElevatedButton(
+                                        //             style: ElevatedButton.styleFrom(
+                                        //                 elevation: 5,
+                                        //                 shape: RoundedRectangleBorder(
+                                        //                     borderRadius: BorderRadius.circular(25))),
+                                        //             child: const Text("Swipe Down To Load Previous Messages"),
+                                        //             onPressed: () {},
+                                        //           ),
+                                        //         );
+                                        //         // return Align(
+                                        //         //   alignment: Alignment.topCenter,
+                                        //         //   child: ElevatedButton(
+                                        //         //     style: ElevatedButton.styleFrom(
+                                        //         //         elevation: 5,
+                                        //         //         shape: RoundedRectangleBorder(
+                                        //         //             borderRadius: BorderRadius.circular(25))),
+                                        //         //     child: const Text("Swipe Down To "),
+                                        //         //     onPressed: () {},
+                                        //         //   ),
+                                        //         // );
+                                        //       }
+                                        //       return Container();
+                                        //     }),
+                                      ],
+                                    )),
                                     MyTextField(
                                       model: widget.contactModel,
                                       isGroupChat: isGroupChat,
@@ -720,6 +1134,7 @@ class _ChatScreenState extends State<ChatScreen>
             recieverUserId: widget.contactModel.contactId, messageId: id);
       }
     }
+    setStateToNormal();
   }
 
   void openProfile() {
@@ -737,83 +1152,28 @@ class _ChatScreenState extends State<ChatScreen>
   }
 }
 
-class MessageHoldSheet extends StatelessWidget {
-  final String taskTitleTemp;
-  final Function deleteMessage;
-  final Function setStateToNormal;
-  final Function copyTextToClipboard;
-  final Function forwardMessage;
-  const MessageHoldSheet(
-      {required this.taskTitleTemp,
-      required this.deleteMessage,
-      required this.setStateToNormal,
-      required this.copyTextToClipboard,
-      required this.forwardMessage,
-      Key? key})
-      : super(key: key);
+// class MessageHoldSheet extends StatelessWidget {
+//   final String taskTitleTemp;
+//   final Function deleteMessage;
+//   final Function setStateToNormal;
+//   final Function copyTextToClipboard;
+//   final Function forwardMessage;
+//   Function getBoolCreateCheck;
+//   Function getBoolCopyCheck;
+//   MessageHoldSheet(
+//       {required this.taskTitleTemp,
+//       required this.deleteMessage,
+//       required this.setStateToNormal,
+//       required this.copyTextToClipboard,
+//       required this.forwardMessage,
+//       required this.getBoolCreateCheck,
+//       required this.getBoolCopyCheck,
+//       Key? key})
+//       : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-        child: SafeArea(
-      top: false,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // ListTile(
-          //   title: const Text('Edit'),
-          //   leading: const Icon(Icons.edit),
-          //   onTap: () => Navigator.of(context).pop(),
-          // ),
-          ListTile(
-            title: const Text('Add to Task'),
-            leading: const Icon(Icons.add_circle_outline),
-            onTap: () {
-              Navigator.of(context).pop();
-
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => AddTask(
-                        taskTitle: taskTitleTemp,
-                      )));
-            },
-          ),
-          ListTile(
-            title: const Text('Copy Text'),
-            leading: const Icon(Icons.content_copy),
-            onTap: () {
-              Navigator.of(context).pop();
-              copyTextToClipboard();
-            },
-          ),
-          ListTile(
-            title: const Text('Forward'),
-            leading: const Icon(FontAwesomeIcons.arrowUpFromBracket),
-            onTap: () {
-              Navigator.of(context).pop();
-              forwardMessage();
-            },
-          ),
-          ListTile(
-            title: const Text(
-              'Delete',
-              style: TextStyle(color: Colors.red),
-            ),
-            leading: const Icon(
-              Icons.delete,
-              color: Colors.red,
-            ),
-            onTap: () async {
-              Navigator.of(context).pop();
-
-              deleteMessage();
-              setStateToNormal();
-            },
-          )
-        ],
-      ),
-    ));
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {}
+// }
 
 // the stream wiget
 class _ChatList extends StatefulWidget {
@@ -829,6 +1189,7 @@ class _ChatList extends StatefulWidget {
   VoidCallback changeShowOptions;
   VoidCallback decrementSelectedNum;
   VoidCallback incrementSelectedNum;
+
   _ChatList({
     required this.isGroupChat,
     required this.contactModel,
@@ -854,6 +1215,9 @@ class __ChatListState extends State<_ChatList> {
   int messagesLenth = 10;
   bool isLoadPreviousPressed = false;
   ValueNotifier<bool> showLoadingOption = ValueNotifier(false);
+  final ScrollController messageController =
+      ScrollController(keepScrollOffset: true);
+  final GlobalKey scrollKey = GlobalKey();
   @override
   void initState() {
     super.initState();
@@ -878,17 +1242,17 @@ class __ChatListState extends State<_ChatList> {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Container();
               }
-              if (!isLoadPreviousPressed) {
-                SchedulerBinding.instance.addPostFrameCallback((_) {
-                  widget.messageController.jumpTo(
-                      widget.messageController.position.maxScrollExtent);
-                });
-              } else {
-                SchedulerBinding.instance.addPostFrameCallback((_) {
-                  widget.messageController
-                      .jumpTo(widget.messageController.offset);
-                });
-              }
+              // if (!isLoadPreviousPressed) {
+              // SchedulerBinding.instance.addPostFrameCallback((_) {
+              //   widget.messageController.jumpTo(
+              //       widget.messageController.position.maxScrollExtent);
+              // });
+              // } else {
+              //   SchedulerBinding.instance.addPostFrameCallback((_) {
+              //     widget.messageController
+              //         .jumpTo(widget.messageController.offset);
+              //   });
+              // }
 
               //in case of group chat checking if the message is deleted by the user
               List<Message> messagesList = [];
@@ -908,49 +1272,46 @@ class __ChatListState extends State<_ChatList> {
                 messagesList = snapshot.data!;
               }
 
-              return LiquidPullToRefresh(
-                onRefresh: () async {
-                  showLoadingOption.value = false;
+              return NotificationListener<ScrollNotification>(
+                onNotification: (notification) {
+                  // final metrices = notification.metrics;
 
-                  setState(() {
-                    isLoadPreviousPressed = true;
-                    messagesLenth += 5;
-                  });
-                }, // refresh callback
-                child: NotificationListener<ScrollNotification>(
-                  onNotification: (notification) {
-                    final metrices = notification.metrics;
+                  // if (metrices.atEdge && metrices.pixels == 0) {
+                  //   //you are at top of  list
+                  //   showLoadingOption.value = true;
+                  // } else {
+                  //   showLoadingOption.value = false;
+                  // }
 
-                    if (metrices.atEdge && metrices.pixels == 0) {
-                      //you are at top of  list
-                      showLoadingOption.value = true;
-                    } else {
-                      showLoadingOption.value = false;
-                    }
+                  // if (metrices.pixels == metrices.minScrollExtent) {
+                  //   //you are at top of list
+                  //   showLoadingOption.value = true;
+                  // } else {
+                  //   showLoadingOption.value = false;
+                  // }
 
-                    if (metrices.pixels == metrices.minScrollExtent) {
-                      //you are at top of list
-                      showLoadingOption.value = true;
-                    } else {
-                      showLoadingOption.value = false;
-                    }
+                  // if (metrices.atEdge && metrices.pixels > 0) {
+                  //   //you are at end of  list
+                  //   showLoadingOption.value = false;
+                  // }
 
-                    // if (metrices.atEdge && metrices.pixels > 0) {
-                    //   //you are at end of  list
-                    //   showLoadingOption.value = false;
-                    // }
-
-                    // if (metrices.pixels >= metrices.maxScrollExtent) {
-                    //   //you are at end of list
-                    //   showLoadingOption.value = false;
-                    // }
-                    return false;
-                  },
+                  // if (metrices.pixels >= metrices.maxScrollExtent) {
+                  //   //you are at end of list
+                  //   showLoadingOption.value = false;
+                  // }
+                  return false;
+                },
+                child: SingleChildScrollView(
+                  controller: messageController,
+                  key: scrollKey,
+                  reverse: true,
+                  // physics:  NeverScrollableScrollPhysics(),
+                  physics: const AlwaysScrollableScrollPhysics(),
                   child: ListView.builder(
-                    controller: widget.messageController,
+                    // controller: widget.messageController,
                     itemCount: messagesList.length + 1,
                     primary: false,
-
+                    physics: const NeverScrollableScrollPhysics(),
                     // physics: AlwaysScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemBuilder: ((context, index) {
@@ -1061,35 +1422,35 @@ class __ChatListState extends State<_ChatList> {
                 ),
               );
             }),
-        ValueListenableBuilder(
-            valueListenable: showLoadingOption,
-            builder: (context, value, widget) {
-              if (value) {
-                return Align(
-                  alignment: Alignment.topCenter,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        elevation: 5,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25))),
-                    child: const Text("Swipe Down To Load Previous Messages"),
-                    onPressed: () {},
-                  ),
-                );
-                // return Align(
-                //   alignment: Alignment.topCenter,
-                //   child: ElevatedButton(
-                //     style: ElevatedButton.styleFrom(
-                //         elevation: 5,
-                //         shape: RoundedRectangleBorder(
-                //             borderRadius: BorderRadius.circular(25))),
-                //     child: const Text("Swipe Down To "),
-                //     onPressed: () {},
-                //   ),
-                // );
-              }
-              return Container();
-            }),
+        // ValueListenableBuilder(
+        //     valueListenable: showLoadingOption,
+        //     builder: (context, value, widget) {
+        //       if (value) {
+        //         return Align(
+        //           alignment: Alignment.topCenter,
+        //           child: ElevatedButton(
+        //             style: ElevatedButton.styleFrom(
+        //                 elevation: 5,
+        //                 shape: RoundedRectangleBorder(
+        //                     borderRadius: BorderRadius.circular(25))),
+        //             child: const Text("Swipe Down To Load Previous Messages"),
+        //             onPressed: () {},
+        //           ),
+        //         );
+        //         // return Align(
+        //         //   alignment: Alignment.topCenter,
+        //         //   child: ElevatedButton(
+        //         //     style: ElevatedButton.styleFrom(
+        //         //         elevation: 5,
+        //         //         shape: RoundedRectangleBorder(
+        //         //             borderRadius: BorderRadius.circular(25))),
+        //         //     child: const Text("Swipe Down To "),
+        //         //     onPressed: () {},
+        //         //   ),
+        //         // );
+        //       }
+        //       return Container();
+        //     }),
       ],
     );
   }
@@ -1895,4 +2256,4 @@ class MenuItems {
 //               return const SizedBox();
 //             }),
 //           )
-//         : 
+//         :

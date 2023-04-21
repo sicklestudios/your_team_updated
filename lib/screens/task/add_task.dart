@@ -43,7 +43,7 @@ class _AddTaskState extends State<AddTask> {
   void initState() {
     super.initState();
     // initializeDateFormatting('en');
-
+    log('Data From ' + widget.taskTitle!);
     taskAssignBy.text = userInfo.username;
     taskTitle.text = widget.taskTitle ?? "";
     taskDeadline = "";
@@ -181,37 +181,42 @@ class _AddTaskState extends State<AddTask> {
                           children: [
                             showUsersImage(userInfo.photoUrl == "",
                                 picUrl: userInfo.photoUrl, size: 15),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Assigned by',
-                                    textAlign: TextAlign.left,
-                                    style: TextStyle(
-                                        color: greyColor,
-                                        fontFamily: 'Poppins',
-                                        fontSize: 15,
-                                        letterSpacing: 0,
-                                        fontWeight: FontWeight.w400,
-                                        height: 1),
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  Text(
-                                    userInfo.username,
-                                    textAlign: TextAlign.left,
-                                    style: const TextStyle(
-                                        color: Colors.black,
-                                        fontFamily: 'Poppins',
-                                        fontSize: 15,
-                                        letterSpacing: 0,
-                                        fontWeight: FontWeight.bold,
-                                        height: 1),
-                                  ),
-                                ],
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Assigned by',
+                                      textAlign: TextAlign.left,
+                                      style: TextStyle(
+                                          color: greyColor,
+                                          fontFamily: 'Poppins',
+                                          fontSize: 15,
+                                          letterSpacing: 0,
+                                          fontWeight: FontWeight.w400,
+                                          height: 1),
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Text(
+                                      userInfo.username,
+                                      // textAlign: TextAlign.left,
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                      // softWrap: true,
+                                      style: const TextStyle(
+                                          color: Colors.black,
+                                          fontFamily: 'Poppins',
+                                          fontSize: 15,
+                                          letterSpacing: 0,
+                                          fontWeight: FontWeight.bold,
+                                          height: 1),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ],
