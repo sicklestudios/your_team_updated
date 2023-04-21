@@ -75,16 +75,25 @@ class SenderMessageCard extends StatelessWidget {
                       )),
                       color: senderChatCardColor,
                       margin: const EdgeInsets.symmetric(horizontal: 5),
-                      child: Padding(
-                          // padding: const EdgeInsets.only(
-                          //     left: 10, right: 30, top: 5, bottom: 5),
-                          padding: const EdgeInsets.all(15),
-                          child: DisplayTextImageGIF(
-                              photoUrl: photoUrl,
-                              date: date,
-                              message: message,
-                              type: type,
-                              isSender: false)),
+                      child: Column(
+                        children: [
+                          if(isGroupChat)
+                          Padding(
+                            padding: const EdgeInsets.only(top:8.0,left:15,right: 15),
+                            child: Text(username,textAlign: TextAlign.start,overflow: TextOverflow.clip,style: TextStyle(fontWeight: FontWeight.bold,color: mainColor),),
+                          )
+                          ,Padding(
+                              // padding: const EdgeInsets.only(
+                              //     left: 10, right: 30, top: 5, bottom: 5),
+                              padding: const EdgeInsets.all(15),
+                              child: DisplayTextImageGIF(
+                                  photoUrl: photoUrl,
+                                  date: date,
+                                  message: message,
+                                  type: type,
+                                  isSender: false)),
+                        ],
+                      ),
                     ),
                   ],
                 ),

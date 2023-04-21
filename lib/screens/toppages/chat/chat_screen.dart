@@ -44,6 +44,7 @@ import 'package:yourteam/screens/toppages/chat/widgets/my_message_card.dart';
 import 'package:yourteam/screens/toppages/chat/widgets/sender_message_card.dart';
 import 'package:yourteam/utils/SharedPreferencesUser.dart';
 import 'package:light_modal_bottom_sheet/light_modal_bottom_sheet.dart';
+import 'package:yourteam/utils/helper_widgets.dart';
 
 class ChatScreen extends StatefulWidget {
   final ChatContactModel contactModel;
@@ -815,7 +816,10 @@ class _ChatScreenState extends State<ChatScreen>
                                                                           .messageId);
                                                                 },
                                                                 child: SenderMessageCard(
-                                                                    avatarWidget: getAvatarWithStatus(
+                                                                    avatarWidget:
+                                                                    
+                                                                   
+                                                                     getAvatarWithStatus(
                                                                         isGroupChat,
                                                                         widget
                                                                             .contactModel),
