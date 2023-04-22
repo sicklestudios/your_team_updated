@@ -402,7 +402,15 @@ class _ChatScreenState extends State<ChatScreen>
     return WithForegroundTask(
       child: SafeArea(
         child: GestureDetector(
-          onTap: () {},
+          onTap: () {
+            try {
+              focusNode.unfocus();
+            } catch (e) {
+              
+            }
+            log("Unfocusing");
+            
+          },
           child: Column(
             children: [
               ValueListenableBuilder(
@@ -768,6 +776,9 @@ class _ChatScreenState extends State<ChatScreen>
                                                                   getDateWithLines(
                                                                       dateInList),
                                                                 InkWell(
+                                                                    onTap: (){
+                                                                  focusNode.unfocus();
+                                                                },
                                                                   onLongPress:
                                                                       () {
                                                                     changeShowOptions();
@@ -808,6 +819,9 @@ class _ChatScreenState extends State<ChatScreen>
                                                                 getDateWithLines(
                                                                     dateInList),
                                                               InkWell(
+                                                                onTap: (){
+                                                                  focusNode.unfocus();
+                                                                },
                                                                 onLongPress:
                                                                     () {
                                                                   changeShowOptions();
