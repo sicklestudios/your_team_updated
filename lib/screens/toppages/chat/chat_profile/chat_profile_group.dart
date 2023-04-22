@@ -296,7 +296,7 @@ class _ChatProfileGroupState extends State<ChatProfileGroup> {
                       onTap: () {
                         showPeopleForTask(context, peopleUid, refresh);
                       },
-                      title: const Text("Add Group Memebers"),
+                      title: const Text("Add Group Members"),
                       trailing: Container(
                         decoration: BoxDecoration(
                             color: mainColor.withOpacity(0.1),
@@ -317,7 +317,7 @@ class _ChatProfileGroupState extends State<ChatProfileGroup> {
                         showPeopleForTask(context, peopleUid, refresh,
                             isForGroup: true, groupId: widget.id);
                       },
-                      title: const Text("See Group Memebers"),
+                      title: const Text("See Group Members"),
                       trailing: Container(
                         decoration: BoxDecoration(
                             color: mainColor.withOpacity(0.1),

@@ -570,19 +570,19 @@ class _HomeControllerState extends State<HomeController>
                                       : userInfo!.username,
                                   style: const TextStyle(color: Colors.white),
                                 ),
-                                subtitle: Row(
-                                  // ignore: prefer_const_literals_to_create_immutables
-                                  children: [
-                                    Text(
-                                      userInfo == null
-                                          ? "Loading"
-                                          : userInfo!.email,
-                                      style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w300),
-                                    )
-                                  ],
-                                ),
+                                // subtitle: Row(
+                                //   // ignore: prefer_const_literals_to_create_immutables
+                                //   children: [
+                                //     Text(
+                                //       userInfo == null
+                                //           ? "Loading"
+                                //           : userInfo!.email,
+                                //       style: const TextStyle(
+                                //           color: Colors.white,
+                                //           fontWeight: FontWeight.w300),
+                                //     )
+                                //   ],
+                                // ),
                                 // trailing: IconButton(
                                 //     onPressed: () {
                                 //       Navigator.pop(context);

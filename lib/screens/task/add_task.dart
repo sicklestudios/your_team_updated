@@ -43,11 +43,10 @@ class _AddTaskState extends State<AddTask> {
   void initState() {
     super.initState();
     // initializeDateFormatting('en');
-    log('Data From ' + widget.taskTitle!);
     taskAssignBy.text = userInfo.username;
-    taskTitle.text = widget.taskTitle ?? "";
+    taskDesc.text = widget.taskTitle ?? "";
     taskDeadline = "";
-    taskDesc.text = "";
+    // taskDesc.text = "";
     people = [];
     tasksList = [];
     KeyboardVisibilityController().onChange.listen((isVisible) {
