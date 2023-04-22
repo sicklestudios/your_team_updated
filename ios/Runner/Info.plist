@@ -66,7 +66,9 @@
 		<key>NSCameraUsageDescription</key>
 		<string>Your Chat needs access to your iphone's camera for video calls</string>
 		<key>NSMicrophoneUsageDescription</key>
-		<string>Your Chat requires access to Microphone for voice recordings</string>
+		<string>Your Chat requires access to Microphone for voice recordings and voice search</string>
+		<key>NSSpeechRecognitionUsageDescription</key>
+		<string>Your Chat requires speech recoginition for enabling voice search</string>
 		<key>UIBackgroundModes</key>
 		<array>
 			<string>processing</string>
