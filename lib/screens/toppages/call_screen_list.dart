@@ -40,7 +40,7 @@ class _CallScreenListState extends State<CallScreenList> {
             return ListView.builder(
                 itemCount: snapshot.data!.length,
                 shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
+                // physics: const NeverScrollableScrollPhysics(),
                 itemBuilder: ((context, index) {
                   var data = snapshot.data![index];
                   // var todaysDate  = DateFormat.MMMMEEEEd().format(DateTime.now());

@@ -102,7 +102,9 @@ class BodyState extends State<Body> {
     isinit = true;
     setState(() {});
 
-    await _initAgoraRtcEngine();
+    await _initAgoraRtcEngine().then((value) {
+      log("Agora initalized successfully");
+    });
     // _addAgoraEventHandlers();
   }
 

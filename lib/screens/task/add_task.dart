@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:date_time_picker/date_time_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:uuid/uuid.dart';
@@ -45,6 +46,8 @@ class _AddTaskState extends State<AddTask> {
     // initializeDateFormatting('en');
     taskAssignBy.text = userInfo.username;
     taskDesc.text = widget.taskTitle ?? "";
+    taskTitle.text =
+        widget.taskTitle != null ? smallSentence(widget.taskTitle!) : "";
     taskDeadline = "";
     // taskDesc.text = "";
     people = [];
@@ -56,6 +59,14 @@ class _AddTaskState extends State<AddTask> {
         });
       }
     });
+  }
+
+  String smallSentence(String bigSentence) {
+    if (bigSentence.length > 30) {
+      return bigSentence.substring(0, 30);
+    } else {
+      return bigSentence;
+    }
   }
 
   void refresh(List values) {
@@ -136,6 +147,9 @@ class _AddTaskState extends State<AddTask> {
                         child: SizedBox(
                           height: 50,
                           child: TextFormField(
+                            inputFormatters: [
+                              LengthLimitingTextInputFormatter(30),
+                            ],
                             controller: taskTitle,
                             onFieldSubmitted: (value) {},
                             onChanged: (val) {
@@ -296,20 +310,24 @@ class _AddTaskState extends State<AddTask> {
                               ),
                             ),
                           )),
-                      Row(
-                        children: const [
-                          Text(
-                            'Tasks',
-                            textAlign: TextAlign.left,
-                            style: TextStyle(
-                                color: greyColor,
-                                fontFamily: 'Poppins',
-                                fontSize: 15,
-                                letterSpacing: 0,
-                                fontWeight: FontWeight.bold,
-                                height: 1),
-                          ),
-                        ],
+                    ],
+                  ),
+                ),
+                _getAddedPeople(people: people),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: const [
+                      Text(
+                        'Tasks',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                            color: greyColor,
+                            fontFamily: 'Poppins',
+                            fontSize: 15,
+                            letterSpacing: 0,
+                            fontWeight: FontWeight.bold,
+                            height: 1),
                       ),
                     ],
                   ),
@@ -325,6 +343,7 @@ class _AddTaskState extends State<AddTask> {
                             onTap: () {
                               setState(() {
                                 showAddTaskField = true;
+                                focusNode.requestFocus();
                               });
                             },
                             child: const ListTile(
@@ -403,7 +422,7 @@ class _AddTaskState extends State<AddTask> {
                 //     ],
                 //   ),
                 // ),
-                _getAddedPeople(people: people),
+
                 // Padding(
                 //   padding: const EdgeInsets.all(8.0),
                 //   child: ElevatedButton(
@@ -629,7 +648,7 @@ class _getAddedPeopleState extends State<_getAddedPeople> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Container(
-              height: 150,
+              height: 120,
               decoration: BoxDecoration(
                   color: Colors.white,
                   border: Border.all(color: mainColor),
@@ -669,7 +688,7 @@ class _getAddedPeopleState extends State<_getAddedPeople> {
                               child: const Card(
                                 child: Padding(
                                   padding: EdgeInsets.all(15.0),
-                                  child: Icon(Icons.add, size: 60),
+                                  child: Icon(Icons.add, size: 40),
                                 ),
                               ),
                             ),
@@ -698,12 +717,15 @@ class _getAddedPeopleState extends State<_getAddedPeople> {
                                         child: Column(
                                           children: [
                                             CircleAvatar(
-                                              radius: 40,
+                                              radius: 25,
                                               backgroundImage:
                                                   CachedNetworkImageProvider(
                                                       snapshot.data!.photoUrl),
                                             ),
-                                            Text(snapshot.data!.username),
+                                            Text(
+                                              snapshot.data!.username,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
                                           ],
                                         ),
                                       ));
