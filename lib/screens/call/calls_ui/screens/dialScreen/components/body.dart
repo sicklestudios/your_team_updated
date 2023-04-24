@@ -397,158 +397,182 @@ class BodyState extends State<Body> {
                   alignment: Alignment.bottomCenter,
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Row(
-                      // alignment: WrapAlignment.spaceBetween,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.max,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        SizedBox(
-                          width: getProportionateScreenWidth(80),
-                          child: ValueListenableBuilder(
-                            valueListenable: callValueNotifiers.isSpeakerOn,
-                            builder: (context, isSpeakerOn, child) {
-                              return ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: isSpeakerOn
-                                        ? Colors.white
-                                        : Colors.transparent,
-                                    shape: const RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(50)),
-                                    ),
-                                    padding: EdgeInsets.symmetric(
-                                      vertical: getProportionateScreenWidth(20),
-                                    ),
-                                  ),
-                                  onPressed: () async {
-                                    callValueNotifiers.setSpeakerValue(
-                                        !callValueNotifiers.isSpeakerOn.value);
-                                    await engine!.setEnableSpeakerphone(
-                                        callValueNotifiers.isSpeakerOn.value);
-                                  },
-                                  child: Icon(
-                                    Icons.volume_up_rounded,
-                                    color: isSpeakerOn
-                                        ? Colors.black
-                                        : Colors.white,
-                                  ));
-                            },
+                        if (callValueNotifiers.isVideoOn.value)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              if (users.isNotEmpty)
+                                Align(
+                                    alignment: Alignment.bottomRight,
+                                    child: makeLocalVideo()),
+                            ],
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: SizedBox(
-                            width: getProportionateScreenWidth(80),
-                            child: ValueListenableBuilder(
-                              valueListenable: callValueNotifiers.isMicOff,
-                              builder: (context, isMicOff, child) {
-                                return ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: isMicOff
-                                          ? Colors.white
-                                          : Colors.transparent,
-                                      shape: const RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(50)),
+                        Row(
+                          // alignment: WrapAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            SizedBox(
+                              width: getProportionateScreenWidth(80),
+                              child: ValueListenableBuilder(
+                                valueListenable: callValueNotifiers.isSpeakerOn,
+                                builder: (context, isSpeakerOn, child) {
+                                  return ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: isSpeakerOn
+                                            ? Colors.white
+                                            : Colors.transparent,
+                                        shape: const RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(50)),
+                                        ),
+                                        padding: EdgeInsets.symmetric(
+                                          vertical:
+                                              getProportionateScreenWidth(20),
+                                        ),
                                       ),
-                                      padding: EdgeInsets.symmetric(
-                                        vertical:
-                                            getProportionateScreenWidth(20),
-                                      ),
-                                    ),
-                                    onPressed: () {
-                                      callValueNotifiers.setMicValue(
-                                          !callValueNotifiers.isMicOff.value);
-                                      engine!.muteLocalAudioStream(
-                                          callValueNotifiers.isMicOff.value);
-                                    },
-                                    child: Icon(
-                                      isMicOff ? Icons.mic_off : Icons.mic,
-                                      color: isMicOff
-                                          ? Colors.black
-                                          : Colors.white,
-                                    ));
-                              },
+                                      onPressed: () async {
+                                        callValueNotifiers.setSpeakerValue(
+                                            !callValueNotifiers
+                                                .isSpeakerOn.value);
+                                        await engine!.setEnableSpeakerphone(
+                                            callValueNotifiers
+                                                .isSpeakerOn.value);
+                                      },
+                                      child: Icon(
+                                        Icons.volume_up_rounded,
+                                        color: isSpeakerOn
+                                            ? Colors.black
+                                            : Colors.white,
+                                      ));
+                                },
+                              ),
                             ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: getProportionateScreenWidth(80),
-                          child: ValueListenableBuilder(
-                            valueListenable: callValueNotifiers.isVideoOn,
-                            builder: (context, isVideoOn, child) {
-                              return ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: isVideoOn
-                                        ? Colors.white
-                                        : Colors.transparent,
-                                    shape: const RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(50)),
-                                    ),
-                                    padding: EdgeInsets.symmetric(
-                                      vertical: getProportionateScreenWidth(20),
-                                    ),
-                                  ),
-                                  onPressed: () async {
-                                    callValueNotifiers.setIsVideoOn(
-                                        !callValueNotifiers.isVideoOn.value);
-                                    if (isVideoOn == false) {
-                                      await engine!.enableVideo();
-                                    } else {
-                                      await engine!.disableVideo();
-                                    }
-                                    // VIDEO_OR_AUDIO_FLG =
-                                    //     !callValueNotifiers.isVideoOn.value;
-
-                                    setState(() {});
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: SizedBox(
+                                width: getProportionateScreenWidth(80),
+                                child: ValueListenableBuilder(
+                                  valueListenable: callValueNotifiers.isMicOff,
+                                  builder: (context, isMicOff, child) {
+                                    return ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: isMicOff
+                                              ? Colors.white
+                                              : Colors.transparent,
+                                          shape: const RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(50)),
+                                          ),
+                                          padding: EdgeInsets.symmetric(
+                                            vertical:
+                                                getProportionateScreenWidth(20),
+                                          ),
+                                        ),
+                                        onPressed: () {
+                                          callValueNotifiers.setMicValue(
+                                              !callValueNotifiers
+                                                  .isMicOff.value);
+                                          engine!.muteLocalAudioStream(
+                                              callValueNotifiers
+                                                  .isMicOff.value);
+                                        },
+                                        child: Icon(
+                                          isMicOff ? Icons.mic_off : Icons.mic,
+                                          color: isMicOff
+                                              ? Colors.black
+                                              : Colors.white,
+                                        ));
                                   },
-                                  child: Icon(
-                                    isVideoOn
-                                        ? Icons.videocam
-                                        : Icons.videocam_off,
-                                    color:
-                                        isVideoOn ? Colors.black : Colors.white,
-                                  ));
-                            },
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: RoundedButton(
-                            iconSrc: "assets/icons/call_end.svg",
-                            press: () async {
-                              setState(() {
-                                FlutterCallkitIncoming.endAllCalls();
-                                appValueNotifier.globalisCallOnGoing.value =
-                                    false;
-                              });
-                              try {
-                                player.release();
-                                player.dispose();
-                                timer!.cancel();
-                                timer = null;
-                                closeAgora();
-                              } catch (e) {}
-                              appValueNotifier.setToInitial();
-                              callValueNotifiers.setToInitial();
-                              Navigator.pop(context);
-                            },
-                            color: kRedColor,
-                            iconColor: Colors.white,
-                          ),
-                        )
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: getProportionateScreenWidth(80),
+                              child: ValueListenableBuilder(
+                                valueListenable: callValueNotifiers.isVideoOn,
+                                builder: (context, isVideoOn, child) {
+                                  return ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: isVideoOn
+                                            ? Colors.white
+                                            : Colors.transparent,
+                                        shape: const RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(50)),
+                                        ),
+                                        padding: EdgeInsets.symmetric(
+                                          vertical:
+                                              getProportionateScreenWidth(20),
+                                        ),
+                                      ),
+                                      onPressed: () async {
+                                        callValueNotifiers.setIsVideoOn(
+                                            !callValueNotifiers
+                                                .isVideoOn.value);
+                                        if (isVideoOn == false) {
+                                          await engine!.enableVideo();
+                                        } else {
+                                          await engine!.disableVideo();
+                                        }
+                                        // VIDEO_OR_AUDIO_FLG =
+                                        //     !callValueNotifiers.isVideoOn.value;
 
-                        // DialButton(
-                        //   iconSrc: Icons.mic_outlined,
-                        //   text: "Microphone",
-                        //   press: () {},
-                        // ),
-                        // DialButton(
-                        //   iconSrc: Icons.videocam_off,
-                        //   text: "Video",
-                        //   press: () {},
-                        // ),
+                                        setState(() {});
+                                      },
+                                      child: Icon(
+                                        isVideoOn
+                                            ? Icons.videocam
+                                            : Icons.videocam_off,
+                                        color: isVideoOn
+                                            ? Colors.black
+                                            : Colors.white,
+                                      ));
+                                },
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: RoundedButton(
+                                iconSrc: "assets/icons/call_end.svg",
+                                press: () async {
+                                  setState(() {
+                                    FlutterCallkitIncoming.endAllCalls();
+                                    appValueNotifier.globalisCallOnGoing.value =
+                                        false;
+                                  });
+                                  try {
+                                    player.release();
+                                    player.dispose();
+                                    timer!.cancel();
+                                    timer = null;
+                                    closeAgora();
+                                  } catch (e) {}
+                                  appValueNotifier.setToInitial();
+                                  callValueNotifiers.setToInitial();
+                                  Navigator.pop(context);
+                                },
+                                color: kRedColor,
+                                iconColor: Colors.white,
+                              ),
+                            )
+
+                            // DialButton(
+                            //   iconSrc: Icons.mic_outlined,
+                            //   text: "Microphone",
+                            //   press: () {},
+                            // ),
+                            // DialButton(
+                            //   iconSrc: Icons.videocam_off,
+                            //   text: "Video",
+                            //   press: () {},
+                            // ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -643,32 +667,25 @@ class BodyState extends State<Body> {
   }
 
   Widget makeLocalVideo() {
-    return Stack(
-      children: [
-        SizedBox(
-          width: 100,
-          height: 130,
-          child: Positioned(
-              bottom: xPosition,
-              right: yPosition,
-              child: GestureDetector(
-                  // onPanUpdate: (tapInfo) {
-                  //   setState(() {
-                  //     xPosition = tapInfo.delta.dx;
-                  //     yPosition = tapInfo.delta.dy;
-                  //   });
-                  // },
-                  child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: AgoraVideoView(
-                  controller: VideoViewController(
-                    rtcEngine: engine!,
-                    canvas: VideoCanvas(uid: currentUserUid),
-                  ),
-                ),
-              ))),
-        )
-      ],
+    return SizedBox(
+      width: 100,
+      height: 130,
+      child: GestureDetector(
+          // onPanUpdate: (tapInfo) {
+          //   setState(() {
+          //     xPosition = tapInfo.delta.dx;
+          //     yPosition = tapInfo.delta.dy;
+          //   });
+          // },
+          child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: AgoraVideoView(
+          controller: VideoViewController(
+            rtcEngine: engine!,
+            canvas: VideoCanvas(uid: currentUserUid),
+          ),
+        ),
+      )),
     );
   }
 
@@ -713,15 +730,9 @@ class BodyState extends State<Body> {
                 }
                 log(currentUserUid.toString());
                 return (engine != null)
-                    ? Stack(
-                        children: [
-                          if (users.isEmpty) getLocalView(),
-                          if (users.isNotEmpty) makeRemoteVideo(),
-                          if (users.isNotEmpty)
-                            Positioned(
-                                bottom: 150, right: 2, child: makeLocalVideo()),
-                        ],
-                      )
+                    ? users.isEmpty
+                        ? getLocalView()
+                        : makeRemoteVideo()
                     : Column(
                         children: [
                           const Spacer(),

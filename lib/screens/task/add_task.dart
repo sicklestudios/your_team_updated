@@ -665,7 +665,7 @@ class _getAddedPeopleState extends State<_getAddedPeople> {
                           child: const Card(
                             child: Padding(
                               padding: EdgeInsets.all(15.0),
-                              child: Icon(Icons.add, size: 60),
+                              child: Icon(Icons.add, size: 40),
                             ),
                           ),
                         ),
