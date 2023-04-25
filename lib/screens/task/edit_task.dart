@@ -315,6 +315,9 @@ class _EditTaskState extends State<EditTask> {
                             ),
                           ),
                         ),
+                        _getAddedPeople(
+                      people: model.people,
+                    ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -387,9 +390,7 @@ class _EditTaskState extends State<EditTask> {
                                     tasksList: tasksList));
                           })),
                     ),
-                    _getAddedPeople(
-                      people: model.people,
-                    ),
+                    
                   ],
                 ),
               ),
@@ -539,7 +540,7 @@ class _getAddedPeopleState extends State<_getAddedPeople> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Container(
-              height: 150,
+              height: 120,
               decoration: BoxDecoration(
                   color: Colors.white,
                   border: Border.all(color: mainColor),
@@ -556,7 +557,7 @@ class _getAddedPeopleState extends State<_getAddedPeople> {
                           child: const Card(
                             child: Padding(
                               padding: EdgeInsets.all(15.0),
-                              child: Icon(Icons.add, size: 60),
+                              child: Icon(Icons.add, size: 40),
                             ),
                           ),
                         ),
@@ -602,13 +603,13 @@ class _getAddedPeopleState extends State<_getAddedPeople> {
                                           child: Column(
                                             children: [
                                               CircleAvatar(
-                                                radius: 40,
+                                                radius: 25,
                                                 backgroundImage:
                                                     CachedNetworkImageProvider(
                                                         snapshot
                                                             .data!.photoUrl),
                                               ),
-                                              Text(snapshot.data!.username),
+                                              Text(snapshot.data!.username,overflow: TextOverflow.ellipsis,),
                                             ],
                                           ),
                                         ));
