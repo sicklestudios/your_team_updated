@@ -6,6 +6,7 @@ class CallModel {
   final bool isIncoming;
   final bool isAudioCall;
   final bool isGroupCall;
+  final List membersUid;
 
   CallModel({
     required this.receiverId,
@@ -15,6 +16,7 @@ class CallModel {
     required this.isIncoming,
     required this.isAudioCall,
     required this.isGroupCall,
+    required this.membersUid,
   });
 
   Map<String, dynamic> toMap() {
@@ -26,6 +28,7 @@ class CallModel {
       'isIncoming': isIncoming,
       'isAudioCall': isAudioCall,
       'isGroupCall': isGroupCall,
+      'membersUid': membersUid,
     };
   }
 
@@ -38,6 +41,7 @@ class CallModel {
       isIncoming: map['isIncoming'],
       isAudioCall: map['isAudioCall'],
       isGroupCall: map['isGroupCall'] ?? false,
+      membersUid: map['membersUid'] ??[],
     );
   }
 }

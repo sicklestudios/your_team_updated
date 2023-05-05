@@ -1,24 +1,16 @@
-import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
-import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_callkit_incoming/entities/android_params.dart';
-import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
-import 'package:flutter_callkit_incoming/entities/ios_params.dart';
-import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:uuid/uuid.dart';
 import 'package:yourteam/call_constants_global.dart';
 import 'package:yourteam/constants/colors.dart';
 import 'package:yourteam/constants/constant_utils.dart';
@@ -26,14 +18,11 @@ import 'package:yourteam/constants/constants.dart';
 import 'package:yourteam/constants/message_enum.dart';
 import 'package:yourteam/constants/utils.dart';
 import 'package:yourteam/methods/chat_methods.dart';
-import 'package:yourteam/methods/get_call_token.dart';
+import 'package:yourteam/models/call_model.dart';
 import 'package:yourteam/models/chat_model.dart';
 import 'package:yourteam/models/user_model.dart';
 import 'package:yourteam/screens/bottom_pages.dart/todo_screen.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:yourteam/screens/call/call_methods.dart';
-import 'package:yourteam/screens/call/call_notification_sent.dart';
-import 'package:yourteam/screens/call/calls_ui/screens/dialScreen/dial_screen.dart';
 import 'package:yourteam/screens/task/add_task.dart';
 import 'package:yourteam/screens/toppages/chat/chat_profile/chat_profile_group.dart';
 import 'package:yourteam/screens/toppages/chat/chat_profile/chat_profile_screen.dart';
@@ -42,11 +31,11 @@ import 'package:yourteam/screens/toppages/chat/image_preview_sending.dart';
 import 'package:yourteam/screens/toppages/chat/widgets/message_reply_preview.dart';
 import 'package:yourteam/screens/toppages/chat/widgets/my_message_card.dart';
 import 'package:yourteam/screens/toppages/chat/widgets/sender_message_card.dart';
-import 'package:yourteam/utils/SharedPreferencesUser.dart';
 import 'package:light_modal_bottom_sheet/light_modal_bottom_sheet.dart';
-import 'package:yourteam/utils/helper_widgets.dart';
 
 class ChatScreen extends StatefulWidget {
+  final bool isCallPush;
+  final bool? isAudioCall;
   final ChatContactModel contactModel;
   final List<Message>? message;
   final bool? isGroupChat;
@@ -56,6 +45,8 @@ class ChatScreen extends StatefulWidget {
       this.people,
       this.message,
       this.isGroupChat,
+      this.isAudioCall,
+      required this.isCallPush,
       required this.contactModel});
 
   @override
@@ -77,6 +68,7 @@ class _ChatScreenState extends State<ChatScreen>
         await getNotificationToken(element);
       }
     }
+    call();
   }
 
   getNotificationToken(String uid) async {
@@ -101,6 +93,10 @@ class _ChatScreenState extends State<ChatScreen>
         'photoUrl': widget.contactModel.photoUrl,
       };
       CALLERDATA = values;
+    }
+    if(!isGroupChat)
+    {
+      call();
     }
   }
 
@@ -159,6 +155,21 @@ class _ChatScreenState extends State<ChatScreen>
     //   } catch (e) {}
     // });
     startGetBlockStatus();
+  }
+  void call()async{
+    if(widget.isCallPush)
+    {
+      if(widget.isAudioCall!)
+      {
+        await audioCall(context);
+      }
+      else
+      {
+        await videoCall(context);
+      }
+                                                     
+
+    }
   }
 
   void sendForwardedMessageToUser() {
@@ -471,7 +482,7 @@ class _ChatScreenState extends State<ChatScreen>
                           ValueListenableBuilder(
                               valueListenable:
                                   appValueNotifier.globalisCallOnGoing,
-                              builder: (context, boolValue, widget) {
+                              builder: (context, boolValue, tempWidget) {
                                 return Row(
                                   children: [
                                     InkWell(
@@ -480,18 +491,7 @@ class _ChatScreenState extends State<ChatScreen>
                                                 appValueNotifier.setToInitial();
                                                 callValueNotifiers
                                                     .setToInitial();
-                                                await callsetting(
-                                                    calltype: true);
-                                                // CallMethods().makeCall(
-                                                //     context,
-                                                //     widget.contactModel.name,
-                                                //     widget.contactModel.contactId,
-                                                //     widget.contactModel.photoUrl);
-                                                // Navigator.of(context).push(MaterialPageRoute(
-                                                //     builder: (context) => const CallScreen(
-                                                //         // model: widget.contactModel,
-                                                //         // isAudioCall: true,
-                                                //         )));
+                                               await audioCall(context);
                                               }
                                             : null,
                                         child: Padding(
@@ -511,8 +511,7 @@ class _ChatScreenState extends State<ChatScreen>
                                                 callValueNotifiers
                                                     .setToInitial();
 
-                                                await callsetting(
-                                                    calltype: false);
+                                                await videoCall(context);
                                               }
                                             : null,
                                         child: Padding(
@@ -956,6 +955,36 @@ class _ChatScreenState extends State<ChatScreen>
     );
   }
 
+  audioCall(BuildContext context) async {
+    await callsetting(
+                                                context,
+                                                tokensList,
+                                                  true,
+                                                  CallModel(
+                                                    receiverId: widget.contactModel.contactId, receiverName: widget.contactModel.name, receiverPic: widget.contactModel.photoUrl,
+                                                     timeSent: DateTime.now(), isIncoming: false, isAudioCall: true, isGroupCall: isGroupChat,
+                                                     membersUid: widget.people??[],
+                                                     )
+                                                  ,isGroupChat,usermodel,widget.people??[],
+                                                  );
+  }
+
+  videoCall(BuildContext context) async {
+    await callsetting(
+                                                context,
+                                                tokensList,
+                                                  false,
+                                                  CallModel(
+                                                    receiverId: widget.contactModel.contactId, receiverName: widget.contactModel.name, receiverPic: widget.contactModel.photoUrl,
+                                                     timeSent: DateTime.now(), isIncoming: false, isAudioCall: false, isGroupCall: isGroupChat,
+                                                     membersUid: widget.people??[]
+                                                     )
+                                                  ,isGroupChat,usermodel,
+                                                                                                        widget.people??[]
+
+                                                  );
+  }
+
   _showBlockDialog() {
     if (isGroupChat) {
       showDialog(
@@ -1033,114 +1062,7 @@ class _ChatScreenState extends State<ChatScreen>
             ));
   }
 
-  Future<void> callsetting({required bool calltype}) async {
-    CallMethods().storeCallInfo(
-        widget.contactModel.contactId,
-        widget.contactModel.name,
-        widget.contactModel.photoUrl,
-        calltype,
-        isGroupChat);
-
-    setState(() {
-      appValueNotifier.globalisCallOnGoing.value = true;
-    });
-    if (isGroupChat) {
-      CHANNEL_NAME = widget.contactModel.contactId;
-    } else {
-      CHANNEL_NAME =
-          widget.contactModel.contactId + firebaseAuth.currentUser!.uid;
-    }
-
-    // var response = await get_call_token();
-    // CHANNEL_NAME = response['channelname'];
-    // TOKEN = response['token'];
-    callValueNotifiers.setSpeakerValue(!calltype);
-    callValueNotifiers.setIsVideoOn(!calltype);
-    VIDEO_OR_AUDIO_FLG = calltype;
-    // CALLERDATA = user;
-    // new UserModel().pickcall;
-    var msg = {
-      'token': {'token': TOKEN, 'channelname': CHANNEL_NAME},
-      'call_type':
-          VIDEO_OR_AUDIO_FLG == false ? "video_channel" : "call_channel",
-      'user_info': isGroupChat ? null : userInfo,
-      'groupCall': isGroupChat,
-      'uid': userInfo.uid,
-    };
-    print(msg);
-
-    // await firebaseFirestore
-    //     .collection('users')
-    //     .doc(userInfo.uid)
-    //     .update({'pickcall': false, 'rejectcall': false});
-    // clickbtn = true;
-    setState(() {});
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => const DialScreen()));
-    //starting the call using the call kit
-    //starting a call
-    SharedPrefrenceUser.setCallerName(CALLERDATA['name']);
-
-    CallKitParams params = CallKitParams(
-      id: const Uuid().v4(),
-      nameCaller: CALLERDATA != null
-          ? CALLERDATA['name'] ?? "Nothing to show"
-          : "Nothing to show",
-      handle: '',
-      type: VIDEO_OR_AUDIO_FLG == false ? 1 : 0,
-      extra: <String, dynamic>{},
-      android: const AndroidParams(
-          isCustomNotification: true,
-          isCustomSmallExNotification: true,
-          isShowLogo: true,
-          isShowCallback: false,
-          isShowMissedCallNotification: true,
-          ringtonePath: 'system_ringtone_default',
-          backgroundColor: '#091C40',
-          // backgroundUrl: 'https://i.pravatar.cc/500',
-          actionColor: '#4CAF50',
-          incomingCallNotificationChannelName: "Incoming Call",
-          missedCallNotificationChannelName: "Missed Call"),
-      ios: IOSParams(
-        // iconName: 'Your Team',
-        handleType: 'generic',
-        supportsVideo: true,
-        maximumCallGroups: 2,
-        maximumCallsPerCallGroup: 1,
-        audioSessionMode: 'default',
-        audioSessionActive: true,
-        audioSessionPreferredSampleRate: 44100.0,
-        audioSessionPreferredIOBufferDuration: 0.005,
-        supportsDTMF: true,
-        supportsHolding: true,
-        supportsGrouping: false,
-        supportsUngrouping: false,
-        ringtonePath: 'system_ringtone_default',
-      ),
-    );
-    await FlutterCallkitIncoming.startCall(params);
-    if (!isGroupChat) {
-      sendFcmCall(msg, usermodel!.token);
-    } else {
-      for (var element in tokensList) {
-        sendFcmCall(msg, element);
-      }
-    }
-  }
-
-  void sendFcmCall(msg, String token) async {
-    await send_fcm_call(
-        token: token,
-        name: isGroupChat
-            ? widget.contactModel.name
-            : userInfo == null
-                ? ""
-                : userInfo.username,
-        title: "Call",
-        msg: msg,
-        btnstatus:
-            VIDEO_OR_AUDIO_FLG == false ? "video_channel" : "call_channel");
-  }
+ 
 
   void deleteMessage() {
     for (var id in messageId) {
@@ -1159,7 +1081,8 @@ class _ChatScreenState extends State<ChatScreen>
     if (isGroupChat) {
       Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => ChatProfileGroup(
-                id: widget.contactModel.contactId,
+            people: widget.people,
+                chatContactModel: widget.contactModel,
               )));
     } else {
       Navigator.of(context).push(MaterialPageRoute(

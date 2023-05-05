@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:yourteam/constants/colors.dart';
 import 'package:yourteam/constants/constant_utils.dart';
+import 'package:yourteam/constants/constants.dart';
 import 'package:yourteam/methods/firestore_methods.dart';
 import 'package:yourteam/models/notification_model.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:yourteam/screens/bottom_pages.dart/todo_screen.dart';
+import 'package:yourteam/screens/task/edit_task.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -71,6 +74,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           borderRadius: BorderRadius.circular(15.0),
         ),
         child: ListTile(
+          onTap: (){
+            Navigator.of(context).push(MaterialPageRoute(builder: (context)=>Scaffold(
+              body: TodoScreen(
+                isFromNotification: true,
+                  id: model.taskId ),
+            )));
+          },
           leading: Container(
             decoration: BoxDecoration(
                 color: mainColorFaded.withOpacity(0.3),

@@ -5,12 +5,14 @@ class NotificationModel {
   final String notificationSubtitle;
   final DateTime datePublished;
   final String uid;
+  final String taskId;
 
   NotificationModel({
     required this.notificationTitle,
     required this.notificationSubtitle,
     required this.datePublished,
     required this.uid,
+    required this.taskId,
   });
 
   Map<String, dynamic> toJson() => {
@@ -18,6 +20,7 @@ class NotificationModel {
         'notificationSubtitle': notificationSubtitle,
         'datePublished': datePublished,
         'uid': uid,
+        'taskId': taskId,
       };
 
   factory NotificationModel.fromSnap(DocumentSnapshot snap) {
@@ -27,6 +30,7 @@ class NotificationModel {
       notificationSubtitle: snapshot['notificationSubtitle'],
       datePublished: snapshot['datePublished'].toDate(),
       uid: snapshot['uid'],
+      taskId: snapshot['taskId'],
     );
   }
 }

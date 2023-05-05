@@ -16,13 +16,11 @@ class _DeleteScreenState extends State<DeleteScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
   _deleteFieldController=TextEditingController();
   }
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     _deleteFieldController!.dispose();
   }

@@ -55,7 +55,7 @@ class _CallScreenListState extends State<CallScreenList> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       if (!isShown) getDateWithLines(dateInList),
-                      getCallCard(data)
+                      getCallCard(data,context)
                     ],
                   );
 

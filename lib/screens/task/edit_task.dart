@@ -19,7 +19,9 @@ import 'package:yourteam/utils/helper_widgets.dart';
 
 class EditTask extends StatefulWidget {
   final TodoModel model;
-  const EditTask({required this.model, super.key});
+  final bool isFromNotification;
+  const EditTask(
+      {required this.model, required this.isFromNotification, super.key});
 
   @override
   State<EditTask> createState() => _EditTaskState();
@@ -79,6 +81,14 @@ class _EditTaskState extends State<EditTask> {
     setState(() {});
   }
 
+  void close() {
+    if (focusNode.hasFocus) {
+      focusNode.unfocus();
+    } else {
+      Navigator.pop(context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
@@ -97,7 +107,7 @@ class _EditTaskState extends State<EditTask> {
             automaticallyImplyLeading: true,
             leading: IconButton(
               onPressed: () {
-                Navigator.pop(context);
+                close();
               },
               icon: const Icon(
                 Icons.arrow_back,
@@ -316,8 +326,8 @@ class _EditTaskState extends State<EditTask> {
                           ),
                         ),
                         _getAddedPeople(
-                      people: model.people,
-                    ),
+                          people: model.people,
+                        ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -390,7 +400,6 @@ class _EditTaskState extends State<EditTask> {
                                     tasksList: tasksList));
                           })),
                     ),
-                    
                   ],
                 ),
               ),
@@ -609,7 +618,10 @@ class _getAddedPeopleState extends State<_getAddedPeople> {
                                                         snapshot
                                                             .data!.photoUrl),
                                               ),
-                                              Text(snapshot.data!.username,overflow: TextOverflow.ellipsis,),
+                                              Text(
+                                                snapshot.data!.username,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
                                             ],
                                           ),
                                         ));

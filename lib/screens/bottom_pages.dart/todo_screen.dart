@@ -12,7 +12,13 @@ class TodoScreen extends StatefulWidget {
   final String? id;
   final bool? isGroupChat;
   final List? people;
-  const TodoScreen({this.id, this.isGroupChat, this.people, super.key});
+  final bool? isFromNotification;
+  const TodoScreen(
+      {this.id,
+      this.isGroupChat,
+      this.people,
+      this.isFromNotification,
+      super.key});
 
   @override
   State<TodoScreen> createState() => _TodoScreenState();
@@ -34,11 +40,16 @@ class _TodoScreenState extends State<TodoScreen> {
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    if (widget.id != null) {
-      uid = widget.id!;
-    } else {
-      uid = firebaseAuth.currentUser!.uid;
+    if (widget.isFromNotification != null) {
+      if (!widget.isFromNotification!) {
+        if (widget.id != null) {
+          uid = widget.id!;
+        } else {
+          uid = firebaseAuth.currentUser!.uid;
+        }
+      }
     }
+
     return Container(
       width: size.width,
       height: size.height,
@@ -121,12 +132,18 @@ class _TodoScreenState extends State<TodoScreen> {
                                     itemBuilder: ((context, index) {
                                       var data = onGoingTask[index];
                                       log(data.todoTitle);
+                                      WidgetsBinding.instance
+                                          .addPostFrameCallback((_) {
+                                        moveScreen(data);
+                                      });
                                       return InkWell(
                                         onTap: () {
                                           Navigator.of(context).push(
                                               MaterialPageRoute(
                                                   builder: (context) =>
-                                                      EditTask(model: data)));
+                                                      EditTask(
+                                                        isFromNotification: false,
+                                                        model: data)));
                                         },
                                         child:
                                             getTodoCardOnGoing(data, context),
@@ -169,12 +186,19 @@ class _TodoScreenState extends State<TodoScreen> {
                                     // scrollDirection: Axis.vertical,
                                     itemBuilder: ((context, index) {
                                       var data = upComingTask[index];
+                                      WidgetsBinding.instance
+                                          .addPostFrameCallback((_) {
+                                        moveScreen(data);
+                                      });
+
                                       return InkWell(
                                         onTap: () {
                                           Navigator.of(context).push(
                                               MaterialPageRoute(
                                                   builder: (context) =>
-                                                      EditTask(model: data)));
+                                                      EditTask(
+                                                        isFromNotification: false,
+                                                        model: data)));
                                         },
                                         child:
                                             getTodoCardOnGoing(data, context),
@@ -192,6 +216,19 @@ class _TodoScreenState extends State<TodoScreen> {
         ),
       ),
     );
+  }
+
+  void moveScreen(element) {
+    if (widget.isFromNotification != null) {
+      if (widget.isFromNotification!) {
+        if (element.todoId == widget.id) {
+          Navigator.of(context).pushReplacement(MaterialPageRoute(
+              builder: (context) => EditTask(
+                isFromNotification:true,
+                model: element)));
+        }
+      }
+    }
   }
 }
  //if the snapshot contains data

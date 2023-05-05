@@ -20,8 +20,9 @@ class CallMethods {
   }
 
   void storeCallInfo(String reciverId, String reciverName,
-      String reciverPhotoUrl, bool isAudioCall, bool isGroupCall) async {
+      String reciverPhotoUrl, bool isAudioCall, bool isGroupCall,List membersUid) async {
     CallModel callModelReceiver = CallModel(
+        membersUid: membersUid,
         receiverId: userInfo.uid,
         receiverName: userInfo.username,
         receiverPic: userInfo.photoUrl,
@@ -30,7 +31,8 @@ class CallMethods {
         isAudioCall: isAudioCall,
         isGroupCall: isGroupCall);
 
-    CallModel callModelSender = CallModel(
+    CallModel callModelSender = CallModel(        membersUid: membersUid,
+
         receiverId: reciverId,
         receiverName: reciverName,
         receiverPic: reciverPhotoUrl,

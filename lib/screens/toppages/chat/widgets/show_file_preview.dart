@@ -69,11 +69,15 @@ class _ShowFilePreviewState extends State<ShowFilePreview> {
                 Icons.file_open,
                 color: widget.isSender ? Colors.white : Colors.black,
               ),
-              Text(
-                fileName,
-                style: TextStyle(
-                    color: widget.isSender ? Colors.white : Colors.black,
-                    fontWeight: FontWeight.bold),
+              Expanded(
+                child: Text(
+                  fileName,
+                  style: TextStyle(
+                    
+                      color: widget.isSender ? Colors.white : Colors.black,
+                      overflow: TextOverflow.ellipsis,
+                      fontWeight: FontWeight.bold),
+                ),
               )
             ],
           )),

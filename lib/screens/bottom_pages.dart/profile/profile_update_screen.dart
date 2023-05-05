@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -23,6 +24,7 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
   TextEditingController? _usernameFieldController;
   TextEditingController? _bioFieldController;
   TextEditingController? _contactFieldController;
+  TextEditingController? _contactEmailController;
   TextEditingController? _locationFieldController;
   bool isEmailCorrect = false;
   UserModel value = userInfo;
@@ -36,6 +38,7 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
     _usernameFieldController = TextEditingController(text: value.username);
     _bioFieldController = TextEditingController(text: value.bio);
     _contactFieldController = TextEditingController(text: value.contact);
+    _contactEmailController = TextEditingController(text: value.contactEmail);
     _locationFieldController = TextEditingController(text: value.location);
   }
 
@@ -44,6 +47,7 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
     _usernameFieldController?.dispose();
     _bioFieldController?.dispose();
     _contactFieldController?.dispose();
+    _contactEmailController?.dispose();
     _locationFieldController?.dispose();
     fetchUserInfoFromUtils();
     super.dispose();
@@ -280,11 +284,39 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
                           ),
                         ),
                         title: const Text(
-                          "Bio:",
+                          "About:",
                           style: TextStyle(fontWeight: FontWeight.w500),
                         ),
                         subtitle: Text(
                           _bioFieldController!.text,
+                          style: const TextStyle(fontWeight: FontWeight.w500),
+                        ),
+                        trailing: const Icon(
+                          Icons.edit,
+                          color: mainColor,
+                        ),
+                      ),
+                      ListTile(
+                        onTap: () {
+                          _openInputBottomSheet('contactEmail');
+                        },
+                        leading: Container(
+                          decoration: BoxDecoration(
+                              color: mainColor.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(15)),
+                          width: 45,
+                          height: 45,
+                          child: const Icon(
+                            Icons.help,
+                            color: mainColor,
+                          ),
+                        ),
+                        title: const Text(
+                          "Contact Email:",
+                          style: TextStyle(fontWeight: FontWeight.w500),
+                        ),
+                        subtitle: Text(
+                          _contactEmailController!.text,
                           style: const TextStyle(fontWeight: FontWeight.w500),
                         ),
                         trailing: const Icon(
@@ -580,6 +612,7 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
   }
 
   _openInputBottomSheet(String type) {
+    bool showButton=true;
     int length = _usernameFieldController!.text.length;
     return showModalBottomSheet<void>(
       isScrollControlled: true,
@@ -651,7 +684,7 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
                           autofocus: true,
                           obscureText: false,
                           decoration: const InputDecoration(
-                            labelText: 'Bio',
+                            labelText: 'About',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.all(
                                 Radius.circular(15),
@@ -669,7 +702,58 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
                                   // width: 1,
                                   ),
                             ),
-                            hintText: 'Enter Bio',
+                            hintText: 'Enter about',
+                            filled: true,
+                            fillColor: Colors.white,
+                            hintStyle: TextStyle(
+                                color: Color.fromRGBO(102, 124, 150, 1),
+                                fontFamily: 'Poppins',
+                                fontSize: 13,
+                                letterSpacing:
+                                    0 /*percentages not used in flutter. defaulting to zero*/,
+                                fontWeight: FontWeight.normal,
+                                height: 1),
+                          ),
+                        ),
+                      if (type == "contactEmail")
+                        TextFormField(
+                          controller: _contactEmailController,
+                          autofocus: true,
+                          obscureText: false,
+                             onChanged: (String? value) {
+                          if (value != null) {
+                            value = value.trim();
+                            if (!EmailValidator.validate(value)) {
+                              setState(() {
+                                showButton = false;
+                              });
+                            } else {
+                              setState(() {
+                                showButton = true;
+                              });
+                            }
+                          }
+                        },
+                          decoration: const InputDecoration(
+                            labelText: 'Contact Email',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(15),
+                              ),
+                              borderSide: BorderSide(
+                                color: mainColor,
+                                // width: 1,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(15),
+                              ),
+                              borderSide: BorderSide(color: mainColor
+                                  // width: 1,
+                                  ),
+                            ),
+                            hintText: 'Enter Contact Email',
                             filled: true,
                             fillColor: Colors.white,
                             hintStyle: TextStyle(
@@ -780,13 +864,19 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
                                               .text.isNotEmpty ||
                                           _usernameFieldController!.text !=
                                               "") {
-                                        String res = await FirestoreMethods()
+
+                                                if(showButton)
+                                                {
+                                                                                          String res = await FirestoreMethods()
                                             .updateProfile(
                                                 name: _usernameFieldController!
                                                     .text,
                                                 contact:
                                                     _contactFieldController!
                                                         .text,
+                                                contactEmail:
+                                                    _contactEmailController!
+                                                        .text.trim(),
                                                 bio: _bioFieldController!.text,
                                                 loc: _locationFieldController!
                                                     .text);
@@ -806,6 +896,14 @@ class _ProfileUpdateScreenState extends State<ProfileUpdateScreen> {
                                           //     context, "Error", res);
                                           showToastMessage(res);
                                         }
+                                        
+                                                  
+                                                }
+                                                else {
+                                                  showToastMessage(
+                                            "Email format is wrong");
+                                                }
+
                                       } else {
                                         showToastMessage(
                                             "Name cannot be empty");

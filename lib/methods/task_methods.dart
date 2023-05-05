@@ -48,7 +48,9 @@ class TaskMethods {
               element,
               firebaseAuth.currentUser!.uid,
               "Task",
-              userInfo.username + " assigned you a task");
+              userInfo.username + " assigned you a task",
+              taskId
+              );
           DocumentSnapshot documentSnapshot =
               await firebaseFirestore.collection('users').doc(element).get();
           //receivers token for sending notification to the user
@@ -111,7 +113,9 @@ class TaskMethods {
               element,
               firebaseAuth.currentUser!.uid,
               "Task",
-              userInfo.username + " assigned you a task");
+              userInfo.username + " assigned you a task",
+              taskId
+              );
           DocumentSnapshot documentSnapshot =
               await firebaseFirestore.collection('users').doc(element).get();
           //receivers token for sending notification to the user

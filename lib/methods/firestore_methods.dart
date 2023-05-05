@@ -6,11 +6,12 @@ import 'package:yourteam/models/user_model.dart';
 
 class FirestoreMethods {
   setNotificationHistory(String receiver, String senderId,
-      String notificationTitle, String notificationSubtitle) async {
+      String notificationTitle, String notificationSubtitle,String taskId) async {
     NotificationModel model = NotificationModel(
         notificationTitle: notificationTitle,
         datePublished: DateTime.now(),
         uid: senderId,
+        taskId: taskId,
         notificationSubtitle: notificationSubtitle);
     await firebaseFirestore
         .collection('users')
@@ -164,6 +165,7 @@ class FirestoreMethods {
   Future<String> updateProfile({
     required String name,
     required String contact,
+    required String contactEmail,
     required String bio,
     required String loc,
   }) async {
@@ -178,6 +180,7 @@ class FirestoreMethods {
           'name': name,
           'contact': contact,
           'bio': bio,
+          'contactEmail': contactEmail,
           'location': loc,
         });
         res = "success";

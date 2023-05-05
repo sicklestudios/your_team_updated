@@ -28,7 +28,7 @@ xmlns:tools="http://schemas.android.com/tools"
     </queries>
    <application
         
-        android:label="Your Chat"
+        android:label="Your Team"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity

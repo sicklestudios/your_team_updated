@@ -185,17 +185,17 @@ class ChatMethods {
           }
         }
       }
-      // if (message.type == MessageEnum.link) {
-      //   InfoStorageGroup().storeLink(timeSent, text, recieverUserId);
-      // } else if (message.type == MessageEnum.file) {
-      //   String fileName = text.substring(0, text.indexOf("@@@"));
-      //   String url = text.substring(text.indexOf("@@@") + 3, text.length);
-      //   InfoStorageGroup().storeFile(timeSent, url, fileName, recieverUserId,
-      //       firebaseAuth.currentUser!.uid);
-      // } else if (message.type == MessageEnum.image) {
-      //   InfoStorageGroup().storeMedia(
-      //       timeSent, text, recieverUserId, firebaseAuth.currentUser!.uid);
-      // }
+      if (message.type == MessageEnum.link) {
+        InfoStorageGroup().storeLink(timeSent, text, recieverUserId);
+      } else if (message.type == MessageEnum.file) {
+        String fileName = text.substring(0, text.indexOf("@@@"));
+        String url = text.substring(text.indexOf("@@@") + 3, text.length);
+        InfoStorageGroup().storeFile(timeSent, url, fileName, recieverUserId,
+            firebaseAuth.currentUser!.uid);
+      } else if (message.type == MessageEnum.image) {
+        InfoStorageGroup().storeMedia(
+            timeSent, text, recieverUserId, firebaseAuth.currentUser!.uid);
+      }
     } else {
       // users -> sender id -> reciever id -> messages -> message id -> store message
       await firebaseFirestore

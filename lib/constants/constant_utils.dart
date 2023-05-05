@@ -190,6 +190,7 @@ getMessageCard(var model, context, {bool isGroupChat = false}) {
         onTap: () {
           Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => ChatScreen(
+                isCallPush: false,
                     contactModel: ChatContactModel(
                       contactId: isGroupChat ? model.groupId : model.contactId,
                       name: model.name,
@@ -737,6 +738,7 @@ showPeopleForTask(BuildContext context, List usersList, VoidCallback refresh,
                                                     MaterialPageRoute(
                                                         builder: (context) =>
                                                             ChatScreen(
+                                                              isCallPush: false,
                                                               contactModel: ChatContactModel(
                                                                   contactId:
                                                                       data.uid,
@@ -1057,7 +1059,7 @@ showTaskListAdd(
 //               ])));
 // }
 
-getCallCard(CallModel model) {
+getCallCard(CallModel model,context) {
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
     child: Container(
@@ -1108,7 +1110,26 @@ getCallCard(CallModel model) {
           ],
         ),
         trailing: IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => ChatScreen(
+                    contactModel: ChatContactModel(
+                      contactId: model.receiverId,
+                      name: model.receiverName,
+                      photoUrl: model.receiverPic,
+                      timeSent: DateTime.now(),
+                      lastMessageBy: "",
+                      lastMessageId: '',
+                      isSeen: false,
+                      lastMessage: "",
+                    ),
+                    people: model.isGroupCall ? model.membersUid : [],
+                    isGroupChat: model.isGroupCall,
+                    isCallPush: true,
+                    isAudioCall: model.isAudioCall,
+                  )));
+              
+            },
             icon: Stack(
               alignment: Alignment.center,
               children: [
@@ -1149,7 +1170,9 @@ getContactCard(UserModel model, context, bool isChat,
                         lastMessageBy: "",
                         lastMessageId: "",
                         isSeen: false,
-                        lastMessage: ""),
+                        lastMessage: "",
+                       
+                        ), isCallPush: false,
                   )));
         }
       },

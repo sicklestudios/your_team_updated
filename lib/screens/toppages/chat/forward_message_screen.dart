@@ -70,6 +70,7 @@ class _ForwardMessageScreenState extends State<ForwardMessageScreen> {
                         Navigator.of(context).pushAndRemoveUntil(
                             MaterialPageRoute(
                                 builder: (context) => ChatScreen(
+                                  isCallPush: false,
                                       message: widget.messageList,
                                       contactModel: ChatContactModel(
                                           contactId: data.uid,
