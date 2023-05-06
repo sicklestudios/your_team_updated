@@ -76,6 +76,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         child: ListTile(
           onTap: (){
             Navigator.of(context).push(MaterialPageRoute(builder: (context)=>Scaffold(
+              appBar: AppBar(
+                title: Text("Todo Screen"),
+              ),
               body: TodoScreen(
                 isFromNotification: true,
                   id: model.taskId ),

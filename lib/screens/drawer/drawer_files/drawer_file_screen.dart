@@ -62,11 +62,15 @@ class _FileScreenState extends State<FileScreen> {
               );
             }
             List temp = [];
-            if (widget.id != null) {
-              for (var element in snapshot.data!) {
-                if (element.senderId == widget.id) {
-                  temp.add(element);
+            if (!isGroupChat) {
+              if (widget.id != null) {
+                for (var element in snapshot.data!) {
+                  if (element.senderId == widget.id) {
+                    temp.add(element);
+                  }
                 }
+              } else {
+                temp = snapshot.data!;
               }
             } else {
               temp = snapshot.data!;

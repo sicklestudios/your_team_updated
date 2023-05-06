@@ -150,224 +150,225 @@ class _EditTaskState extends State<EditTask> {
                   TextStyle(color: mainTextColor, fontWeight: FontWeight.bold),
             ),
           ),
-          body: Stack(
-            alignment: Alignment.bottomCenter,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    Column(
-                      children: [
-                        Row(
-                          children: const [
-                            Text(
-                              'Task Name',
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                  // color: Color.fromRGBO(23, 35, 49, 1),
-                                  color: greyColor,
-                                  fontFamily: 'Poppins',
-                                  fontSize: 15,
-                                  letterSpacing: 0,
-                                  fontWeight: FontWeight.bold,
-                                  height: 1),
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 50,
-                          child: TextFormField(
-                            controller: taskTitle,
-                            onFieldSubmitted: (value) {},
-                            onChanged: (val) {
-                              setState(() {});
-                            },
-                            autofocus: false,
-                            style: const TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold),
-                            decoration: const InputDecoration(
-                              //   border: OutlineInputBorder(
-                              //     borderRadius: BorderRadius.all(
-                              //       Radius.circular(15),
-                              //     ),
-                              //   ),
-                              // filled: true,
-                              border: InputBorder.none,
-                              hintText: 'Enter the task name',
-                              // filled: true,
-                              fillColor: Colors.white,
-                              hintStyle: TextStyle(
-                                  color: Color.fromRGBO(102, 124, 150, 1),
-                                  fontFamily: 'Poppins',
-                                  fontSize: 13,
-                                  letterSpacing: 0,
-                                  fontWeight: FontWeight.normal,
-                                  height: 1),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Expanded(
-                          child: Row(
-                            children: [
-                              // showUsersImage(userInfo.photoUrl == "",
-                              //     picUrl: userInfo.photoUrl, size: 15),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      'Assigned by',
-                                      textAlign: TextAlign.left,
-                                      style: TextStyle(
-                                          color: greyColor,
-                                          fontFamily: 'Poppins',
-                                          fontSize: 15,
-                                          letterSpacing: 0,
-                                          fontWeight: FontWeight.w400,
-                                          height: 1),
-                                    ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    Text(
-                                      model.assignedBy,
-                                      textAlign: TextAlign.left,
-                                      style: const TextStyle(
-                                          color: Colors.black,
-                                          fontFamily: 'Poppins',
-                                          fontSize: 15,
-                                          letterSpacing: 0,
-                                          fontWeight: FontWeight.bold,
-                                          height: 1),
-                                    ),
-                                  ],
-                                ),
+          body: SingleChildScrollView(
+            child: Stack(
+              alignment: Alignment.bottomCenter,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      Column(
+                        children: [
+                          Row(
+                            children: const [
+                              Text(
+                                'Task Name',
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                    // color: Color.fromRGBO(23, 35, 49, 1),
+                                    color: greyColor,
+                                    fontFamily: 'Poppins',
+                                    fontSize: 15,
+                                    letterSpacing: 0,
+                                    fontWeight: FontWeight.bold,
+                                    height: 1),
                               ),
                             ],
                           ),
-                        ),
-                        Expanded(
-                          child: DateTimePicker(
-                            type: DateTimePickerType.dateTime,
-                            // dateMask: 'd MMM, yyyy - hh:mm a',
-                            dateMask: 'd MMMM',
-                            // use24HourFormat: false,
-
-                            initialValue:
-                                DateTime.parse(model.deadline).toString(),
-                            firstDate: DateTime.now(),
-                            lastDate: DateTime(2100),
-                            icon: const Icon(FontAwesomeIcons.calendar),
-                            dateLabelText: 'Due Date',
-                            timeLabelText: "Time",
-                            style: const TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.w400,
-                                fontSize: 18),
-
-                            onChanged: (val) {
-                              setState(() {
-                                taskDeadline = val;
-                              });
-                            },
-                            onSaved: (val) => log(val.toString()),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        Row(
-                          children: const [
-                            Text(
-                              'Description',
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                  // color: Color.fromRGBO(23, 35, 49, 1),
-                                  color: greyColor,
-                                  fontFamily: 'Poppins',
-                                  fontSize: 15,
-                                  letterSpacing: 0,
-                                  fontWeight: FontWeight.bold,
-                                  height: 1),
+                          SizedBox(
+                            height: 50,
+                            child: TextFormField(
+                              controller: taskTitle,
+                              onFieldSubmitted: (value) {},
+                              onChanged: (val) {
+                                setState(() {});
+                              },
+                              autofocus: false,
+                              style: const TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold),
+                              decoration: const InputDecoration(
+                                //   border: OutlineInputBorder(
+                                //     borderRadius: BorderRadius.all(
+                                //       Radius.circular(15),
+                                //     ),
+                                //   ),
+                                // filled: true,
+                                border: InputBorder.none,
+                                hintText: 'Enter the task name',
+                                // filled: true,
+                                fillColor: Colors.white,
+                                hintStyle: TextStyle(
+                                    color: Color.fromRGBO(102, 124, 150, 1),
+                                    fontFamily: 'Poppins',
+                                    fontSize: 13,
+                                    letterSpacing: 0,
+                                    fontWeight: FontWeight.normal,
+                                    height: 1),
+                              ),
                             ),
-                          ],
-                        ),
-                        SizedBox(
-                          // margin: const EdgeInsets.all(12),
-                          height: 5 * 22.0,
-                          child: TextField(
-                            controller: taskDesc,
-                            maxLines: 5,
-                            decoration: InputDecoration(
-                              hintText: "Enter Description",
-                              fillColor: Colors.grey[300],
-                              filled: false,
-                              border: const OutlineInputBorder(
-                                borderSide: BorderSide.none,
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(15),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Expanded(
+                            child: Row(
+                              children: [
+                                // showUsersImage(userInfo.photoUrl == "",
+                                //     picUrl: userInfo.photoUrl, size: 15),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Assigned by',
+                                        textAlign: TextAlign.left,
+                                        style: TextStyle(
+                                            color: greyColor,
+                                            fontFamily: 'Poppins',
+                                            fontSize: 15,
+                                            letterSpacing: 0,
+                                            fontWeight: FontWeight.w400,
+                                            height: 1),
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      Text(
+                                        model.assignedBy,
+                                        textAlign: TextAlign.left,
+                                        style: const TextStyle(
+                                            color: Colors.black,
+                                            fontFamily: 'Poppins',
+                                            fontSize: 15,
+                                            letterSpacing: 0,
+                                            fontWeight: FontWeight.bold,
+                                            height: 1),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              // border: const OutlineInputBorder(
-                              //   borderRadius: BorderRadius.all(
-                              //     Radius.circular(15),
-                              //   ),
-                              // ),
+                              ],
                             ),
                           ),
-                        ),
-                        _getAddedPeople(
-                          people: model.people,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              'Tasks',
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                  color: greyColor,
-                                  fontFamily: 'Poppins',
-                                  fontSize: 15,
-                                  letterSpacing: 0,
-                                  fontWeight: FontWeight.bold,
-                                  height: 1),
+                          Expanded(
+                            child: DateTimePicker(
+                              type: DateTimePickerType.dateTime,
+                              // dateMask: 'd MMM, yyyy - hh:mm a',
+                              dateMask: 'd MMMM',
+                              // use24HourFormat: false,
+          
+                              initialValue:
+                                  DateTime.parse(model.deadline).toString(),
+                              firstDate: DateTime.now(),
+                              lastDate: DateTime(2100),
+                              icon: const Icon(FontAwesomeIcons.calendar),
+                              dateLabelText: 'Due Date',
+                              timeLabelText: "Time",
+                              style: const TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 18),
+          
+                              onChanged: (val) {
+                                setState(() {
+                                  taskDeadline = val;
+                                });
+                              },
+                              onSaved: (val) => log(val.toString()),
                             ),
-                            CircularPercentIndicator(
-                              radius: 28.0,
-                              lineWidth: 5.0,
-                              animation: true,
-                              percent: progress / 100,
-                              center: Text(
-                                "$progress%",
-                                style: const TextStyle(
+                          ),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          Row(
+                            children: const [
+                              Text(
+                                'Description',
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                    // color: Color.fromRGBO(23, 35, 49, 1),
+                                    color: greyColor,
+                                    fontFamily: 'Poppins',
+                                    fontSize: 15,
+                                    letterSpacing: 0,
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 15.0,
-                                    color: Colors.black),
+                                    height: 1),
                               ),
-                              circularStrokeCap: CircularStrokeCap.round,
-                              reverse: true,
-                              backgroundColor:
-                                  const Color.fromARGB(255, 237, 236, 236),
-                              progressColor: mainColor,
-                            )
-                          ],
-                        ),
-                      ],
-                    ),
-                    Expanded(
-                      child: ListView.builder(
+                            ],
+                          ),
+                          SizedBox(
+                            // margin: const EdgeInsets.all(12),
+                            height: 5 * 22.0,
+                            child: TextField(
+                              controller: taskDesc,
+                              maxLines: 5,
+                              decoration: InputDecoration(
+                                hintText: "Enter Description",
+                                fillColor: Colors.grey[300],
+                                filled: false,
+                                border: const OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(15),
+                                  ),
+                                ),
+                                // border: const OutlineInputBorder(
+                                //   borderRadius: BorderRadius.all(
+                                //     Radius.circular(15),
+                                //   ),
+                                // ),
+                              ),
+                            ),
+                          ),
+                          _getAddedPeople(
+                            people: model.people,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Tasks',
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                    color: greyColor,
+                                    fontFamily: 'Poppins',
+                                    fontSize: 15,
+                                    letterSpacing: 0,
+                                    fontWeight: FontWeight.bold,
+                                    height: 1),
+                              ),
+                              CircularPercentIndicator(
+                                radius: 28.0,
+                                lineWidth: 5.0,
+                                animation: true,
+                                percent: progress / 100,
+                                center: Text(
+                                  "$progress%",
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15.0,
+                                      color: Colors.black),
+                                ),
+                                circularStrokeCap: CircularStrokeCap.round,
+                                reverse: true,
+                                backgroundColor:
+                                    const Color.fromARGB(255, 237, 236, 236),
+                                progressColor: mainColor,
+                              )
+                            ],
+                          ),
+                        ],
+                      ),
+                      ListView.builder(
                           itemCount: tasksList.length + 1,
                           shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
                           controller: scrollController,
                           itemBuilder: ((context, index) {
                             if (index == tasksList.length) {
@@ -399,63 +400,63 @@ class _EditTaskState extends State<EditTask> {
                                     refresh: refresh,
                                     tasksList: tasksList));
                           })),
-                    ),
-                  ],
-                ),
-              ),
-              if (showAddTaskField)
-                Card(
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: taskController,
-                          focusNode: focusNode,
-                          autofocus: true,
-                          decoration: InputDecoration(
-                              border: const OutlineInputBorder(),
-                              hintText: "Add a task",
-                              suffixIcon: InkWell(
-                                  onTap: () {
-                                    if (taskController.text.isNotEmpty) {
-                                      var messageId = const Uuid().v1();
-
-                                      TaskModel taskModel = TaskModel(
-                                        taskId: messageId.toString(),
-                                        isCompleted: false,
-                                        taskTitle: taskController.text,
-                                      );
-                                      tasksList.add(taskModel);
-                                      taskController.text = "";
-                                      setState(
-                                        () {
-                                          tasksList;
-                                        },
-                                      );
-                                    }
-                                    SchedulerBinding.instance
-                                        .addPostFrameCallback((_) {
-                                      scrollController.jumpTo(scrollController
-                                          .position.maxScrollExtent);
-                                    });
-                                  },
-                                  child: const Padding(
-                                    padding: EdgeInsets.all(5.0),
-                                    child: CircleAvatar(
-                                      radius: 18,
-                                      child: Icon(
-                                        Icons.arrow_upward_sharp,
-                                        color: Colors.white,
-                                        size: 35,
-                                      ),
-                                    ),
-                                  ))),
-                        ),
-                      ),
                     ],
                   ),
                 ),
-            ],
+                if (showAddTaskField)
+                  Card(
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: taskController,
+                            focusNode: focusNode,
+                            autofocus: true,
+                            decoration: InputDecoration(
+                                border: const OutlineInputBorder(),
+                                hintText: "Add a task",
+                                suffixIcon: InkWell(
+                                    onTap: () {
+                                      if (taskController.text.isNotEmpty) {
+                                        var messageId = const Uuid().v1();
+          
+                                        TaskModel taskModel = TaskModel(
+                                          taskId: messageId.toString(),
+                                          isCompleted: false,
+                                          taskTitle: taskController.text,
+                                        );
+                                        tasksList.add(taskModel);
+                                        taskController.text = "";
+                                        setState(
+                                          () {
+                                            tasksList;
+                                          },
+                                        );
+                                      }
+                                      SchedulerBinding.instance
+                                          .addPostFrameCallback((_) {
+                                        scrollController.jumpTo(scrollController
+                                            .position.maxScrollExtent);
+                                      });
+                                    },
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(5.0),
+                                      child: CircleAvatar(
+                                        radius: 18,
+                                        child: Icon(
+                                          Icons.arrow_upward_sharp,
+                                          color: Colors.white,
+                                          size: 35,
+                                        ),
+                                      ),
+                                    ))),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

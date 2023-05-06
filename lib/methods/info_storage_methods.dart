@@ -589,6 +589,7 @@ class InfoStorageGroup {
       for (var document in event.docs) {
         var userInfo = DocsModel.fromMap(document.data());
         contactUsers.add(userInfo);
+        log(document.data().toString());
       }
       return contactUsers;
     });

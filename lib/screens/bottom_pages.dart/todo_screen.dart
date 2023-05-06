@@ -97,63 +97,27 @@ class _TodoScreenState extends State<TodoScreen> {
                         }
                       }
                     }
+                    //adding the ongoing tasks in the upcoming list
+                    upComingTask=[...onGoingTask];
 
                     return Column(
                       children: [
-                        Row(
-                          children: const [
-                            Padding(
-                              padding: EdgeInsets.only(left: 15),
-                              child: Text(
-                                "Ongoing Task",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 20),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        onGoingTask.isEmpty
-                            ? const Center(
-                                child: Text(
-                                  "Nothing to show",
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              )
-                            : SizedBox(
-                                width: MediaQuery.of(context).size.width,
-                                height: 190,
-                                child: ListView.builder(
-                                    itemCount: onGoingTask.length,
-                                    shrinkWrap: true,
-                                    scrollDirection: Axis.horizontal,
-                                    itemBuilder: ((context, index) {
-                                      var data = onGoingTask[index];
-                                      log(data.todoTitle);
-                                      WidgetsBinding.instance
-                                          .addPostFrameCallback((_) {
-                                        moveScreen(data);
-                                      });
-                                      return InkWell(
-                                        onTap: () {
-                                          Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      EditTask(
-                                                        isFromNotification: false,
-                                                        model: data)));
-                                        },
-                                        child:
-                                            getTodoCardOnGoing(data, context),
-                                      );
-                                    })),
-                              ),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        Row(
+                        // Row(
+                        //   children: const [
+                        //     Padding(
+                        //       padding: EdgeInsets.only(left: 15),
+                        //       child: Text(
+                        //         "Ongoing Task",
+                        //         style: TextStyle(
+                        //             fontWeight: FontWeight.bold, fontSize: 20),
+                        //       ),
+                        //     ),
+                        //   ],
+                        // ),
+                        // const SizedBox(
+                        //   height: 15,
+                        // ),
+                         Row(
                           children: const [
                             Padding(
                               padding: EdgeInsets.only(left: 15),
@@ -165,9 +129,45 @@ class _TodoScreenState extends State<TodoScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(
-                          height: 15,
-                        ),
+                        // onGoingTask.isEmpty
+                        //     ? const Center(
+                        //         child: Text(
+                        //           "Nothing to show",
+                        //           style: TextStyle(fontWeight: FontWeight.bold),
+                        //         ),
+                        //       )
+                        //     : SizedBox(
+                        //         width: MediaQuery.of(context).size.width,
+                        //         height: 190,
+                        //         child: ListView.builder(
+                        //             itemCount: onGoingTask.length,
+                        //             shrinkWrap: true,
+                        //             scrollDirection: Axis.horizontal,
+                        //             itemBuilder: ((context, index) {
+                        //               var data = onGoingTask[index];
+                        //               log(data.todoTitle);
+                        //               WidgetsBinding.instance
+                        //                   .addPostFrameCallback((_) {
+                        //                 moveScreen(data);
+                        //               });
+                        //               return InkWell(
+                        //                 onTap: () {
+                        //                   Navigator.of(context).push(
+                        //                       MaterialPageRoute(
+                        //                           builder: (context) =>
+                        //                               EditTask(
+                        //                                 isFromNotification: false,
+                        //                                 model: data)));
+                        //                 },
+                        //                 child:
+                        //                     getTodoCardOnGoing(data, context),
+                        //               );
+                        //             })),
+                        //       ),
+                        // const SizedBox(
+                        //   height: 15,
+                        // ),
+                       
                         upComingTask.isEmpty
                             ? const Center(
                                 child: Text(
