@@ -357,7 +357,7 @@ class _ChatProfileGroupState extends State<ChatProfileGroup> {
                     height: 2,
                   ),
                   SizedBox(
-                    height: size.height/1.2,
+                    height: size.height/1.7,
                     child: ValueListenableBuilder(
                         valueListenable: controlValue,
                         builder: (context, value, check) {
