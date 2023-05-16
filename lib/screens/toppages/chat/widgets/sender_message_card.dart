@@ -80,7 +80,12 @@ class SenderMessageCard extends StatelessWidget {
                           if(isGroupChat)
                           Padding(
                             padding: const EdgeInsets.only(top:8.0,left:15,right: 15),
-                            child: Text(username,textAlign: TextAlign.start,overflow: TextOverflow.clip,style: TextStyle(fontWeight: FontWeight.bold,color: mainColor),),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(username,textAlign: TextAlign.start,overflow: TextOverflow.clip,style: const TextStyle(fontWeight: FontWeight.bold,color: mainColor),),
+                              ],
+                            ),
                           )
                           ,Padding(
                               // padding: const EdgeInsets.only(

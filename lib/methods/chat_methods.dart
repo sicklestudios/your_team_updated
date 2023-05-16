@@ -525,6 +525,19 @@ class ChatMethods {
     });
   }
 
+Future<List<Map<String, dynamic>>> getImageUrls(List people) async {
+  List<Map<String, dynamic>> imageUrls = [];
+  QuerySnapshot<Map<String, dynamic>> querySnapshot =
+      await firebaseFirestore.collection('users').where('uid', whereIn: people).get();
+  querySnapshot.docs.forEach((documentSnapshot) {
+    String uid = documentSnapshot.id;
+    String imageUrl = documentSnapshot['imageUrl'];
+    imageUrls.add({'uid': uid, 'imageUrl': imageUrl});
+  });
+  return imageUrls;
+}
+
+
   //get online status
   Stream<bool> getOnlineStream(String recieverUserId) {
     return firebaseFirestore
@@ -535,6 +548,7 @@ class ChatMethods {
       return UserModel.getValuesFromSnap(event).isOnline;
     });
   }
+
 
   //get online status
   Stream<UserModel> getBlockStatus() {

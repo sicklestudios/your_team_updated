@@ -37,23 +37,41 @@ MessageReply? messageReply;
 //getting a random number
 math.Random random = math.Random();
 
+decideImage(bool isGroupChat,ChatContactModel contactModel,double size , String photoUrl)
+{
+  if(isGroupChat)
+  {
+    if(photoUrl!="null")
+    {
+      //it meanns that it is senderChatMessage
+     return showUsersImage(photoUrl == "", picUrl: photoUrl, size: size);
+    }else
+    {
+      return contactModel.photoUrl != ""
+                  ? CircleAvatar(
+                      radius: size,
+                      backgroundImage: CachedNetworkImageProvider(
+                        contactModel.photoUrl,
+                        // maxWidth: 50,
+                        // maxHeight: 50,
+                      ))
+                  : CircleAvatar(
+                      radius: size, child: const Icon(Icons.groups_outlined));
+    }
+
+  }
+  else
+  {
+    // in case of normal chat
+    return showUsersImage(contactModel.photoUrl == "",
+              picUrl: contactModel.photoUrl, size: size);
+  }
+}
 getAvatarWithStatus(bool isGroupChat, ChatContactModel contactModel,
-    {double size = 22}) {
+    {double size = 22, String photoUrl = "null"}) {
   return Stack(
     children: [
-      isGroupChat
-          ? contactModel.photoUrl != ""
-              ? CircleAvatar(
-                  radius: size,
-                  backgroundImage: CachedNetworkImageProvider(
-                    contactModel.photoUrl,
-                    // maxWidth: 50,
-                    // maxHeight: 50,
-                  ))
-              : CircleAvatar(
-                  radius: size, child: const Icon(Icons.groups_outlined))
-          : showUsersImage(contactModel.photoUrl == "",
-              picUrl: contactModel.photoUrl, size: size),
+     decideImage(isGroupChat, contactModel, size, photoUrl),
       if (!isGroupChat)
         StreamBuilder<bool>(
             stream: ChatMethods().getOnlineStream(contactModel.contactId),
@@ -190,7 +208,7 @@ getMessageCard(var model, context, {bool isGroupChat = false}) {
         onTap: () {
           Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => ChatScreen(
-                isCallPush: false,
+                    isCallPush: false,
                     contactModel: ChatContactModel(
                       contactId: isGroupChat ? model.groupId : model.contactId,
                       name: model.name,
@@ -1059,7 +1077,7 @@ showTaskListAdd(
 //               ])));
 // }
 
-getCallCard(CallModel model,context) {
+getCallCard(CallModel model, context) {
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
     child: Container(
@@ -1112,23 +1130,22 @@ getCallCard(CallModel model,context) {
         trailing: IconButton(
             onPressed: () {
               Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => ChatScreen(
-                    contactModel: ChatContactModel(
-                      contactId: model.receiverId,
-                      name: model.receiverName,
-                      photoUrl: model.receiverPic,
-                      timeSent: DateTime.now(),
-                      lastMessageBy: "",
-                      lastMessageId: '',
-                      isSeen: false,
-                      lastMessage: "",
-                    ),
-                    people: model.isGroupCall ? model.membersUid : [],
-                    isGroupChat: model.isGroupCall,
-                    isCallPush: true,
-                    isAudioCall: model.isAudioCall,
-                  )));
-              
+                  builder: (context) => ChatScreen(
+                        contactModel: ChatContactModel(
+                          contactId: model.receiverId,
+                          name: model.receiverName,
+                          photoUrl: model.receiverPic,
+                          timeSent: DateTime.now(),
+                          lastMessageBy: "",
+                          lastMessageId: '',
+                          isSeen: false,
+                          lastMessage: "",
+                        ),
+                        people: model.isGroupCall ? model.membersUid : [],
+                        isGroupChat: model.isGroupCall,
+                        isCallPush: true,
+                        isAudioCall: model.isAudioCall,
+                      )));
             },
             icon: Stack(
               alignment: Alignment.center,
@@ -1163,16 +1180,16 @@ getContactCard(UserModel model, context, bool isChat,
           Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => ChatScreen(
                     contactModel: ChatContactModel(
-                        contactId: model.uid,
-                        name: model.username,
-                        photoUrl: model.photoUrl,
-                        timeSent: DateTime.now(),
-                        lastMessageBy: "",
-                        lastMessageId: "",
-                        isSeen: false,
-                        lastMessage: "",
-                       
-                        ), isCallPush: false,
+                      contactId: model.uid,
+                      name: model.username,
+                      photoUrl: model.photoUrl,
+                      timeSent: DateTime.now(),
+                      lastMessageBy: "",
+                      lastMessageId: "",
+                      isSeen: false,
+                      lastMessage: "",
+                    ),
+                    isCallPush: false,
                   )));
         }
       },
