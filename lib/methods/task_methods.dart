@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:yourteam/constants/constant_utils.dart';
 import 'package:yourteam/constants/constants.dart';
@@ -11,13 +12,14 @@ import 'package:yourteam/service/local_push_notification.dart';
 
 class TaskMethods {
   Future<String> setTask(
-    String assignedBy,
-    String taskTitle,
-    String deadline,
-    String taskDescription,
-    List people,
-    List tasksList,
-  ) async {
+      String assignedBy,
+      String taskTitle,
+      String deadline,
+      String taskDescription,
+      List people,
+      List tasksList,
+      bool isFromGroup,
+      String? groupId) async {
     String res = "Some error occurred";
 
     try {
@@ -25,15 +27,16 @@ class TaskMethods {
       var taskId = const Uuid().v1();
 
       TodoModel todoModel = TodoModel(
-        todoId: taskId,
-        assignedBy: assignedBy,
-        todoTitle: taskTitle,
-        deadline: deadline,
-        taskDescription: taskDescription,
-        taskList: tasksList,
-        people: people,
-        createrUid: firebaseAuth.currentUser!.uid,
-      );
+          todoId: taskId,
+          assignedBy: assignedBy,
+          todoTitle: taskTitle,
+          deadline: deadline,
+          taskDescription: taskDescription,
+          taskList: tasksList,
+          people: people,
+          createrUid: firebaseAuth.currentUser!.uid,
+          isFromGroup: isFromGroup,
+          groupId: groupId ?? "");
       await firebaseFirestore
           .collection('todos')
           .doc(taskId)
@@ -49,8 +52,7 @@ class TaskMethods {
               firebaseAuth.currentUser!.uid,
               "Task",
               userInfo.username + " assigned you a task",
-              taskId
-              );
+              taskId);
           DocumentSnapshot documentSnapshot =
               await firebaseFirestore.collection('users').doc(element).get();
           //receivers token for sending notification to the user
@@ -76,16 +78,17 @@ class TaskMethods {
   }
 
   Future<String> updateTask(
-    int progress,
-    String createrUid,
-    String assignedBy,
-    String taskTitle,
-    String deadline,
-    String taskDescription,
-    String taskId,
-    List people,
-    List taskList,
-  ) async {
+      int progress,
+      String createrUid,
+      String assignedBy,
+      String taskTitle,
+      String deadline,
+      String taskDescription,
+      String taskId,
+      List people,
+      List taskList,
+      bool isFromGroup,
+      String groupId) async {
     String res = "Some error occurred";
     try {
       people.add(userInfo.uid);
@@ -98,7 +101,9 @@ class TaskMethods {
           taskList: taskList,
           taskDescription: taskDescription,
           people: people,
-          createrUid: createrUid);
+          createrUid: createrUid,
+          isFromGroup: isFromGroup,
+          groupId: groupId);
       await firebaseFirestore
           .collection('todos')
           .doc(taskId)
@@ -114,8 +119,7 @@ class TaskMethods {
               firebaseAuth.currentUser!.uid,
               "Task",
               userInfo.username + " assigned you a task",
-              taskId
-              );
+              taskId);
           DocumentSnapshot documentSnapshot =
               await firebaseFirestore.collection('users').doc(element).get();
           //receivers token for sending notification to the user
@@ -160,5 +164,20 @@ class TaskMethods {
     });
   }
 
-
+  Stream<List<TodoModel>> getTodosGroup(String groupId) {
+    return firebaseFirestore.collection('todos').snapshots().map((event) {
+      List<TodoModel> messages = [];
+      for (var document in event.docs) {
+        try {
+          var map = TodoModel.fromMap(document.data());
+          if (map.groupId == groupId) {
+            messages.add(map);
+          }
+        } catch (e) {
+          log(e.toString());
+        }
+      }
+      return messages;
+    });
+  }
 }

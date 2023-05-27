@@ -492,7 +492,10 @@ class _EditTaskState extends State<EditTask> {
         model.taskDescription,
         model.todoId,
         model.people,
-        taskInMapForm);
+        taskInMapForm,
+        model.isFromGroup,
+        model.groupId
+        );
     if (res == "Success") {
       Navigator.pop(context);
     } else {

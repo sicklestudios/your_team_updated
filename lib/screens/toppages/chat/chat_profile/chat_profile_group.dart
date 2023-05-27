@@ -19,10 +19,8 @@ import 'package:yourteam/models/group.dart' as model;
 class ChatProfileGroup extends StatefulWidget {
   final ChatContactModel chatContactModel;
   final List? people;
-  const ChatProfileGroup({required this.chatContactModel,
-  required this.people,
-   super.key});
-
+  const ChatProfileGroup(
+      {required this.chatContactModel, required this.people, super.key});
 
   @override
   State<ChatProfileGroup> createState() => _ChatProfileGroupState();
@@ -35,7 +33,7 @@ class _ChatProfileGroupState extends State<ChatProfileGroup> {
   List<String> peopleUid = [];
   Group? groupInfo;
   Future<String>? future;
-    ValueNotifier<int> controlValue = ValueNotifier(0);
+  ValueNotifier<int> controlValue = ValueNotifier(0);
   // List people = [];
   @override
   void initState() {
@@ -116,10 +114,10 @@ class _ChatProfileGroupState extends State<ChatProfileGroup> {
     });
   }
 
-
   void callBack(int val) {
     controlValue.value = val;
   }
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
@@ -145,11 +143,11 @@ class _ChatProfileGroupState extends State<ChatProfileGroup> {
         ),
         centerTitle: true,
       ),
-      body:SizedBox(
+      body: SizedBox(
         height: size.height,
         child: !isLoaded
-          ? const Center(child: CircularProgressIndicator())
-          : getWidget(size, groupInfo),
+            ? const Center(child: CircularProgressIndicator())
+            : getWidget(size, groupInfo),
       ),
     );
   }
@@ -328,7 +326,8 @@ class _ChatProfileGroupState extends State<ChatProfileGroup> {
                       child: ListTile(
                         onTap: () {
                           showPeopleForTask(context, peopleUid, refresh,
-                              isForGroup: true, groupId: widget.chatContactModel.contactId);
+                              isForGroup: true,
+                              groupId: widget.chatContactModel.contactId,tempName:"See Group Members");
                         },
                         title: const Text("See Group Members"),
                         trailing: Container(
@@ -352,38 +351,44 @@ class _ChatProfileGroupState extends State<ChatProfileGroup> {
           const SizedBox(
             height: 20,
           ),
-          TopWidget(chatContactModel: widget.chatContactModel, size: size, data: data, isGroupChat: true, isTodo: controlValue.value, callBack: callBack),
+          TopWidget(
+              chatContactModel: widget.chatContactModel,
+              size: size,
+              data: data,
+              isGroupChat: true,
+              isTodo: controlValue.value,
+              callBack: callBack),
           const SizedBox(
-                    height: 2,
-                  ),
-                  SizedBox(
-                    height: size.height/1.7,
-                    child: ValueListenableBuilder(
-                        valueListenable: controlValue,
-                        builder: (context, value, check) {
-                          return value == 0
-                              ?  TodoScreen(
-                              // id: widget.chatContactModel.contactId,
+            height: 2,
+          ),
+          SizedBox(
+            height: size.height / 1.7,
+            child: ValueListenableBuilder(
+                valueListenable: controlValue,
+                builder: (context, value, check) {
+                  return value == 0
+                      ? TodoScreen(
+                          groupId: widget.chatContactModel.contactId,
+                          isGroupChat: true,
+                          people: widget.people,
+                        )
+                      : value == 1
+                          ? MediaScreen(
+                              id: widget.chatContactModel.contactId,
                               isGroupChat: true,
-                              people: widget.people,
-                                    )
-                                :value == 1
-                                  ? MediaScreen(
-                                  id: widget.chatContactModel.contactId,
-                                  isGroupChat: true,
-                                    )
-                                    : FileScreen(
-                                    id: widget.chatContactModel.contactId,
-                                    isGroupChat: true,
-                                    );
-                               
-                        }),
-                  )
+                            )
+                          : FileScreen(
+                              id: widget.chatContactModel.contactId,
+                              isGroupChat: true,
+                            );
+                }),
+          )
         ],
       ),
     );
   }
 }
+
 class TopWidget extends StatelessWidget {
   final ChatContactModel chatContactModel;
   final Size size;
@@ -404,14 +409,13 @@ class TopWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        width: size.width/1.2,
+        width: size.width / 1.2,
         height: 50,
         decoration: BoxDecoration(
             color: Colors.white, borderRadius: BorderRadius.circular(15)),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-          
             StatefulBuilder(builder: (context, setState) {
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,

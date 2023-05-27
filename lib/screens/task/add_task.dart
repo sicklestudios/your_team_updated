@@ -20,7 +20,9 @@ import 'package:yourteam/utils/helper_widgets.dart';
 
 class AddTask extends StatefulWidget {
   final String? taskTitle;
-  const AddTask({this.taskTitle, super.key});
+  final bool? isFromGroup;
+  final String? groupId;
+  const AddTask({this.taskTitle, this.isFromGroup, this.groupId, super.key});
 
   @override
   State<AddTask> createState() => _AddTaskState();
@@ -583,8 +585,16 @@ class _AddTaskState extends State<AddTask> {
       TaskModel model = element;
       taskInMapForm.add(model.toMap());
     });
-    String res = await TaskMethods().setTask(taskAssignBy.text, taskTitle.text,
-        taskDeadline.trim(), taskDesc.text, people, taskInMapForm);
+    String res = await TaskMethods().setTask(
+        taskAssignBy.text,
+        taskTitle.text,
+        taskDeadline.trim(),
+        taskDesc.text,
+        people,
+        taskInMapForm,
+        widget.isFromGroup ?? false,
+        widget.groupId??""
+        );
     if (res == "Success") {
       setState(() {
         taskAssignBy.text = "";

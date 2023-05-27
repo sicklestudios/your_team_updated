@@ -357,6 +357,8 @@ class _ChatScreenState extends State<ChatScreen>
                     .push(MaterialPageRoute(
                         builder: (context) => AddTask(
                               taskTitle: taskTitleTemp,
+                              isFromGroup:isGroupChat,
+                              groupId:isGroupChat?widget.contactModel.contactId:null
                             )))
                     .whenComplete(() {
                   setStateToNormal();

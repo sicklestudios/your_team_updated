@@ -520,7 +520,8 @@ showNewCall(BuildContext context) async {
               ])));
 }
 
-showAddToContact(BuildContext context, UserModel model, {Function? setState}) async {
+showAddToContact(BuildContext context, UserModel model,
+    {Function? setState}) async {
   var size = MediaQuery.of(context).size;
   return await showDialog(
       barrierDismissible: true,
@@ -532,8 +533,7 @@ showAddToContact(BuildContext context, UserModel model, {Function? setState}) as
                   IconButton(
                       onPressed: () {
                         Navigator.of(context, rootNavigator: true).pop();
-                        if(setState!=null)
-                        {
+                        if (setState != null) {
                           setState();
                         }
                       },
@@ -693,7 +693,9 @@ fetchUserInfo() async {
 }
 
 showPeopleForTask(BuildContext context, List usersList, VoidCallback refresh,
-    {bool isForGroup = false, String groupId = ""}) async {
+    {bool isForGroup = false,
+    String groupId = "",
+    String tempName = "Add People"}) async {
   var size = MediaQuery.of(context).size;
   return await showDialog(
       barrierDismissible: false,
@@ -701,7 +703,7 @@ showPeopleForTask(BuildContext context, List usersList, VoidCallback refresh,
       builder: ((context) => SimpleDialog(
               title: Row(
                 children: [
-                  const Expanded(child: Center(child: Text("Add People"))),
+                  Expanded(child: Center(child: Text(tempName))),
                   IconButton(
                       onPressed: () {
                         Navigator.of(context, rootNavigator: true).pop();

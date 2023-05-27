@@ -10,6 +10,8 @@ class TodoModel {
   final List people;
   final int progress;
   final String createrUid;
+  final bool isFromGroup;
+  final String groupId;
 
   TodoModel({
     required this.todoId,
@@ -21,6 +23,8 @@ class TodoModel {
     required this.people,
     this.progress = 0,
     required this.createrUid,
+    required this.isFromGroup,
+    required this.groupId,
   });
 
   Map<String, dynamic> toMap() {
@@ -34,6 +38,8 @@ class TodoModel {
       'people': people,
       'progress': progress,
       'createrUid': createrUid,
+      'isFromGroup': isFromGroup,
+      'groupId': groupId,
     };
   }
 
@@ -48,6 +54,8 @@ class TodoModel {
       people: map['people'],
       progress: map['progress'],
       createrUid: map['createrUid'] ?? "0",
+      isFromGroup: map['isFromGroup'] ?? false,
+      groupId: map['groupId'] ?? "",
     );
   }
 }
