@@ -74,12 +74,16 @@ class _ChatProfileScreenState extends State<ChatProfileScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 TopWidget(
-                    chatContactModel: widget.chatContactModel,
-                    isGroupChat: isGroupChat,
-                    isTodo: controlValue.value,
-                    size: size,
-                    data: data,
-                    callBack: callBack),
+                  chatContactModel: widget.chatContactModel,
+                  isGroupChat: isGroupChat,
+                  isTodo: controlValue.value,
+                  size: size,
+                  data: data,
+                  callBack: callBack,
+                  setState: () {
+                    setState(() {});
+                  },
+                ),
                 const SizedBox(
                   height: 10,
                 ),
@@ -110,8 +114,6 @@ class _ChatProfileScreenState extends State<ChatProfileScreen> {
                                   isGroupChat: isGroupChat,
                                 ));
                     })
-
-            
               ],
             );
           }),
@@ -126,6 +128,7 @@ class TopWidget extends StatelessWidget {
   final bool isGroupChat;
   int isTodo;
   Function callBack;
+  Function setState;
   TopWidget(
       {required this.chatContactModel,
       required this.size,
@@ -133,6 +136,7 @@ class TopWidget extends StatelessWidget {
       required this.isGroupChat,
       required this.isTodo,
       required this.callBack,
+      required this.setState,
       super.key});
 
   @override
@@ -140,7 +144,7 @@ class TopWidget extends StatelessWidget {
     return Center(
       child: Container(
         width: size.width,
-        height: 200,
+        height: 250,
         decoration: BoxDecoration(
             color: Colors.white, borderRadius: BorderRadius.circular(15)),
         child: Column(
@@ -183,6 +187,22 @@ class TopWidget extends StatelessWidget {
                 ],
               ),
             ),
+            if (userInfo.contacts.contains(data.uid))
+              ElevatedButton(
+                  onPressed: () {
+                    showAddToContact(context, data, setState: () {
+                      setState();
+                    });
+                  },
+                  child: const Text("Remove Contact")),
+            if (!userInfo.contacts.contains(data.uid))
+              ElevatedButton(
+                  onPressed: () {
+                    showAddToContact(context, data, setState: () {
+                      setState();
+                    });
+                  },
+                  child: const Text("Add to Contacts")),
             // Center(
             //   child: Text(
             //     data.bio == "" ? "Nothing to show" : data.bio,

@@ -43,7 +43,7 @@ Future<void> send_fcm_call({title, token, msg, name, btnstatus}) async {
     'Authorization': fcmServerKey
   };
 
-  BaseOptions options = new BaseOptions(
+  BaseOptions options =  BaseOptions(
     connectTimeout: 5000,
     receiveTimeout: 5000,
     headers: headers,

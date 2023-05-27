@@ -33,15 +33,17 @@ class _TodoScreenState extends State<TodoScreen> {
   //   super.initState();
   //   if (widget.id != null) {
   //     uid = widget.id!;
+  //   } else {
+  //     uid = firebaseAuth.currentUser!.uid;
   //   }
-  //   log("uid = $uid");
+  //   print("uid = $uid");
   // }
 
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    if (widget.isFromNotification != null) {
-      if (!widget.isFromNotification!) {
+    if (!(widget.isFromNotification ?? false)) {
+      if (!(widget.isGroupChat ?? false)) {
         if (widget.id != null) {
           uid = widget.id!;
         } else {
@@ -49,7 +51,6 @@ class _TodoScreenState extends State<TodoScreen> {
         }
       }
     }
-
     return Container(
       width: size.width,
       height: size.height,
@@ -79,7 +80,9 @@ class _TodoScreenState extends State<TodoScreen> {
                     for (var values in snapshot.data!) {
                       if (values.progress == 0) {
                         if (uid != "") {
-                          if (values.people.contains(uid)) {
+                          if (values.people.contains(uid) &&
+                              values.people
+                                  .contains(firebaseAuth.currentUser!.uid)) {
                             upComingTask.add(values);
                           }
                         } else {
@@ -88,7 +91,9 @@ class _TodoScreenState extends State<TodoScreen> {
                       } else {
                         if (values.progress != 100) {
                           if (uid != "") {
-                            if (values.people.contains(uid)) {
+                            if (values.people.contains(uid) &&
+                                values.people
+                                    .contains(firebaseAuth.currentUser!.uid)) {
                               onGoingTask.add(values);
                             }
                           } else {
@@ -97,9 +102,9 @@ class _TodoScreenState extends State<TodoScreen> {
                         }
                       }
                     }
-                    //adding the ongoing tasks in the upcoming list
-                    upComingTask=[...onGoingTask];
-
+                    // //adding the ongoing tasks in the upcoming list
+                    upComingTask.addAll(onGoingTask);
+                    upComingTask = upComingTask.reversed.toList();
                     return Column(
                       children: [
                         // Row(
@@ -117,8 +122,8 @@ class _TodoScreenState extends State<TodoScreen> {
                         // const SizedBox(
                         //   height: 15,
                         // ),
-                         Row(
-                          children: const [
+                        const Row(
+                          children: [
                             Padding(
                               padding: EdgeInsets.only(left: 15),
                               child: Text(
@@ -167,7 +172,7 @@ class _TodoScreenState extends State<TodoScreen> {
                         // const SizedBox(
                         //   height: 15,
                         // ),
-                       
+
                         upComingTask.isEmpty
                             ? const Center(
                                 child: Text(
@@ -193,12 +198,31 @@ class _TodoScreenState extends State<TodoScreen> {
 
                                       return InkWell(
                                         onTap: () {
-                                          Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      EditTask(
-                                                        isFromNotification: false,
-                                                        model: data)));
+                                          //the todo is showing group todos
+                                          if (widget.people != null) {
+                                            if (widget.people!.contains(
+                                                firebaseAuth
+                                                    .currentUser!.uid)) {
+                                              Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          EditTask(
+                                                              isFromNotification:
+                                                                  false,
+                                                              model: data)));
+                                            } else {
+                                              showToastMessage(
+                                                  "You cant view the task because you are not a part of it");
+                                            }
+                                          } else {
+                                            Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        EditTask(
+                                                            isFromNotification:
+                                                                false,
+                                                            model: data)));
+                                          }
                                         },
                                         child:
                                             getTodoCardOnGoing(data, context),
@@ -223,9 +247,8 @@ class _TodoScreenState extends State<TodoScreen> {
       if (widget.isFromNotification!) {
         if (element.todoId == widget.id) {
           Navigator.of(context).pushReplacement(MaterialPageRoute(
-              builder: (context) => EditTask(
-                isFromNotification:true,
-                model: element)));
+              builder: (context) =>
+                  EditTask(isFromNotification: true, model: element)));
         }
       }
     }

@@ -6,6 +6,7 @@ import 'package:yourteam/constants/colors.dart';
 import 'package:yourteam/constants/constant_utils.dart';
 import 'package:yourteam/constants/constants.dart';
 import 'package:yourteam/models/user_model.dart';
+import 'package:yourteam/utils/helper_widgets.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -131,10 +132,9 @@ class _SearchScreenState extends State<SearchScreen> {
                                 },
                                 child: ListTile(
                                   tileColor: Colors.white60,
-                                  leading: CircleAvatar(
-                                      backgroundImage:
-                                          CachedNetworkImageProvider(
-                                              usersList[index].photoUrl)),
+                                  leading: showUsersImage(
+                                      usersList[index].photoUrl == "",
+                                      picUrl: usersList[index].photoUrl),
                                   title: Text(
                                     usersList[index].username,
                                     style: const TextStyle(

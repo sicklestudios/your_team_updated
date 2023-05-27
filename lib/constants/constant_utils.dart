@@ -37,41 +37,36 @@ MessageReply? messageReply;
 //getting a random number
 math.Random random = math.Random();
 
-decideImage(bool isGroupChat,ChatContactModel contactModel,double size , String photoUrl)
-{
-  if(isGroupChat)
-  {
-    if(photoUrl!="null")
-    {
+decideImage(bool isGroupChat, ChatContactModel contactModel, double size,
+    String photoUrl) {
+  if (isGroupChat) {
+    if (photoUrl != "null") {
       //it meanns that it is senderChatMessage
-     return showUsersImage(photoUrl == "", picUrl: photoUrl, size: size);
-    }else
-    {
+      return showUsersImage(photoUrl == "", picUrl: photoUrl, size: size);
+    } else {
       return contactModel.photoUrl != ""
-                  ? CircleAvatar(
-                      radius: size,
-                      backgroundImage: CachedNetworkImageProvider(
-                        contactModel.photoUrl,
-                        // maxWidth: 50,
-                        // maxHeight: 50,
-                      ))
-                  : CircleAvatar(
-                      radius: size, child: const Icon(Icons.groups_outlined));
+          ? CircleAvatar(
+              radius: size,
+              backgroundImage: CachedNetworkImageProvider(
+                contactModel.photoUrl,
+                // maxWidth: 50,
+                // maxHeight: 50,
+              ))
+          : CircleAvatar(
+              radius: size, child: const Icon(Icons.groups_outlined));
     }
-
-  }
-  else
-  {
+  } else {
     // in case of normal chat
     return showUsersImage(contactModel.photoUrl == "",
-              picUrl: contactModel.photoUrl, size: size);
+        picUrl: contactModel.photoUrl, size: size);
   }
 }
+
 getAvatarWithStatus(bool isGroupChat, ChatContactModel contactModel,
     {double size = 22, String photoUrl = "null"}) {
   return Stack(
     children: [
-     decideImage(isGroupChat, contactModel, size, photoUrl),
+      decideImage(isGroupChat, contactModel, size, photoUrl),
       if (!isGroupChat)
         StreamBuilder<bool>(
             stream: ChatMethods().getOnlineStream(contactModel.contactId),
@@ -525,7 +520,7 @@ showNewCall(BuildContext context) async {
               ])));
 }
 
-showAddToContact(BuildContext context, UserModel model) async {
+showAddToContact(BuildContext context, UserModel model, {Function? setState}) async {
   var size = MediaQuery.of(context).size;
   return await showDialog(
       barrierDismissible: true,
@@ -537,6 +532,10 @@ showAddToContact(BuildContext context, UserModel model) async {
                   IconButton(
                       onPressed: () {
                         Navigator.of(context, rootNavigator: true).pop();
+                        if(setState!=null)
+                        {
+                          setState();
+                        }
                       },
                       icon: const Icon(Icons.close))
                 ],
@@ -553,10 +552,8 @@ showAddToContact(BuildContext context, UserModel model) async {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        CircleAvatar(
-                            radius: 50,
-                            backgroundImage:
-                                CachedNetworkImageProvider(model.photoUrl)),
+                        showUsersImage(model.photoUrl == "",
+                            size: 50, picUrl: model.photoUrl),
                         const SizedBox(
                           height: 15,
                         ),
@@ -1429,8 +1426,13 @@ getTodoCardOnGoing(TodoModel model, context) {
                               List<ImageProvider> avatarsProvider = [];
 
                               snapshot.data!.forEach((element) {
-                                avatarsProvider
-                                    .add(CachedNetworkImageProvider(element));
+                                if (element != "") {
+                                  avatarsProvider
+                                      .add(CachedNetworkImageProvider(element));
+                                } else {
+                                  avatarsProvider
+                                      .add(const AssetImage('assets/user.png'));
+                                }
                               });
                               return AvatarStack(
                                   width: 50,
@@ -1824,10 +1826,10 @@ Future<String> getImage(String id, bool isGroup) async {
 }
 
 Widget returnNothingToShow() {
-  return Center(
+  return const Center(
       child: Column(
     mainAxisAlignment: MainAxisAlignment.center,
-    children: const [
+    children: [
       Icon(
         Icons.sentiment_neutral_rounded,
         size: 50,

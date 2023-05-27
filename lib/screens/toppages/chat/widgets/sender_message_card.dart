@@ -76,18 +76,28 @@ class SenderMessageCard extends StatelessWidget {
                       color: senderChatCardColor,
                       margin: const EdgeInsets.symmetric(horizontal: 5),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if(isGroupChat)
-                          Padding(
-                            padding: const EdgeInsets.only(top:8.0,left:15,right: 15),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(username,textAlign: TextAlign.start,overflow: TextOverflow.clip,style: const TextStyle(fontWeight: FontWeight.bold,color: mainColor),),
-                              ],
+                          if (isGroupChat)
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 8.0, left: 5, right: 5),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    username,
+                                    textAlign: TextAlign.start,
+                                    overflow: TextOverflow.clip,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: mainColor),
+                                  ),
+                                ],
+                              ),
                             ),
-                          )
-                          ,Padding(
+                          Padding(
                               // padding: const EdgeInsets.only(
                               //     left: 10, right: 30, top: 5, bottom: 5),
                               padding: const EdgeInsets.all(15),

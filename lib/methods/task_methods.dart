@@ -132,7 +132,6 @@ class TaskMethods {
 
   Stream<List<TodoModel>> getTodos({bool isGroupChat = false, List? people}) {
     bool shouldShow = true;
-    log(people.toString());
     return firebaseFirestore.collection('todos').snapshots().map((event) {
       List<TodoModel> messages = [];
       for (var document in event.docs) {
@@ -161,7 +160,5 @@ class TaskMethods {
     });
   }
 
-  // Stream getTodos() {
-  //   return firebaseFirestore.collection('todos').snapshots();
-  // }
+
 }

@@ -362,23 +362,20 @@ class _ChatProfileGroupState extends State<ChatProfileGroup> {
                         valueListenable: controlValue,
                         builder: (context, value, check) {
                           return value == 0
-                              ?  Expanded(
-                                      child: TodoScreen(
-                                      // id: widget.chatContactModel.contactId,
-                                      isGroupChat: true,
-                                      people: widget.people,
-                                    ))
+                              ?  TodoScreen(
+                              // id: widget.chatContactModel.contactId,
+                              isGroupChat: true,
+                              people: widget.people,
+                                    )
                                 :value == 1
-                                  ? Expanded(
-                                      child: MediaScreen(
-                                      id: widget.chatContactModel.contactId,
-                                      isGroupChat: true,
-                                    ))
-                                    : Expanded(
-                                      child: FileScreen(
-                                      id: widget.chatContactModel.contactId,
-                                      isGroupChat: true,
-                                    ));
+                                  ? MediaScreen(
+                                  id: widget.chatContactModel.contactId,
+                                  isGroupChat: true,
+                                    )
+                                    : FileScreen(
+                                    id: widget.chatContactModel.contactId,
+                                    isGroupChat: true,
+                                    );
                                
                         }),
                   )

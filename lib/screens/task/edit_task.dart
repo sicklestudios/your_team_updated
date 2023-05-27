@@ -222,7 +222,8 @@ class _EditTaskState extends State<EditTask> {
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       const Text(
                                         'Assigned by',
@@ -261,7 +262,7 @@ class _EditTaskState extends State<EditTask> {
                               // dateMask: 'd MMM, yyyy - hh:mm a',
                               dateMask: 'd MMMM',
                               // use24HourFormat: false,
-          
+
                               initialValue:
                                   DateTime.parse(model.deadline).toString(),
                               firstDate: DateTime.now(),
@@ -273,7 +274,7 @@ class _EditTaskState extends State<EditTask> {
                                   color: Colors.black,
                                   fontWeight: FontWeight.w400,
                                   fontSize: 18),
-          
+
                               onChanged: (val) {
                                 setState(() {
                                   taskDeadline = val;
@@ -419,7 +420,7 @@ class _EditTaskState extends State<EditTask> {
                                     onTap: () {
                                       if (taskController.text.isNotEmpty) {
                                         var messageId = const Uuid().v1();
-          
+
                                         TaskModel taskModel = TaskModel(
                                           taskId: messageId.toString(),
                                           isCompleted: false,
@@ -612,13 +613,10 @@ class _getAddedPeopleState extends State<_getAddedPeople> {
                                           padding: const EdgeInsets.all(8.0),
                                           child: Column(
                                             children: [
-                                              CircleAvatar(
-                                                radius: 25,
-                                                backgroundImage:
-                                                    CachedNetworkImageProvider(
-                                                        snapshot
-                                                            .data!.photoUrl),
-                                              ),
+                                              showUsersImage(
+                                                  snapshot.data!.photoUrl == "",
+                                                  picUrl:
+                                                      snapshot.data!.photoUrl),
                                               Text(
                                                 snapshot.data!.username,
                                                 overflow: TextOverflow.ellipsis,

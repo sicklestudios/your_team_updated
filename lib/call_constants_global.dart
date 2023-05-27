@@ -4,9 +4,6 @@ import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
-// bool globalisCallOnGoing = false;
-// bool isCallAccepted = false;
-// bool isCallDeclined = false;
 AppValueNotifier appValueNotifier = AppValueNotifier();
 CallValueNotifiers callValueNotifiers = CallValueNotifiers();
 RtcEngine? engine;

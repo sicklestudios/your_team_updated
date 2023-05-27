@@ -457,17 +457,12 @@ class _ChatScreenState extends State<ChatScreen>
                                     const SizedBox(
                                       width: 5,
                                     ),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          widget.contactModel.name,
-                                          style: const TextStyle(
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ],
+                                    Text(
+                                      widget.contactModel.name,
+                                      style: const TextStyle(
+                                          color: Colors.black,
+                                          overflow: TextOverflow.ellipsis,
+                                          fontWeight: FontWeight.bold),
                                     ),
                                   ],
                                 ),
@@ -490,7 +485,7 @@ class _ChatScreenState extends State<ChatScreen>
                                               }
                                             : null,
                                         child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
+                                          padding: const EdgeInsets.all(2.0),
                                           child: Icon(
                                             Icons.call,
                                             size: 25,
@@ -510,7 +505,7 @@ class _ChatScreenState extends State<ChatScreen>
                                               }
                                             : null,
                                         child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
+                                          padding: const EdgeInsets.all(2.0),
                                           child: Icon(
                                             Icons.videocam,
                                             size: 30,
@@ -522,7 +517,7 @@ class _ChatScreenState extends State<ChatScreen>
                                     DropdownButtonHideUnderline(
                                       child: DropdownButton2(
                                         customButton: const Padding(
-                                          padding: EdgeInsets.all(4.0),
+                                          padding: EdgeInsets.all(2.0),
                                           child: Icon(
                                             Icons.more_vert,
                                             size: 25,
@@ -892,35 +887,7 @@ class _ChatScreenState extends State<ChatScreen>
                                                 }),
                                           ),
                                         ),
-                                        // ValueListenableBuilder(
-                                        //     valueListenable: showLoadingOption,
-                                        //     builder: (context, value, widget) {
-                                        //       if (value) {
-                                        //         return Align(
-                                        //           alignment: Alignment.topCenter,
-                                        //           child: ElevatedButton(
-                                        //             style: ElevatedButton.styleFrom(
-                                        //                 elevation: 5,
-                                        //                 shape: RoundedRectangleBorder(
-                                        //                     borderRadius: BorderRadius.circular(25))),
-                                        //             child: const Text("Swipe Down To Load Previous Messages"),
-                                        //             onPressed: () {},
-                                        //           ),
-                                        //         );
-                                        //         // return Align(
-                                        //         //   alignment: Alignment.topCenter,
-                                        //         //   child: ElevatedButton(
-                                        //         //     style: ElevatedButton.styleFrom(
-                                        //         //         elevation: 5,
-                                        //         //         shape: RoundedRectangleBorder(
-                                        //         //             borderRadius: BorderRadius.circular(25))),
-                                        //         //     child: const Text("Swipe Down To "),
-                                        //         //     onPressed: () {},
-                                        //         //   ),
-                                        //         // );
-                                        //       }
-                                        //       return Container();
-                                        //     }),
+                                     
                                       ],
                                     )),
                                     MyTextField(
