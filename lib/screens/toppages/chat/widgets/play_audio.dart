@@ -93,7 +93,8 @@ class _PlayAudioState extends State<PlayAudio> {
                                     thumbRadius: 8,
                                     timeLabelTextStyle:
                                         const TextStyle(color: Colors.white),
-                                    baseBarColor: Colors.white,
+                                    baseBarColor: Colors.white.withOpacity(0.5),
+                                    progressBarColor: Colors.white,
                                     progress: snapshot.data ?? Duration.zero,
                                     buffered: Duration.zero,
                                     total: snapshots.data ?? Duration.zero,

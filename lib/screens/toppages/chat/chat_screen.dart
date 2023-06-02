@@ -58,7 +58,7 @@ class _ChatScreenState extends State<ChatScreen>
   bool isGroupChat = false;
   UserModel? usermodel;
   List tokensList = [];
-    List<Map<String,String>> usersImage=[];
+  List<Map<String, String>> usersImage = [];
 
   var user;
   //for controlling the keyboard
@@ -356,10 +356,11 @@ class _ChatScreenState extends State<ChatScreen>
                 Navigator.of(context)
                     .push(MaterialPageRoute(
                         builder: (context) => AddTask(
-                              taskTitle: taskTitleTemp,
-                              isFromGroup:isGroupChat,
-                              groupId:isGroupChat?widget.contactModel.contactId:null
-                            )))
+                            taskTitle: taskTitleTemp,
+                            isFromGroup: isGroupChat,
+                            groupId: isGroupChat
+                                ? widget.contactModel.contactId
+                                : null)))
                     .whenComplete(() {
                   setStateToNormal();
                 });
@@ -827,20 +828,25 @@ class _ChatScreenState extends State<ChatScreen>
                                                                         isGroupChat,
                                                                         widget
                                                                             .contactModel,
-                                                                            photoUrl: isGroupChat?getImageUrlFromUid(usersImage!,messageData.senderId):""
-                                                                            ),
+                                                                        photoUrl: isGroupChat
+                                                                            ? getImageUrlFromUid(
+                                                                                usersImage!,
+                                                                                messageData
+                                                                                    .senderId)
+                                                                            : ""),
                                                                     photoUrl: widget
                                                                         .contactModel
                                                                         .photoUrl,
-                                                                    message:
-                                                                        messageData
-                                                                            .text,
+                                                                    message: messageData
+                                                                        .text,
                                                                     date:
                                                                         timeSent,
-                                                                    type: messageData
-                                                                        .type,
+                                                                    type:
+                                                                        messageData
+                                                                            .type,
                                                                     username:
-                                                                        messageData.senderUsername ??
+                                                                        messageData
+                                                                                .senderUsername ??
                                                                             "",
                                                                     repliedMessageType:
                                                                         messageData
@@ -863,11 +869,15 @@ class _ChatScreenState extends State<ChatScreen>
                                                           isTyping) {
                                                         return SenderMessageCard(
                                                             avatarWidget: getAvatarWithStatus(
-                                                                        isGroupChat,
-                                                                        widget
-                                                                            .contactModel,
-                                                                            photoUrl: isGroupChat?getImageUrlFromUid(usersImage,messageData.senderId):""
-                                                                            ),
+                                                                isGroupChat,
+                                                                widget
+                                                                    .contactModel,
+                                                                photoUrl: isGroupChat
+                                                                    ? getImageUrlFromUid(
+                                                                        usersImage,
+                                                                        messageData
+                                                                            .senderId)
+                                                                    : ""),
                                                             photoUrl: "",
                                                             message:
                                                                 "/////TYPINGZK????",
@@ -889,7 +899,6 @@ class _ChatScreenState extends State<ChatScreen>
                                                 }),
                                           ),
                                         ),
-                                     
                                       ],
                                     )),
                                     MyTextField(
@@ -920,15 +929,15 @@ class _ChatScreenState extends State<ChatScreen>
       ),
     );
   }
-  String getImageUrlFromUid(List<Map<String, String>> userList, String uid) {
-  for (Map<String, String> user in userList) {
-    if (user['uid'] == uid) {
-      return user['imageUrl'] ?? '';
-    }
-  }
-  return '';
-}
 
+  String getImageUrlFromUid(List<Map<String, String>> userList, String uid) {
+    for (Map<String, String> user in userList) {
+      if (user['uid'] == uid) {
+        return user['imageUrl'] ?? '';
+      }
+    }
+    return '';
+  }
 
   audioCall(BuildContext context) async {
     await callsetting(
@@ -1484,22 +1493,27 @@ class _MyTextFieldState extends State<MyTextField> {
       }
     } else {
       if (isRecordingPressed) {
+        debugPrint("Check: IS recording pressed");
         var tempDir = await getTemporaryDirectory();
         var path = '${tempDir.path}/flutter_sound.aac';
         // if (!isRecorderInit) {
         //   return;
         // }
         if (isRecording) {
+          debugPrint("Check: it is recorded finally");
           final path = await _controller!.stop();
           showToastMessage("Sending Recording");
           sendFileMessage(File(path!), MessageEnum.audio);
+          setState(() {
+            isRecordingPressed = !isRecordingPressed;
+          });
         } else {
+          debugPrint("Check: it is recording");
           await _controller!.record(path: path);
         }
 
         setState(() {
           isRecording = !isRecording;
-          isRecordingPressed = !isRecordingPressed;
         });
       }
     }
@@ -2002,17 +2016,6 @@ class MenuItems {
   static var home;
   static var share;
   static var logout;
-  // static var home = MenuItem(
-  //     text: isGroupChat ? "Group Info" : "Profile",
-  //     icon: isGroupChat ? Icons.groups_2_rounded : Icons.person);
-  // static var share = const MenuItem(text: 'Delete', icon: Icons.delete);
-  // static var logout = MenuItem(
-  //     text: isGroupChat
-  //         ? "Leave"
-  //         : isBlocked
-  //             ? "Unblock"
-  //             : "Block",
-  //     icon: Icons.logout);
 
   static void makeMenuItem(bool isGroupChat, bool isBlocked) {
     home = MenuItem(
@@ -2062,122 +2065,3 @@ class MenuItems {
     }
   }
 }
-// showOptions
-//         ? ListView.builder(
-//             controller: widget.messageController,
-//             itemCount: widget.tempMessage.length + 1,
-//             physics: const ClampingScrollPhysics(),
-//             shrinkWrap: true,
-//             itemBuilder: ((context, index) {
-//               var messageData;
-//               if (index != widget.tempMessage.length) {
-//                 messageData = widget.tempMessage[index];
-//                 if (messageData.messageId == messageData.recieverid) {
-//                   widget.isTyping = true;
-//                 } else {
-//                   var timeSent = DateFormat.jm().format(messageData.timeSent);
-//                   if (!messageData.isSeen &&
-//                       messageData.recieverid == firebaseAuth.currentUser!.uid) {
-//                     if (!isGroupChat) {
-//                       ChatMethods().setChatMessageSeen(
-//                         widget.contactModel.contactId,
-//                         messageData.messageId,
-//                       );
-//                     }
-//                   }
-//                   if (isGroupChat) {
-//                     ChatMethods().setChatContactMessageSeen(
-//                         widget.contactModel.contactId, isGroupChat);
-//                   }
-//                   //showing the time
-//                   var dateInList =
-//                       DateFormat.MMMMEEEEd().format(messageData.timeSent);
-//                   if (widget.previousTime != dateInList) {
-//                     widget.previousTime = dateInList;
-//                     widget.isDateShown = false;
-//                   } else {
-//                     widget.isDateShown = true;
-//                   }
-
-//                   if (messageData.senderId == firebaseAuth.currentUser!.uid) {
-//                     return Column(
-//                       children: [
-//                         if (!widget.isDateShown) getDateWithLines(dateInList),
-//                         InkWell(
-//                           onTap: (() {
-//                             {
-//                               if (widget.messageId
-//                                   .contains(messageData.messageId)) {
-//                                 widget.decrementSelectedNum();
-
-//                                 widget.messageId.remove(messageData.messageId);
-//                               } else {
-//                                 widget.incrementSelectedNum();
-
-//                                 widget.messageId.add(messageData.messageId);
-//                               }
-//                             }
-//                           }),
-//                           child: MyMessageCard(
-//                             message: messageData.text,
-//                             date: timeSent,
-//                             isSeen: messageData.isSeen,
-//                             type: messageData.type,
-//                             isSelected: widget.messageId
-//                                 .contains(messageData.messageId),
-//                             repliedText: messageData.repliedMessage,
-//                             username: messageData.repliedTo,
-//                             repliedMessageType: messageData.repliedMessageType,
-//                             longPress: widget.changeShowOptions,
-//                           ),
-//                         ),
-//                       ],
-//                     );
-//                   }
-//                   return Column(
-//                     children: [
-//                       if (!widget.isDateShown) getDateWithLines(dateInList),
-//                       InkWell(
-//                         onTap: (() {
-//                           {
-//                             if (widget.messageId
-//                                 .contains(messageData.messageId)) {
-//                               widget.decrementSelectedNum();
-
-//                               widget.messageId.remove(messageData.messageId);
-//                             } else {
-//                               widget.incrementSelectedNum();
-
-//                               widget.messageId.add(messageData.messageId);
-//                             }
-//                           }
-//                         }),
-//                         child: Row(
-//                           children: [
-//                             SenderMessageCard(
-//                               avatarWidget: getAvatarWithStatus(
-//                                   isGroupChat, widget.contactModel),
-//                               photoUrl: widget.contactModel.photoUrl,
-//                               message: messageData.text,
-//                               date: timeSent,
-//                               type: messageData.type,
-//                               username: messageData.senderUsername ?? "",
-//                               isSelected: widget.messageId
-//                                   .contains(messageData.messageId),
-//                               repliedMessageType:
-//                                   messageData.repliedMessageType,
-//                               longPress: () {},
-//                               repliedText: messageData.repliedMessage,
-//                               isGroupChat: isGroupChat,
-//                             ),
-//                           ],
-//                         ),
-//                       ),
-//                     ],
-//                   );
-//                 }
-//               }
-//               return const SizedBox();
-//             }),
-//           )
-//         :
